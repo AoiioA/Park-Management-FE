@@ -7,40 +7,65 @@
         fixed
         v-model="drawer"
         :mini-variant="mini"
+        class="pb-0"
       >
-        <v-list class="pt-1 pb-1">
-          <v-list-tile avatar tag="div">
-            <v-list-tile-avatar>
-              <img src="https://vuetifyjs.com/static/doc-images/logo.svg" >
-            </v-list-tile-avatar>
-            <v-list-tile-content>
-              <v-list-tile-title>Park Management</v-list-tile-title>
-            </v-list-tile-content>
-            <v-list-tile-action>
-              <v-btn icon @click.stop="mini = !mini">
-                <v-icon>chevron_left</v-icon>
-              </v-btn>
-            </v-list-tile-action>
-          </v-list-tile>
-        </v-list>
-        <v-list class="pt-0">
-          <v-divider light></v-divider>
-          <v-list-tile v-for="item in items" :key="item.title" @click="">
-            <v-list-tile-action>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-        </v-list>
-        <v-list>
-          <v-list-tile v-if="mini" @click.stop="mini = !mini">
-            <v-list-tile-action>
-              <v-icon>chevron_right</v-icon>
-            </v-list-tile-action>
-          </v-list-tile>
-        </v-list>
+        <v-layout
+          fill-height
+          column
+        >
+          <v-flex style="flex: none">
+            <v-list class="pt-1 pb-1">
+              <v-list-tile avatar>
+                <v-list-tile-avatar>
+                  <img src="https://vuetifyjs.com/static/doc-images/logo.svg" >
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title>Park Management</v-list-tile-title>
+                </v-list-tile-content>
+                <v-list-tile-action>
+                  <v-btn icon @click.stop="mini = !mini">
+                    <v-icon>chevron_left</v-icon>
+                  </v-btn>
+                </v-list-tile-action>
+              </v-list-tile>
+            </v-list>
+            <v-divider light></v-divider>
+          </v-flex>
+          <v-flex>
+            <v-list>
+              <v-list-group
+                v-model="item.active"
+                v-for="item in items"
+                :key="item.title"
+                :prepend-icon="item.action"
+                no-action
+              >
+                <v-list-tile slot="activator">
+                  <v-list-tile-content>
+                    <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                  </v-list-tile-content>
+                </v-list-tile>
+                <v-list-tile v-for="subItem in item.items" :key="subItem.title" @click="">
+                  <v-list-tile-content>
+                    <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
+                  </v-list-tile-content>
+                  <v-list-tile-action>
+                    <v-icon>{{ subItem.action }}</v-icon>
+                  </v-list-tile-action>
+                </v-list-tile>
+              </v-list-group>
+            </v-list>
+          </v-flex>
+          <v-flex style="flex: none">
+            <v-list v-if="mini">
+              <v-list-tile @click.stop="mini = !mini">
+                <v-list-tile-action>
+                  <v-icon>chevron_right</v-icon>
+                </v-list-tile-action>
+              </v-list-tile>
+            </v-list>
+          </v-flex>
+        </v-layout>
       </v-navigation-drawer>
       <v-toolbar
         app
@@ -103,19 +128,55 @@
 </template>
 
 <script>
-  export default {
-    data: () => ({
+export default {
+  data() {
+    return {
       drawer: null,
       items: [
-        { title: 'Home', icon: 'dashboard' },
-        { title: 'About', icon: 'question_answer' }
+        {
+          action: "local_activity",
+          title: "工作台"
+        },
+        {
+          action: "restaurant",
+          title: "Dining",
+          active: true,
+          items: [
+            { title: "Breakfast & brunch" },
+            { title: "New American" },
+            { title: "Sushi" }
+          ]
+        },
+        {
+          action: "school",
+          title: "Education",
+          items: [{ title: "List Item" }]
+        },
+        {
+          action: "directions_run",
+          title: "Family",
+          items: [{ title: "List Item" }]
+        },
+        {
+          action: "healing",
+          title: "Health",
+          items: [{ title: "List Item" }]
+        },
+        {
+          action: "content_cut",
+          title: "Office",
+          items: [{ title: "List Item" }]
+        },
+        {
+          action: "local_offer",
+          title: "Promotions",
+          items: [{ title: "List Item" }]
+        }
       ],
       mini: false
-    })
+    };
   }
+};
 </script>
 
-<style lang="stylus">
-#app
-  color: #000
-</style>
+<style lang="stylus"></style>
