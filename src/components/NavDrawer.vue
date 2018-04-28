@@ -5,13 +5,13 @@
     fixed
     v-model="drawer"
     :mini-variant="mini"
-    class="pb-0"
+    class="pb-0 nav-drawer"
   >
     <v-layout
       fill-height
       column
     >
-      <v-flex style="flex: none">
+      <v-flex>
         <v-list class="pt-1 pb-1">
           <v-list-tile avatar>
             <v-list-tile-avatar>
@@ -29,53 +29,70 @@
         </v-list>
         <!-- <v-divider light></v-divider> -->
       </v-flex>
-      <v-flex>
-        <v-list subheader>
-          <template v-for="navItem in navItems">
-            <v-list-group
-              v-if="navItem.child"
-              :key="navItem.title"
-              v-model="navItem.active"
-              :prepend-icon="navItem.action"
-            >
-              <v-list-tile slot="activator">
-                <v-list-tile-content>
-                  <v-list-tile-title>{{ navItem.title }}</v-list-tile-title>
-                </v-list-tile-content>
-              </v-list-tile>
-              <v-list dense v-if="navItem.child.length">
-                <v-list-tile
-                  v-for="subItem in navItem.child"
-                  :key="subItem.title"
-                  :to="subItem.url"
-                  ripple
-                >
-                  <v-list-tile-action>
-                    <v-icon>{{ subItem.action }}</v-icon>
-                  </v-list-tile-action>
-                  <v-list-tile-content>
-                    <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
-                  </v-list-tile-content>
-                </v-list-tile>
-              </v-list>
-            </v-list-group>
-            <v-list-tile
-              v-else-if="navItem.url"
-              :key="navItem.title"
-              :prepend-icon="navItem.action"
-              :to="navItem.url"
-            >
-              <v-list-tile-action>
-                <v-icon>{{ navItem.action }}</v-icon>
-              </v-list-tile-action>
+      <v-divider></v-divider>
+      <v-flex class="nav-list no-scroll">
+        <!-- <v-list subheader expand>
+          <v-list-group
+            v-for="navItem in navItems"
+            :key="navItem.title"
+            :prepend-icon="navItem.action"
+          >
+            <v-list-tile slot="activator">
               <v-list-tile-content>
                 <v-list-tile-title>{{ navItem.title }}</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
-          </template>
-        </v-list>
+            <v-list dense>
+              <v-list-tile
+                v-for="subItem in navItem.child"
+                :key="subItem.title"
+                :to="subItem.url"
+                ripple
+              >
+                <v-list-tile-action>
+                  <v-icon small>{{ subItem.action }}</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                  <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </v-list>
+          </v-list-group>
+        </v-list> -->
+        <v-expansion-panel expand class="elevation-0">
+          <v-expansion-panel-content v-for="navItem in navItems" :key="navItem.title">
+            <div slot="header" class="nav-list-header">
+              <v-list two-line>
+                <v-list-tile>
+                  <v-list-tile-avatar>
+                    <v-icon>{{ navItem.action }}</v-icon>
+                  </v-list-tile-avatar>
+                  <v-list-tile-content>
+                    <v-list-tile-title>{{ navItem.title }}</v-list-tile-title>
+                    <v-list-tile-sub-title>{{ navItem.child.map(el=>el.title).join('，') }}</v-list-tile-sub-title>
+                  </v-list-tile-content>
+                </v-list-tile>
+              </v-list>
+            </div>
+            <v-list dense class="nav-sublist">
+              <v-list-tile
+                v-for="subItem in navItem.child"
+                :key="subItem.title"
+                :to="subItem.url"
+                ripple
+              >
+                <v-list-tile-action>
+                  <v-icon small>{{ subItem.action }}</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                  <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </v-list>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
       </v-flex>
-      <v-flex style="flex: none">
+      <v-flex>
         <v-list v-if="mini">
           <v-list-tile @click.stop="mini = !mini">
             <v-list-tile-action>
@@ -99,56 +116,66 @@ export default {
     return {
       navItems: [
         {
-          action: "local_activity",
+          action: "dashboard",
           title: "工作台",
           active: true,
-          url: "/home"
+          child: [
+            { action: "label_outline", title: "总览", url: "/dashboard" }
+          ],
+          url: "/dashboard"
         },
         {
-          action: "restaurant",
+          action: "business",
           title: "资产管理",
           child: [
-            { action: "local_activity", title: "楼宇管理", url: "/about" },
-            { action: "local_activity", title: "房源管理", url: "/about" },
-            { action: "local_activity", title: "网点管理", url: "/about" }
+            { action: "label_outline", title: "楼宇管理", url: "/building" },
+            { action: "label_outline", title: "房源管理", url: "/about" },
+            { action: "label_outline", title: "网点管理", url: "/about" }
           ]
         },
         {
-          action: "content_cut",
+          action: "gavel",
           title: "招商管理",
           child: [
-            { action: "local_activity", title: "预约看房", url: "/about" },
-            { action: "local_activity", title: "客户管理", url: "/about" },
-            { action: "local_activity", title: "中介商管理", url: "/about" }
+            { action: "label_outline", title: "预约看房", url: "/sale" },
+            { action: "label_outline", title: "客户管理", url: "/about" },
+            { action: "label_outline", title: "中介商管理", url: "/about" }
           ]
         },
         {
-          action: "school",
+          action: "receipt",
           title: "合同管理",
           child: [
-            { action: "local_activity", title: "已生效合同", url: "/about" },
-            { action: "local_activity", title: "待提交合同", url: "/about" },
-            { action: "local_activity", title: "待审核合同", url: "/about" }
+            { action: "label_outline", title: "已生效合同", url: "/contract" },
+            { action: "label_outline", title: "待提交合同", url: "/about" },
+            { action: "label_outline", title: "待审核合同", url: "/about" }
           ]
         },
         {
-          action: "directions_run",
+          action: "attach_money",
           title: "财务管理",
           child: [
-            { action: "local_activity", title: "租金管理", url: "/about" },
-            { action: "local_activity", title: "服务金管理", url: "/about" },
-            { action: "local_activity", title: "其他费用管理", url: "/about" }
+            { action: "label_outline", title: "租金管理", url: "/finance" },
+            { action: "label_outline", title: "其他费用", url: "/about" }
           ]
         },
         {
-          action: "healing",
+          action: "supervisor_account",
           title: "物业管理",
-          url: "/home"
+          child: [
+            { action: "label_outline", title: "保修管理", url: "/about" },
+            { action: "label_outline", title: "水电管理", url: "/property" },
+            { action: "label_outline", title: "卫生管理", url: "/about" }
+          ],
+          url: "/property"
         },
         {
-          action: "local_offer",
+          action: "bubble_chart",
           title: "数据分析",
-          url: "/home"
+          child: [
+            { action: "label_outline", title: "数据概览", url: "/analysis" }
+          ],
+          url: "/analysis"
         }
       ]
     };
@@ -173,3 +200,42 @@ export default {
   }
 };
 </script>
+
+<style lang="stylus" scoped>
+.no-scroll
+  &::-webkit-scrollbar
+    display none
+.nav-drawer
+  overflow hidden
+  .flex
+    flex none
+    &.nav-list
+      flex auto
+      overflow-x hidden
+      overflow-y auto
+      .expansion-panel
+        min-width 300px
+        .expansion-panel__container
+          &.expansion-panel__container--active
+            background rgba(0, 0, 0, .3)
+          .nav-list-header
+            .list__tile__sub-title
+              text-overflow ellipsis
+              overflow hidden
+              max-width 172px
+          .nav-sublist
+            border-bottom 1px solid hsla(0,0%,100%,.12)
+            .list__tile__action
+              text-align center
+              display inline-block
+              line-height 40px
+              font-size 0
+.nav-drawer
+  & /deep/ .expansion-panel__container
+    border-top 0
+  & /deep/ .expansion-panel__header
+    padding 0 16px 0 0
+  &.navigation-drawer--mini-variant /deep/ .expansion-panel__header
+    display none
+</style>
+
