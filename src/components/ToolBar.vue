@@ -1,10 +1,10 @@
 <template>
   <v-toolbar
     app
-    dark
     fixed
     flat
-    color="blue darken-3"
+    dark
+    color="primary"
   >
     <!-- <v-toolbar-title
       class="ml-0 pl-3"
@@ -28,9 +28,6 @@
       class="hidden-sm-and-down"
     ></v-text-field> -->
     <v-spacer></v-spacer>
-    <v-btn icon>
-      <v-icon>help</v-icon>
-    </v-btn>
     <v-btn icon>
       <v-icon>notifications</v-icon>
     </v-btn>

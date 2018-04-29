@@ -1,7 +1,10 @@
 import Vue from "vue";
 import Router from "vue-router";
+
 import AnalysisHome from "./views/AnalysisView/AnalysisHome.vue";
 import BuildingHome from "./views/BuildingView/BuildingHome.vue";
+import BuildingAll from "./views/BuildingView/BuildingAll.vue";
+import BuildingList from "./views/BuildingView/BuildingList.vue";
 import ContractHome from "./views/ContractView/ContractHome.vue";
 import DashboardHome from "./views/DashboardView/DashboardHome.vue";
 import FinanceHome from "./views/FinanceView/FinanceHome.vue";
@@ -25,7 +28,23 @@ export default new Router({
     {
       path: "/building",
       name: "building",
-      component: BuildingHome
+      component: BuildingHome,
+      children: [
+        {
+          path: "",
+          redirect: { name: "building-all" }
+        },
+        {
+          path: "building-all",
+          name: "building-all",
+          component: BuildingAll
+        },
+        {
+          path: "building-list",
+          name: "building-list",
+          component: BuildingList
+        }
+      ]
     },
     {
       path: "/contract",

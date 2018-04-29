@@ -27,38 +27,9 @@
             </v-list-tile-action>
           </v-list-tile>
         </v-list>
-        <!-- <v-divider light></v-divider> -->
+        <v-divider light></v-divider>
       </v-flex>
-      <v-divider></v-divider>
       <v-flex class="nav-list no-scroll">
-        <!-- <v-list subheader expand>
-          <v-list-group
-            v-for="navItem in navItems"
-            :key="navItem.title"
-            :prepend-icon="navItem.action"
-          >
-            <v-list-tile slot="activator">
-              <v-list-tile-content>
-                <v-list-tile-title>{{ navItem.title }}</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list dense>
-              <v-list-tile
-                v-for="subItem in navItem.child"
-                :key="subItem.title"
-                :to="subItem.url"
-                ripple
-              >
-                <v-list-tile-action>
-                  <v-icon small>{{ subItem.action }}</v-icon>
-                </v-list-tile-action>
-                <v-list-tile-content>
-                  <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
-                </v-list-tile-content>
-              </v-list-tile>
-            </v-list>
-          </v-list-group>
-        </v-list> -->
         <v-expansion-panel expand class="elevation-0">
           <v-expansion-panel-content v-for="navItem in navItems" :key="navItem.title">
             <div slot="header" class="nav-list-header">
@@ -75,19 +46,25 @@
               </v-list>
             </div>
             <v-list dense class="nav-sublist">
-              <v-list-tile
+              <v-tooltip
                 v-for="subItem in navItem.child"
                 :key="subItem.title"
-                :to="subItem.url"
-                ripple
+                right
               >
-                <v-list-tile-action>
-                  <v-icon small>{{ subItem.action }}</v-icon>
-                </v-list-tile-action>
-                <v-list-tile-content>
-                  <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
-                </v-list-tile-content>
-              </v-list-tile>
+                <v-list-tile
+                  :to="subItem.url"
+                  slot="activator"
+                  ripple
+                >
+                  <v-list-tile-action>
+                    <v-icon small>{{ subItem.action }}</v-icon>
+                  </v-list-tile-action>
+                  <v-list-tile-content>
+                    <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
+                  </v-list-tile-content>
+                </v-list-tile>
+                <span>{{ subItem.title }}</span>
+              </v-tooltip>
             </v-list>
           </v-expansion-panel-content>
         </v-expansion-panel>
@@ -214,7 +191,6 @@ export default {
       overflow-x hidden
       overflow-y auto
       .expansion-panel
-        min-width 300px
         .expansion-panel__container
           &.expansion-panel__container--active
             background rgba(0, 0, 0, .3)
@@ -238,4 +214,3 @@ export default {
   &.navigation-drawer--mini-variant /deep/ .expansion-panel__header
     display none
 </style>
-
