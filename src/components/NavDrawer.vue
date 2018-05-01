@@ -12,7 +12,7 @@
       column
     >
       <v-flex>
-        <v-list class="pt-1 pb-1">
+        <v-list class="py-1">
           <v-list-tile avatar>
             <v-list-tile-avatar>
               <img src="https://vuetifyjs.com/static/doc-images/logo.svg" >
@@ -29,7 +29,7 @@
         </v-list>
         <v-divider light></v-divider>
       </v-flex>
-      <v-flex class="nav-list no-scroll">
+      <v-flex class="no-scroll nav-list">
         <v-expansion-panel expand class="elevation-0">
           <v-expansion-panel-content v-for="navItem in navItems" :key="navItem.title">
             <div slot="header" class="nav-list-header">
@@ -106,26 +106,26 @@ export default {
           title: "资产管理",
           child: [
             { action: "label_outline", title: "楼宇管理", url: "/building" },
-            { action: "label_outline", title: "房源管理", url: "/about" },
-            { action: "label_outline", title: "网点管理", url: "/about" }
+            { action: "label_outline", title: "房源管理", url: "/home" },
+            { action: "label_outline", title: "网点管理", url: "/home" }
           ]
         },
         {
           action: "gavel",
           title: "招商管理",
           child: [
-            { action: "label_outline", title: "预约看房", url: "/sale" },
-            { action: "label_outline", title: "客户管理", url: "/about" },
-            { action: "label_outline", title: "中介商管理", url: "/about" }
+            { action: "label_outline", title: "预约管理", url: "/sale" },
+            { action: "label_outline", title: "客户管理", url: "/home" },
+            { action: "label_outline", title: "中介商管理", url: "/home" }
           ]
         },
         {
           action: "receipt",
           title: "合同管理",
           child: [
-            { action: "label_outline", title: "已生效合同", url: "/contract" },
-            { action: "label_outline", title: "待提交合同", url: "/about" },
-            { action: "label_outline", title: "待审核合同", url: "/about" }
+            { action: "label_outline", title: "合同概览", url: "/contract" },
+            { action: "label_outline", title: "待提交合同", url: "/home" },
+            { action: "label_outline", title: "待审核合同", url: "/home" }
           ]
         },
         {
@@ -133,16 +133,16 @@ export default {
           title: "财务管理",
           child: [
             { action: "label_outline", title: "租金管理", url: "/finance" },
-            { action: "label_outline", title: "其他费用", url: "/about" }
+            { action: "label_outline", title: "其他费用", url: "/home" }
           ]
         },
         {
           action: "supervisor_account",
           title: "物业管理",
           child: [
-            { action: "label_outline", title: "保修管理", url: "/about" },
-            { action: "label_outline", title: "水电管理", url: "/property" },
-            { action: "label_outline", title: "卫生管理", url: "/about" }
+            { action: "label_outline", title: "资产维护", url: "/property" },
+            { action: "label_outline", title: "水电管理", url: "/home" },
+            { action: "label_outline", title: "卫生管理", url: "/home" }
           ],
           url: "/property"
         },
@@ -198,7 +198,7 @@ export default {
             .list__tile__sub-title
               text-overflow ellipsis
               overflow hidden
-              max-width 172px
+              max-width 150px
           .nav-sublist
             border-bottom 1px solid hsla(0,0%,100%,.12)
             .list__tile__action

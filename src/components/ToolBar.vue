@@ -35,6 +35,7 @@
       offset-y
       :close-on-content-click="false"
       :nudge-width="160"
+      :nudge-bottom="10"
       v-model="menu"
     >
       <v-btn icon large slot="activator">

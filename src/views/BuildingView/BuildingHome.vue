@@ -1,17 +1,17 @@
 <template>
-  <div class="building-home">
+  <v-layout column class="fill-height building-home">
     <view-tool-bar
       :barTitle="barTitle"
       :barTab="barTab"
     >
       <span slot="bar-menu">
-        <v-btn icon dark>
+        <v-btn icon>
           <v-icon>help</v-icon>
         </v-btn>
       </span>
     </view-tool-bar>
     <router-view></router-view>
-  </div>
+  </v-layout>
 </template>
 
 <script>

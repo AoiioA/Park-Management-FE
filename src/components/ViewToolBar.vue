@@ -1,17 +1,20 @@
 <template>
-  <div class="bar-container">
-    <v-layout class="bar-content ml-3 mr-3">
+  <v-jumbotron
+    dark
+    color="primary"
+    style="height: auto;"
+  >
+    <v-layout class="mx-3 bar-content">
       <v-flex>
-        <div class="bar-title ml-2 mb-2 pt-2 pb-2">{{ barTitle }}</div>
+        <div class="ml-2 mb-2 py-2 bar-title">{{ barTitle }}</div>
       </v-flex>
-      <slot class="bar-menu" name="bar-menu"></slot>
+      <slot name="bar-menu" class="bar-menu"></slot>
     </v-layout>
-    <!-- <div class="bar-tab"></div> -->
     <v-tabs
-      dark
+      v-if="barTab"
       color="primary"
       show-arrows
-      class="ml-4 mr-4"
+      class="mx-4 bar-tab"
     >
       <v-tab
         v-for="tab in barTab"
@@ -20,18 +23,8 @@
       >
         {{ tab.name }}
       </v-tab>
-      <!-- <v-tabs-items>
-        <v-tab-item
-          v-for="i in 25"
-          :key="i"
-        >
-          <v-card flat>
-            <v-card-text>123</v-card-text>
-          </v-card>
-        </v-tab-item>
-      </v-tabs-items> -->
     </v-tabs>
-  </div>
+  </v-jumbotron>
 </template>
 
 <script>
@@ -45,19 +38,12 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-$primary = #1976d2
-
-.bar-container
-  background $primary
-  .bar-content
-    .bar-title
-      font-size: 26px;
-      font-weight: 500;
-      line-height: 32px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: #fff;
-  .bar-tab
-    height 44px
+.bar-content
+  .bar-title
+    font-size 26px
+    font-weight 500
+    line-height 32px
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
 </style>

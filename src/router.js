@@ -10,7 +10,7 @@ import DashboardHome from "./views/DashboardView/DashboardHome.vue";
 import FinanceHome from "./views/FinanceView/FinanceHome.vue";
 import PropertyHome from "./views/PropertyView/PropertyHome.vue";
 import SaleHome from "./views/SaleView/SaleHome.vue";
-import About from "./views/About.vue";
+import Home from "./views/Home.vue";
 
 Vue.use(Router);
 
@@ -72,9 +72,9 @@ export default new Router({
       component: SaleHome
     },
     {
-      path: "/about",
-      name: "about",
-      component: About
+      path: "/home",
+      name: "home",
+      component: Home
     }
   ]
 });
