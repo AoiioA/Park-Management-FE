@@ -28,11 +28,9 @@
 import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
-  data() {
-    return {
-      barTitle: "租金管理"
-    };
-  },
+  data: () => ({
+    barTitle: "租金管理"
+  }),
   components: {
     ViewToolBar
   }

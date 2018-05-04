@@ -28,11 +28,9 @@
 import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
-  data() {
-    return {
-      barTitle: "数据概览"
-    };
-  },
+  data: () => ({
+    barTitle: "数据概览"
+  }),
   components: {
     ViewToolBar
   }

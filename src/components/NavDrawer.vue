@@ -105,9 +105,10 @@ export default {
           action: "business",
           title: "资产管理",
           child: [
+            { action: "label_outline", title: "园区管理", url: "/park" },
             { action: "label_outline", title: "楼宇管理", url: "/building" },
-            { action: "label_outline", title: "房源管理", url: "/home" },
-            { action: "label_outline", title: "网点管理", url: "/home" }
+            { action: "label_outline", title: "房源管理", url: "/Room" },
+            { action: "label_outline", title: "工位管理", url: "/seat" }
           ]
         },
         {
@@ -115,8 +116,8 @@ export default {
           title: "招商管理",
           child: [
             { action: "label_outline", title: "预约管理", url: "/sale" },
-            { action: "label_outline", title: "客户管理", url: "/home" },
-            { action: "label_outline", title: "中介商管理", url: "/home" }
+            { action: "label_outline", title: "客户管理", url: "/404" },
+            { action: "label_outline", title: "中介商管理", url: "/404" }
           ]
         },
         {
@@ -124,8 +125,8 @@ export default {
           title: "合同管理",
           child: [
             { action: "label_outline", title: "合同概览", url: "/contract" },
-            { action: "label_outline", title: "待提交合同", url: "/home" },
-            { action: "label_outline", title: "待审核合同", url: "/home" }
+            { action: "label_outline", title: "待提交合同", url: "/404" },
+            { action: "label_outline", title: "待审核合同", url: "/404" }
           ]
         },
         {
@@ -133,7 +134,7 @@ export default {
           title: "财务管理",
           child: [
             { action: "label_outline", title: "租金管理", url: "/finance" },
-            { action: "label_outline", title: "其他费用", url: "/home" }
+            { action: "label_outline", title: "其他费用", url: "/404" }
           ]
         },
         {
@@ -141,8 +142,8 @@ export default {
           title: "物业管理",
           child: [
             { action: "label_outline", title: "资产维护", url: "/property" },
-            { action: "label_outline", title: "水电管理", url: "/home" },
-            { action: "label_outline", title: "卫生管理", url: "/home" }
+            { action: "label_outline", title: "水电管理", url: "/404" },
+            { action: "label_outline", title: "卫生管理", url: "/404" }
           ],
           url: "/property"
         },

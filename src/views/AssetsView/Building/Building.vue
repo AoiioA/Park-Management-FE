@@ -1,5 +1,5 @@
 <template>
-  <v-layout column class="fill-height building-home">
+  <v-layout column class="fill-height building">
     <view-tool-bar
       :barTitle="barTitle"
       :barTab="barTab"
@@ -18,15 +18,13 @@
 import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
-  data() {
-    return {
-      barTitle: "楼宇管理",
-      barTab: [
-        { name: "楼宇概览", url: "building-all" },
-        { name: "楼宇详情", url: "building-list" }
-      ]
-    };
-  },
+  data: () => ({
+    barTitle: "楼宇管理",
+    barTab: [
+      { name: "楼宇概览", url: "building-all" },
+      { name: "楼宇详情", url: "building-list" }
+    ]
+  }),
   components: {
     ViewToolBar
   }
