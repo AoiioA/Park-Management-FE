@@ -124,9 +124,10 @@ export default {
           action: "receipt",
           title: "合同管理",
           child: [
-            { action: "label_outline", title: "合同概览", url: "/contract" },
-            { action: "label_outline", title: "待提交合同", url: "/404" },
-            { action: "label_outline", title: "待审核合同", url: "/404" }
+            { action: "label_outline", title: "合同概览", url: "/Contract" },
+            { action: "label_outline", title: "合同作废", url: "/Invalid" },
+            { action: "label_outline", title: "合同续签", url: "/Renew" },
+            { action: "label_outline", title: "合同退租", url: "/Surrender" }
           ]
         },
         {

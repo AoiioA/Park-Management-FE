@@ -3,7 +3,7 @@
     <v-jumbotron color="blue-grey lighten-4" height="auto">
       <v-container grid-list-xl fill-height>
         <v-layout align-start align-content-start justify-center wrap>
-          <v-flex xs12 md10 tag="h1" class="title grey--text text--darken-1">楼宇列表</v-flex>
+          <v-flex xs12 md10 tag="h1" class="title grey--text text--darken-1">合同列表</v-flex>
           <v-flex xs12 md10>
             <v-card>
               <v-card-title class="py-2">
@@ -11,11 +11,11 @@
                   flat
                   solo
                   prepend-icon="search"
-                  label="在列表中搜索..."
+                  label="在全部合同中检索..."
                   v-model="search"
                 ></v-text-field>
                 <v-dialog v-model="newDialog" max-width="500px">
-                  <v-btn color="primary" slot="activator">添加新项</v-btn>
+                  <v-btn color="primary" slot="activator">添加合同</v-btn>
                   <v-card>
                     <v-card-title>
                       <span class="headline">{{ formTitle }}</span>
@@ -75,13 +75,15 @@
               </v-card-title>
               <v-divider></v-divider>
               <v-data-table
+                :no-data-text="networkError?`网络出现异常 - 检查网络后刷新重试`:`暂无记录 - 点击上方按钮添加`"
+                :no-results-text="`没能找到“${ search }”的结果...`"
                 :search="search"
                 :headers="headers"
+                :loading="networkLoading"
                 :items="items"
                 item-key="id"
-                :no-data-text="`暂无数据`"
-                :no-results-text="`没能找到“${ search }”的结果...`"
               >
+                <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                 <template slot="items" slot-scope="props">
                   <tr @click="props.expanded = !props.expanded">
                     <td>{{ props.item.name }}</td>
@@ -94,17 +96,17 @@
                         <v-icon color="primary">edit</v-icon>
                       </v-btn>
                       <v-btn icon class="mx-0" @click.stop="openDelDialog(props.item)">
-                        <v-icon color="pink">delete</v-icon>
+                        <v-icon color="purple lighten-1">file_download</v-icon>
                       </v-btn>
                     </td>
                   </tr>
                 </template>
-                <template slot="expand" slot-scope="props">
+                <!-- <template slot="expand" slot-scope="props">
                   <v-card flat>
-                    <!-- <v-card-title class="headline">{{props.item.name}}</v-card-title> -->
+                    <v-card-title class="headline">{{props.item.name}}</v-card-title>
                     <v-card-text>{{props.item.detail}}</v-card-text>
                   </v-card>
-                </template>
+                </template> -->
               </v-data-table>
             </v-card>
           </v-flex>
@@ -117,15 +119,17 @@
 <script>
 export default {
   data: () => ({
+    networkLoading: false,
+    networkError: false,
     newDialog: false,
     delDialog: false,
     headers: [
-      { text: "Dessert (100g serving)", value: "name", sortable: false },
-      { text: "Calories", value: "calories" },
-      { text: "Fat (g)", value: "fat" },
-      { text: "Carbs (g)", value: "carbs" },
-      { text: "Protein (g)", value: "protein" },
-      { text: "Actions", value: "name", sortable: false }
+      { text: "合同编号", value: "name", sortable: false },
+      { text: "项目名称", value: "calories" },
+      { text: "承租方", value: "fat" },
+      { text: "计租日期", value: "carbs" },
+      { text: "到期日期", value: "protein" },
+      { text: "操作", value: "name", align: "center", sortable: false }
     ],
     items: [],
     search: "",
@@ -161,7 +165,7 @@ export default {
       val || (this.delDialog = false);
     }
   },
-  created() {
+  mounted() {
     this.initialize();
   },
   methods: {
@@ -175,44 +179,26 @@ export default {
           carbs: 94,
           protein: 0.0,
           detail: "bulabulabula..."
-        },
-        {
-          id: 2,
-          name: "Lollipop",
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          detail: "bulabulabula..."
-        },
-        {
-          id: 3,
-          name: "Honeycomb",
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          detail: "bulabulabula..."
-        },
-        {
-          id: 4,
-          name: "Donut",
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          detail: "bulabulabula..."
-        },
-        {
-          id: 5,
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          detail: "bulabulabula..."
         }
       ];
+
+      this.networkLoading = true;
+      this.$http
+        .post("/cms/parkInfo/list.json")
+        .then(res => {
+          let resData = res.data.data;
+          this.parkInfoList = resData && resData.length ? resData : [];
+          // this.parkInfoList.map(el => {
+          //   return Object.assign(el, {
+          //     fullAddress: `${el.province} ${el.city} ${el.district} ${el.address}`
+          //   });
+          // });
+          this.networkLoading = false;
+        })
+        .catch(() => {
+          this.networkLoading = false;
+          this.networkError = true;
+        });
     },
     editNewDialog(item) {
       this.editedIndex = this.items.indexOf(item);

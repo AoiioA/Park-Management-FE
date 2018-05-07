@@ -3,16 +3,6 @@
     <v-jumbotron color="blue-grey lighten-4" height="auto">
       <v-container grid-list-xl fill-height>
         <v-layout align-start align-content-start wrap>
-          <!-- <v-flex xs12 md10 tag="h1" class="headline grey--text text--darken-1">Section-1</v-flex> -->
-          <!-- <v-flex xs12 md5>
-            <v-card>
-              <v-container>
-                <div v-for="parkInfo in parkInfoList" :key="parkInfo.parkId">
-                  <span v-for="(value, key) in parkInfo" :key="key">{{key}} - {{value}}</span>
-                </div>
-              </v-container>
-            </v-card>
-          </v-flex> -->
           <v-flex xs12 sm4 md3 xl2 offset-xl1>
             <v-card>
               <v-btn
@@ -84,6 +74,11 @@
                   </v-list>
                 </v-card>
               </v-flex>
+              <v-flex slot="no-data" style="height: 246px; line-height: 246px;">
+                <v-progress-circular indeterminate color="primary" v-if="networkLoading"></v-progress-circular>
+                <div v-else-if="networkError">网络出现异常 - 检查网络后刷新重试</div>
+                <div v-else>暂无园区记录 - 点击左侧添加</div>
+              </v-flex>
             </v-data-iterator>
           </v-flex>
         </v-layout>
@@ -94,6 +89,8 @@
 <script>
 export default {
   data: () => ({
+    networkLoading: false,
+    networkError: false,
     parkInfoList: [],
     newParkInfo: {
       parkName: { text: "园区名称", value: "" },
@@ -108,7 +105,7 @@ export default {
     pageSize: ["xs", "sm", "md", "lg", "xl"]
   }),
   mounted() {
-    this.initData();
+    this.initialize();
   },
   methods: {
     onResize() {
@@ -124,10 +121,10 @@ export default {
         this.pagination.rowsPerPage = num;
       }
     },
-    initData() {
+    initialize() {
+      this.networkLoading = true;
       this.$http
-        .post("http://localhost:8081/cms/parkInfo/list.json")
-        // .get("http://localhost:3000")
+        .post("/cms/parkInfo/list.json")
         .then(res => {
           let resData = res.data.data;
           this.parkInfoList = resData && resData.length ? resData : [];
@@ -136,9 +133,11 @@ export default {
           //     fullAddress: `${el.province} ${el.city} ${el.district} ${el.address}`
           //   });
           // });
+          this.networkLoading = false;
         })
-        .catch(error => {
-          console.log(error);
+        .catch(() => {
+          this.networkLoading = false;
+          this.networkError = true;
         });
     }
   }
