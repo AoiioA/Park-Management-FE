@@ -36,4 +36,7 @@ export default {
 };
 </script>
 
-<style lang="stylus"></style>
+<style lang="stylus">
+#app
+  background #cfd8dc
+</style>

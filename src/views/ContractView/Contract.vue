@@ -18,10 +18,13 @@ import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
   data: () => ({
-    barTitle: "合同续签"
+    barTitle: ""
   }),
   components: {
     ViewToolBar
+  },
+  mounted() {
+    this.barTitle = this.$route.matched[0].meta.viewToolBarTitle;
   }
 };
 </script>

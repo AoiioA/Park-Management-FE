@@ -1,73 +1,48 @@
-import Contract from "@/views/ContractView/Contract/Contract.vue";
+import Contract from "@/views/ContractView/Contract.vue";
 import ContractList from "@/views/ContractView/Contract/ContractList.vue";
 
-import Invalid from "@/views/ContractView/Invalid/Invalid.vue";
-import InvalidList from "@/views/ContractView/Invalid/InvalidList.vue";
+import ContractDetail from "@/views/ContractView/Contract/ContractDetail.vue";
 
-import Renew from "@/views/ContractView/Renew/Renew.vue";
-import RenewList from "@/views/ContractView/Renew/RenewList.vue";
+import Invalid from "@/views/ContractView/Contract/Invalid.vue";
 
-import Surrender from "@/views/ContractView/Surrender/Surrender.vue";
-import SurrenderList from "@/views/ContractView/Surrender/SurrenderList.vue";
+import Renew from "@/views/ContractView/Contract/Renew.vue";
+
+import Surrender from "@/views/ContractView/Contract/Surrender.vue";
 
 export default [
   {
     path: "/contract",
     component: Contract,
+    meta: { viewToolBarTitle: "合同概览" },
     children: [
       {
         path: "",
-        redirect: { name: "contractList" }
+        redirect: { name: "contract-list" }
       },
       {
-        path: "contractList",
-        name: "contractList",
+        path: "contract-list",
+        name: "contract-list",
         component: ContractList
-      }
-    ]
-  },
-  {
-    path: "/invalid",
-    component: Invalid,
-    children: [
-      {
-        path: "",
-        redirect: { name: "invalidList" }
       },
       {
-        path: "invalidList",
-        name: "invalidList",
-        component: InvalidList
-      }
-    ]
-  },
-  {
-    path: "/renew",
-    component: Renew,
-    children: [
-      {
-        path: "",
-        redirect: { name: "renewList" }
+        path: "contract-detail",
+        name: "contract-detail",
+        component: ContractDetail
       },
       {
-        path: "renewList",
-        name: "renewList",
-        component: RenewList
-      }
-    ]
-  },
-  {
-    path: "/surrender",
-    component: Surrender,
-    children: [
-      {
-        path: "",
-        redirect: { name: "surrenderList" }
+        path: "invalid",
+        name: "invalid",
+        component: Invalid
       },
       {
-        path: "surrenderList",
-        name: "surrenderList",
-        component: SurrenderList
+        path: "renew",
+        name: "renew",
+        component: Renew
+      },
+      {
+        path: "surrender",
+        name: "surrender",
+        component: Surrender
       }
     ]
   }
