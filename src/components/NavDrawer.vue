@@ -96,65 +96,58 @@ export default {
           action: "dashboard",
           title: "工作台",
           active: true,
-          child: [
-            { action: "label_outline", title: "总览", url: "/dashboard" }
-          ],
-          url: "/dashboard"
+          child: [{ action: "dashboard", title: "总览", url: "/dashboard" }]
         },
         {
           action: "business",
           title: "资产管理",
           child: [
-            { action: "label_outline", title: "园区管理", url: "/park" },
-            { action: "label_outline", title: "楼宇管理", url: "/building" },
-            { action: "label_outline", title: "房源管理", url: "/Room" },
-            { action: "label_outline", title: "工位管理", url: "/seat" }
+            { action: "business", title: "园区管理", url: "/park" },
+            { action: "business", title: "楼宇管理", url: "/building" },
+            { action: "business", title: "房源管理", url: "/Room" },
+            { action: "business", title: "工位管理", url: "/seat" }
           ]
         },
         {
           action: "gavel",
           title: "招商管理",
           child: [
-            { action: "label_outline", title: "预约管理", url: "/sale" },
-            { action: "label_outline", title: "客户管理", url: "/404" },
-            { action: "label_outline", title: "中介商管理", url: "/404" }
+            { action: "gavel", title: "预约管理", url: "/sale" },
+            { action: "gavel", title: "客户管理", url: "/404" },
+            { action: "gavel", title: "中介商管理", url: "/404" }
           ]
         },
         {
           action: "receipt",
           title: "合同管理",
           child: [
-            { action: "label_outline", title: "合同概览", url: "/contract/contract-list" },
-            { action: "label_outline", title: "合同作废", url: "/contract/invalid" },
-            { action: "label_outline", title: "合同续签", url: "/contract/renew" },
-            { action: "label_outline", title: "合同退租", url: "/contract/surrender" }
+            { action: "receipt", title: "合同概览", url: "/contract/list" },
+            { action: "receipt", title: "合同审核", url: "/contract/examine" }
           ]
         },
         {
           action: "attach_money",
           title: "财务管理",
           child: [
-            { action: "label_outline", title: "租金管理", url: "/finance" },
-            { action: "label_outline", title: "其他费用", url: "/404" }
+            { action: "attach_money", title: "租金管理", url: "/finance" },
+            { action: "attach_money", title: "其他费用", url: "/404" }
           ]
         },
         {
-          action: "supervisor_account",
+          action: "build",
           title: "物业管理",
           child: [
-            { action: "label_outline", title: "资产维护", url: "/property" },
-            { action: "label_outline", title: "水电管理", url: "/404" },
-            { action: "label_outline", title: "卫生管理", url: "/404" }
-          ],
-          url: "/property"
+            { action: "build", title: "资产维护", url: "/property" },
+            { action: "build", title: "水电管理", url: "/404" },
+            { action: "build", title: "卫生管理", url: "/404" }
+          ]
         },
         {
           action: "bubble_chart",
           title: "数据分析",
           child: [
-            { action: "label_outline", title: "数据概览", url: "/analysis" }
-          ],
-          url: "/analysis"
+            { action: "bubble_chart", title: "数据概览", url: "/analysis" }
+          ]
         }
       ]
     };
@@ -181,38 +174,64 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.no-scroll
-  &::-webkit-scrollbar
-    display none
-.nav-drawer
-  overflow hidden
-  .flex
-    flex none
-    &.nav-list
-      flex auto
-      overflow-x hidden
-      overflow-y auto
-      .expansion-panel
-        .expansion-panel__container
-          &.expansion-panel__container--active
-            background rgba(0, 0, 0, .3)
-          .nav-list-header
-            .list__tile__sub-title
-              text-overflow ellipsis
-              overflow hidden
-              max-width 150px
-          .nav-sublist
-            border-bottom 1px solid hsla(0,0%,100%,.12)
-            .list__tile__action
-              text-align center
-              display inline-block
-              line-height 40px
-              font-size 0
-.nav-drawer
-  & /deep/ .expansion-panel__container
-    border-top 0
-  & /deep/ .expansion-panel__header
-    padding 0 16px 0 0
-  &.navigation-drawer--mini-variant /deep/ .expansion-panel__header
-    display none
+.no-scroll {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.nav-drawer {
+  overflow: hidden;
+
+  .flex {
+    flex: none;
+
+    &.nav-list {
+      flex: auto;
+      overflow-x: hidden;
+      overflow-y: auto;
+
+      .expansion-panel {
+        .expansion-panel__container {
+          &.expansion-panel__container--active {
+            background: rgba(0, 0, 0, 0.3);
+          }
+
+          .nav-list-header {
+            .list__tile__sub-title {
+              text-overflow: ellipsis;
+              overflow: hidden;
+              max-width: 150px;
+            }
+          }
+
+          .nav-sublist {
+            border-bottom: 1px solid hsla(0, 0%, 100%, 0.12);
+
+            .list__tile__action {
+              text-align: center;
+              display: inline-block;
+              line-height: 40px;
+              font-size: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.nav-drawer {
+  & /deep/ .expansion-panel__container {
+    border-top: 0;
+  }
+
+  & /deep/ .expansion-panel__header {
+    padding: 0 16px 0 0;
+  }
+
+  &.navigation-drawer--mini-variant /deep/ .expansion-panel__header {
+    display: none;
+  }
+}
 </style>

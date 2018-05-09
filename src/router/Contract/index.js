@@ -1,48 +1,76 @@
 import Contract from "@/views/ContractView/Contract.vue";
-import ContractList from "@/views/ContractView/Contract/ContractList.vue";
 
-import ContractDetail from "@/views/ContractView/Contract/ContractDetail.vue";
+import ContractNew from "@/views/ContractView/ContractNew.vue";
 
-import Invalid from "@/views/ContractView/Contract/Invalid.vue";
+import ContractDetail from "@/views/ContractView/ContractDetail.vue";
 
-import Renew from "@/views/ContractView/Contract/Renew.vue";
+import ContractExamine from "@/views/ContractView/ContractExamine.vue";
 
-import Surrender from "@/views/ContractView/Contract/Surrender.vue";
+import ContractList from "@/views/ContractView/ContractList/ContractList.vue";
+import Submitted from "@/views/ContractView/ContractList/Submitted.vue";
+import Fulfilling from "@/views/ContractView/ContractList/Fulfilling.vue";
+import Expired from "@/views/ContractView/ContractList/Expired.vue";
+import Invalidated from "@/views/ContractView/ContractList/Invalidated.vue";
 
 export default [
   {
     path: "/contract",
     component: Contract,
-    meta: { viewToolBarTitle: "合同概览" },
+    props: route => ({
+      detailId: route.query.detailId,
+      newItem: route.query.newItem,
+      renewItem: route.query.renewItem
+    }),
     children: [
       {
         path: "",
-        redirect: { name: "contract-list" }
+        redirect: { name: "fulfilling" }
       },
       {
-        path: "contract-list",
-        name: "contract-list",
-        component: ContractList
+        path: "new",
+        name: "new",
+        component: ContractNew
       },
       {
-        path: "contract-detail",
-        name: "contract-detail",
+        path: "detail",
+        name: "detail",
         component: ContractDetail
       },
       {
-        path: "invalid",
-        name: "invalid",
-        component: Invalid
+        path: "examine",
+        name: "examine",
+        component: ContractExamine
       },
       {
-        path: "renew",
-        name: "renew",
-        component: Renew
-      },
-      {
-        path: "surrender",
-        name: "surrender",
-        component: Surrender
+        path: "list",
+        component: ContractList,
+        props: { viewToolBarTitle: "合同概览" },
+        children: [
+          {
+            path: "",
+            redirect: { name: "fulfilling" }
+          },
+          {
+            path: "submitted",
+            name: "submitted",
+            component: Submitted
+          },
+          {
+            path: "fulfilling",
+            name: "fulfilling",
+            component: Fulfilling
+          },
+          {
+            path: "expired",
+            name: "expired",
+            component: Expired
+          },
+          {
+            path: "invalidated",
+            name: "invalidated",
+            component: Invalidated
+          }
+        ]
       }
     ]
   }

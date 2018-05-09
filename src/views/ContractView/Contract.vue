@@ -1,30 +1,38 @@
 <template>
-  <v-layout column class="fill-height contract">
-    <view-tool-bar
-      :barTitle="barTitle"
-    >
-      <span slot="bar-menu">
-        <v-btn icon>
-          <v-icon>help</v-icon>
-        </v-btn>
-      </span>
-    </view-tool-bar>
-    <router-view></router-view>
-  </v-layout>
+  <div class="fill-height contract">
+    <router-view>
+      <v-btn flat slot="newContractBtn" :to="{ query: { newItem: '345' } }">添加合同</v-btn>
+    </router-view>
+    <contract-new v-if="newItem"></contract-new>
+  </div>
 </template>
 
 <script>
-import ViewToolBar from "@/components/ViewToolBar.vue";
+import ContractNew from "@/views/ContractView/ContractNew.vue";
 
 export default {
-  data: () => ({
-    barTitle: ""
-  }),
-  components: {
-    ViewToolBar
+  props: {
+    detailId: {
+      type: String,
+      default: ""
+    },
+    newItem: {
+      type: String,
+      default: ""
+    },
+    renewItem: {
+      type: String,
+      default: ""
+    }
   },
-  mounted() {
-    this.barTitle = this.$route.matched[0].meta.viewToolBarTitle;
+  data: () => ({}),
+  components: {
+    ContractNew
   }
 };
 </script>
+
+<style lang="stylus" scoped>
+.contract
+  position relative
+</style>

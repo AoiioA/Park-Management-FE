@@ -10,7 +10,7 @@ import "vuetify/dist/vuetify.min.css";
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 import Vuetify from "vuetify";
 
-// axios.defaults.baseURL = "http://localhost:8081";
+axios.defaults.baseURL = "http://122.115.50.65";
 Vue.use(VueAxios, axios);
 Vue.use(Vuetify);
 
