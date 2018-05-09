@@ -73,7 +73,7 @@
               <template slot="expand" slot-scope="props">
                 <v-container>
                   <v-list two-line subheader>
-                    <v-subheader>合同相关资产</v-subheader>
+                    <v-subheader>相关资产</v-subheader>
                     <template v-for="(house, houseIndex) in props.item.house">
                       <v-list-tile :key="houseIndex" avatar ripple>
                         <v-list-tile-content>
@@ -85,12 +85,16 @@
                           <v-list-tile-title>月租金(元) : {{ house.rent }}</v-list-tile-title>
                           <v-list-tile-sub-title>年递增率(%) : {{ house.increaseRate }}</v-list-tile-sub-title>
                         </v-list-tile-content>
+                        <v-list-tile-content>
+                          <v-list-tile-title>月租金(元) : {{ house.rent }}</v-list-tile-title>
+                          <v-list-tile-sub-title>年递增率(%) : {{ house.increaseRate }}</v-list-tile-sub-title>
+                        </v-list-tile-content>
                         <v-list-tile-action>
                           <v-list-tile-action-text>总面积 : 532m²</v-list-tile-action-text>
                           <v-list-tile-action-text>月租金(元) : {{ house.rent }}&nbsp;&nbsp;&nbsp;年递增率(%) : {{ house.increaseRate }}</v-list-tile-action-text>
                         </v-list-tile-action>
                       </v-list-tile>
-                      <v-divider v-if="houseIndex + 1 < props.item.house.length" :key="`line${houseIndex}`"></v-divider>
+                      <!-- <v-divider v-if="houseIndex + 1 < props.item.house.length" :key="`line${houseIndex}`"></v-divider> -->
                     </template>
                   </v-list>
                 </v-container>

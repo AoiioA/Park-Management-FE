@@ -9,7 +9,7 @@
       <v-content>
         <router-view></router-view>
       </v-content>
-      <v-footer app absolute inset height="auto">
+      <v-footer app absolute inset height="auto" style="z-index:0">
         <v-layout row wrap justify-center>
           <v-flex xs12 py-3 text-xs-center>
             &copy;2018 — <strong>BILIBALA</strong>
