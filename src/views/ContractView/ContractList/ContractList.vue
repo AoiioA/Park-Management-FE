@@ -23,10 +23,10 @@ export default {
   props: ["viewToolBarTitle"],
   data: () => ({
     viewToolBarTab: [
-      { name: "待审核", url: "/contract/list/submitted" },
-      { name: "生效中", url: "/contract/list/fulfilling" },
-      { name: "已到期", url: "/contract/list/expired" },
-      { name: "已作废", url: "/contract/list/invalidated" }
+      { name: "待审核", to: "/contract/list/submitted" },
+      { name: "生效中", to: "/contract/list/fulfilling" },
+      { name: "已到期", to: "/contract/list/expired" },
+      { name: "已作废", to: "/contract/list/invalidated" }
     ]
   }),
   components: {

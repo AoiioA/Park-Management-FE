@@ -11,7 +11,7 @@
       <slot name="bar-menu" class="bar-menu"></slot>
     </v-layout>
     <v-tabs
-      v-if="barTab"
+      v-if="barTab&&barTab.length"
       color="primary"
       show-arrows
       class="mx-4 bar-tab"
@@ -19,7 +19,7 @@
       <v-tab
         v-for="tab in barTab"
         :key="tab.name"
-        :to="{ path: tab.url }"
+        :to="tab.to"
       >
         {{ tab.name }}
       </v-tab>

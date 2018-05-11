@@ -1,6 +1,6 @@
 import Building from "@/views/AssetsView/Building/Building.vue";
+import BuildingDetail from "@/views/AssetsView/Building/BuildingDetail.vue";
 import BuildingAll from "@/views/AssetsView/Building/BuildingAll.vue";
-import BuildingList from "@/views/AssetsView/Building/BuildingList.vue";
 
 import Park from "@/views/AssetsView/Park/Park.vue";
 import ParkList from "@/views/AssetsView/Park/ParkList.vue";
@@ -9,26 +9,24 @@ export default [
   {
     path: "/building",
     component: Building,
+    props: { viewToolBarTitle: "楼宇管理" },
     children: [
       {
-        path: "",
-        redirect: { name: "building-all" }
+        path: "building-detail/:buildingId",
+        name: "building-detail",
+        component: BuildingDetail
       },
       {
         path: "building-all",
         name: "building-all",
         component: BuildingAll
-      },
-      {
-        path: "building-list",
-        name: "building-list",
-        component: BuildingList
       }
     ]
   },
   {
     path: "/park",
     component: Park,
+    props: { viewToolBarTitle: "园区管理" },
     children: [
       {
         path: "",

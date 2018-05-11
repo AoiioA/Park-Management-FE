@@ -1,5 +1,5 @@
 <template>
-  <div class="park-list" v-resize="onResize">
+  <div class="building-detail" v-resize="onResize">
     <v-jumbotron color="blue-grey lighten-4" height="auto">
       <v-container grid-list-xl fill-height>
         <v-layout align-start align-content-start wrap>
@@ -126,14 +126,10 @@ export default {
       this.$http
         .post("/cms/parkInfo/list.json")
         .then(res => {
+          this.networkLoading = false;
+
           let resData = res.data.data;
           this.parkInfoList = resData && resData.length ? resData : [];
-          // this.parkInfoList.map(el => {
-          //   return Object.assign(el, {
-          //     fullAddress: `${el.province} ${el.city} ${el.district} ${el.address}`
-          //   });
-          // });
-          this.networkLoading = false;
         })
         .catch(() => {
           this.networkLoading = false;

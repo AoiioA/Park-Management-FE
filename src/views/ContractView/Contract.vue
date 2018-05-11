@@ -1,7 +1,7 @@
 <template>
   <div class="fill-height contract">
     <router-view>
-      <v-btn flat slot="newContractBtn" :to="{ query: { newItem: '345' } }">添加合同</v-btn>
+      <v-btn flat slot="newContractBtn" :to="{ query: { newItem: 'yes' } }">添加合同</v-btn>
     </router-view>
     <contract-new v-if="newItem"></contract-new>
   </div>

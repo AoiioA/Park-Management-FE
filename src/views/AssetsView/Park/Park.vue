@@ -1,8 +1,8 @@
 <template>
-  <v-layout column class="fill-height park">
+  <div class="fill-height park">
     <view-tool-bar
-      :barTitle="barTitle"
-      :barTab="barTab"
+      :barTitle="viewToolBarTitle"
+      :barTab="viewToolBarTab"
     >
       <span slot="bar-menu">
         <v-btn icon>
@@ -11,16 +11,16 @@
       </span>
     </view-tool-bar>
     <router-view></router-view>
-  </v-layout>
+  </div>
 </template>
 
 <script>
 import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
+  props: ["viewToolBarTitle"],
   data: () => ({
-    barTitle: "园区管理",
-    barTab: [{ name: "园区概览", url: "park-list" }]
+    viewToolBarTab: [{ name: "园区概览", to: "park-list" }]
   }),
   components: {
     ViewToolBar

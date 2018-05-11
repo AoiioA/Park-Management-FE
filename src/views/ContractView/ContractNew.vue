@@ -74,31 +74,26 @@
                       <v-menu
                         :close-on-content-click="false" v-model="dateMenu.signingDate" offset-y lazy>
                         <v-text-field slot="activator" v-model="newCTRT.signingDate" :rules="[rules.required]" label="签订日期" hint="仅可选择上个月后的日期" persistent-hint box readonly></v-text-field>
-                        <v-date-picker v-model="newCTRT.signingDate" :min="getDateWithDay(new Date(), -30)" :first-day-of-week="0" show-current locale="zh-cn" @input="dateMenu.signingDate = false"></v-date-picker>
+                        <v-date-picker v-model="newCTRT.signingDate" :min="getDay(new Date(), -30)" :first-day-of-week="0" show-current locale="zh-cn" @input="dateMenu.signingDate = false"></v-date-picker>
                       </v-menu>
                     </v-flex>
                     <v-flex xs12 sm3>
                       <v-menu
                         :close-on-content-click="false" v-model="dateMenu.startDate" offset-y lazy>
-                        <v-text-field slot="activator" v-model="newCTRT.startDate" :rules="[rules.required]" label="记租开始日期" hint="" persistent-hint box readonly></v-text-field>
+                        <v-text-field slot="activator" v-model="newCTRT.startDate" :rules="[rules.required]" :disabled="!newCTRT.signingDate" label="记租开始日期" hint="" persistent-hint box readonly></v-text-field>
                         <v-date-picker v-model="newCTRT.startDate" :min="newCTRT.signingDate" :first-day-of-week="0" show-current locale="zh-cn" @input="dateMenu.startDate = false"></v-date-picker>
                       </v-menu>
                     </v-flex>
                     <v-flex xs12 sm3>
-                      <v-menu
-                        :close-on-content-click="false" v-model="dateMenu.endDate" offset-y lazy>
-                        <v-text-field slot="activator" v-model="newCTRT.endDate" :rules="[rules.required]" label="记租结束日期" hint="" persistent-hint box readonly></v-text-field>
+                      <v-menu :close-on-content-click="false" v-model="dateMenu.endDate" offset-y lazy>
+                        <v-text-field slot="activator" v-model="newCTRT.endDate" :rules="[rules.required]" :disabled="!newCTRT.startDate" label="记租结束日期" hint="" persistent-hint box readonly></v-text-field>
                         <v-date-picker v-model="newCTRT.endDate" :min="newCTRT.startDate" :first-day-of-week="0" show-current locale="zh-cn" @input="dateMenu.endDate = false"></v-date-picker>
                       </v-menu>
                     </v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.beforeFree" :rules="[rules.required]" mask="###" label="记租开始前免租(天)"
-                      :hint="newCTRT.startDate?`由 ${getDateWithDay(newCTRT.startDate,-1*newCTRT.beforeFree)}<br/>至 ${newCTRT.startDate}`:''" persistent-hint box
-                    ></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.afterFree" :rules="[rules.required]" mask="###" label="记租结束后免租(天)"
-                      :hint="newCTRT.endDate?`由 ${newCTRT.endDate}<br/>至 ${getDateWithDay(newCTRT.endDate,newCTRT.afterFree)}`:''" persistent-hint box
-                    ></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.beforeFree" :rules="[rules.required]" mask="###" :disabled="!newCTRT.startDate" label="记租开始前免租(天)" :hint="beforeFreeHint" persistent-hint box></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.afterFree" :rules="[rules.required]" mask="###" :disabled="!newCTRT.endDate" label="记租结束后免租(天)" :hint="afterFreeHint" persistent-hint box></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.rentDate" :rules="[rules.required]" mask="###" label="租金缴纳应提前(天)" hint="" persistent-hint box></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.deposit" :rules="[rules.required]" mask="#########" label="押金(元)" hint="合同生效后既应缴纳 合同到期后返还" persistent-hint box></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.deposit" :rules="[rules.required]" mask="#########" label="押金(元)" hint="合同生效后既缴纳 合同到期后返还" persistent-hint box></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.month" :rules="[rules.required, rules.greaterThanZero]" mask="##" label="租金缴纳间隔(月)" :hint="`每${newCTRT.month}个月缴纳${1000*newCTRT.month}元`" persistent-hint box></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.liquidatedDamages" :rules="[rules.required]" mask="#########" label="违约金(元)" hint="" persistent-hint box></v-text-field></v-flex>
                   </v-layout>
@@ -178,11 +173,38 @@ export default {
     },
     rules: {
       required: val => !!String(val).length || "请填写此项",
-      greaterThanZero: val => val > 0 || "此项需大于零"
+      greaterThanZero: val => val > 0 || "此项需大于零",
+      afterSigning: val =>
+        Date(this.getDay(this.newCTRT.startDate, -1 * val)) >
+          Date(this.newCTRT.signingDate) || "免租开始日期需晚于合同签订日期"
     }
   }),
+  computed: {
+    beforeFreeHint() {
+      let startD = this.newCTRT.startDate;
+      let beforeFree = this.newCTRT.beforeFree;
+      let beforeD = this.getDay(startD, -1 * beforeFree);
+
+      if (startD)
+        return beforeFree == 0
+          ? "记租开始前无免租"
+          : `由 ${beforeD}开始<br/>至 ${this.getDay(startD, -1)}到期`;
+      else return "";
+    },
+    afterFreeHint() {
+      let endD = this.newCTRT.endDate;
+      let afterFree = this.newCTRT.afterFree;
+      let afterD = this.getDay(endD, afterFree);
+
+      if (endD)
+        return afterFree == 0
+          ? "记租结束后无免租"
+          : `由 ${this.getDay(endD, 1)}开始<br/>至 ${afterD}到期`;
+      else return "";
+    }
+  },
   methods: {
-    getDateWithDay(date, day) {
+    getDay(date, day) {
       let time = new Date(
         new Date(date).getTime() + parseInt(day) * 24 * 60 * 60 * 1000
       );
