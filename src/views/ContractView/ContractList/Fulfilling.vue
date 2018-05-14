@@ -59,7 +59,7 @@
                   <td>{{ props.item.agency }}</td>
                   <td>{{ props.item.signingDate.slice(0, 10) }}</td>
                   <td>{{ props.item.startDate.slice(0, 10) }}</td>
-                  <td>{{ props.item.endData.slice(0, 10) }}</td>
+                  <td>{{ props.item.endDate.slice(0, 10) }}</td>
                   <td class="text-xs-center px-0">
                     <v-btn icon class="mx-0" @click.stop="1">
                       <v-icon color="primary">edit</v-icon>
@@ -120,7 +120,7 @@ export default {
       { text: "中介方", value: "agency" },
       { text: "签署日期", value: "signingDate" },
       { text: "计租日期", value: "startDate" },
-      { text: "到期日期", value: "endData" },
+      { text: "到期日期", value: "endDate" },
       { text: "操作", value: "id", align: "center", sortable: false }
     ],
     contractList: []
@@ -134,9 +134,128 @@ export default {
       this.$http
         .post("/cms/contract/list.json")
         .then(res => {
+          this.networkLoading = false;
           let resData = res.data.data;
           this.contractList = resData && resData.length ? resData : [];
-          this.networkLoading = false;
+          this.contractList = [
+            {
+              id: 1,
+              contractNo: "zhrkj-20180808-1234",
+              partyA: "中海融科技有限公司",
+              contractName: "写字楼租赁合同",
+              partyB: 1,
+              type: 1,
+              signingDate: "2018-05-04 00:00:00",
+              startDate: "2018-05-04 00:00:00",
+              endDate: "2018-06-27 00:00:00",
+              beforeFree: 30,
+              afterFree: 30,
+              deposit: 29999,
+              signedPersonA: "甲方A",
+              signedPersonB: "客户B",
+              address: "北京市海淀区资本大厦",
+              createTime: "2018-05-04 15:09:55",
+              intermediator: "中介A",
+              idCode: "123456199608086666",
+              agency: "链家网",
+              intermediatorTel: 13888888888,
+              companyTel: 13666666666,
+              companyName: "信息技术有限公司",
+              businessLicense: "123456789012345",
+              house: [
+                {
+                  houseId: 1,
+                  buildName: "望京SOHO",
+                  increaseRate: "2.00",
+                  rent: 9999
+                },
+                {
+                  houseId: 1,
+                  buildName: "望京SOHO",
+                  increaseRate: "3.00",
+                  rent: 8999
+                }
+              ]
+            },
+            {
+              id: 2,
+              contractNo: "zhrkj-20180808-1234",
+              partyA: "中海融科技有限公司",
+              contractName: "写字楼租赁合同",
+              partyB: 1,
+              type: 1,
+              signingDate: "2018-05-04 00:00:00",
+              startDate: "2018-05-04 00:00:00",
+              endDate: "2018-06-27 00:00:00",
+              beforeFree: 30,
+              afterFree: 30,
+              deposit: 29999,
+              signedPersonA: "甲方A",
+              signedPersonB: "客户B",
+              address: "北京市海淀区资本大厦",
+              createTime: "2018-05-04 15:09:55",
+              intermediator: "中介A",
+              idCode: "123456199608086666",
+              agency: "链家网",
+              intermediatorTel: 13888888888,
+              companyTel: 13666666666,
+              companyName: "信息技术有限公司",
+              businessLicense: "123456789012345",
+              house: [
+                {
+                  houseId: 1,
+                  buildName: "望京SOHO",
+                  increaseRate: "2.00",
+                  rent: 9999
+                },
+                {
+                  houseId: 1,
+                  buildName: "望京SOHO",
+                  increaseRate: "3.00",
+                  rent: 8999
+                }
+              ]
+            },
+            {
+              id: 3,
+              contractNo: "zhrkj-20180808-1234",
+              partyA: "中海融科技有限公司",
+              contractName: "写字楼租赁合同",
+              partyB: 1,
+              type: 1,
+              signingDate: "2018-05-04 00:00:00",
+              startDate: "2018-05-04 00:00:00",
+              endDate: "2018-06-27 00:00:00",
+              beforeFree: 30,
+              afterFree: 30,
+              deposit: 29999,
+              signedPersonA: "甲方A",
+              signedPersonB: "客户B",
+              address: "北京市海淀区资本大厦",
+              createTime: "2018-05-04 15:09:55",
+              intermediator: "中介A",
+              idCode: "123456199608086666",
+              agency: "链家网",
+              intermediatorTel: 13888888888,
+              companyTel: 13666666666,
+              companyName: "信息技术有限公司",
+              businessLicense: "123456789012345",
+              house: [
+                {
+                  houseId: 1,
+                  buildName: "望京SOHO",
+                  increaseRate: "2.00",
+                  rent: 9999
+                },
+                {
+                  houseId: 1,
+                  buildName: "望京SOHO",
+                  increaseRate: "3.00",
+                  rent: 8999
+                }
+              ]
+            }
+          ];
         })
         .catch(() => {
           this.networkLoading = false;
@@ -229,7 +348,7 @@ export default {
               type: 1,
               signingDate: "2018-05-04 00:00:00",
               startDate: "2018-05-04 00:00:00",
-              endData: "2018-06-27 00:00:00",
+              endDate: "2018-06-27 00:00:00",
               beforeFree: 30,
               afterFree: 30,
               deposit: 29999,
