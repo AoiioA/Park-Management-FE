@@ -5,16 +5,30 @@
       :barTab="viewToolBarTab"
     >
       <span slot="bar-menu">
-        <v-btn flat onclick="alert('Add building~')">添加楼宇</v-btn>
+        <v-btn flat @click.native="addSnackBar('假装添加楼宇成功~', 'success')">添加楼宇</v-btn>
         <v-btn icon>
           <v-icon>help</v-icon>
         </v-btn>
       </span>
     </view-tool-bar>
-    <v-progress-circular v-if="loading" :size="48" indeterminate color="primary" class="building-center"></v-progress-circular>
+    <v-progress-linear v-if="loading" :size="48" indeterminate class="my-0"></v-progress-linear>
     <v-alert v-else-if="error" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
-    <p v-else-if="viewToolBarTab.length==0" class="building-center">暂无楼宇记录 - <a onclick="alert('Add building~')">点击此处添加</a></p>
+    <p v-else-if="viewToolBarTab.length==0" class="building-center">暂无楼宇记录 - <a @click.native="addSnackBar('假装添加楼宇成功~', 'success')">点击此处添加</a></p>
     <router-view v-else></router-view>
+    <v-container style="width:initial;position:fixed;right:0;bottom:54px;z-index:3" grid-list-md>
+      <v-layout column reverse wrap align-end>
+        <v-flex
+          v-for="(snackItem, index) in $store.state.snackbar"
+          :key="index"
+          tag="v-snackbar"
+          v-model="snackItem.value"
+          :color="snackItem.color"
+          style="position:static;"
+        >
+          {{ snackItem.text }}<v-btn flat color="pink" @click.native="closeSnackBar(index)">OK</v-btn>
+        </v-flex>
+      </v-layout>
+    </v-container>
   </div>
 </template>
 
@@ -35,7 +49,9 @@ export default {
     this.initialize();
   },
   watch: {
-    $route: "initialize"
+    $route() {
+      if (this.viewToolBarTab.length == 0) this.initialize();
+    }
   },
   methods: {
     initialize() {
@@ -43,7 +59,7 @@ export default {
       this.error = null;
 
       this.$http
-        .post("/cms/houseInfo/list.json")
+        .post("/cms/buildingInfo/list.json", { delFlag: 1 })
         .then(res => {
           this.loading = false;
 
@@ -51,26 +67,15 @@ export default {
           let buildingArr = resData && resData.length ? resData : [];
 
           this.viewToolBarTab = buildingArr.map(el => ({
-            name: el.name,
+            name: el.buildingName,
             to: {
               name: "building-detail",
               params: { buildingId: el.buildingId }
             }
           }));
 
-          this.viewToolBarTab = [
-            {
-              name: "望京SOHO",
-              to: { name: "building-detail", params: { buildingId: 1 } }
-            },
-            {
-              name: "利星行中心",
-              to: { name: "building-detail", params: { buildingId: 2 } }
-            }
-          ];
-
           if (
-            this.$route.fullPath == "/building" &&
+            "/building/".indexOf(this.$route.fullPath) > -1 &&
             this.viewToolBarTab.length
           ) {
             this.$router.push(this.viewToolBarTab[0].to);
@@ -80,6 +85,12 @@ export default {
           this.loading = false;
           this.error = true;
         });
+    },
+    addSnackBar(text, type) {
+      this.$store.commit("addSnackBar", text, type);
+    },
+    closeSnackBar(index) {
+      this.$store.commit("closeSnackBar", index);
     }
   }
 };

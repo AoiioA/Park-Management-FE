@@ -40,7 +40,7 @@
               :column="$vuetify.breakpoint.xs"
               no-wrap
               :items="parkInfoList"
-              :rows-per-page-items="[]"
+              :rows-per-page-items="['']"
               :pagination.sync="pagination"
             >
               <v-flex

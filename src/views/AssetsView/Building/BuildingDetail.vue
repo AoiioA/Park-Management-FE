@@ -8,7 +8,7 @@
               content-tag="v-layout"
               column
               wrap
-              :items="parkInfoList"
+              :items="houseInfoArr"
               :rows-per-page-items="['']"
               :pagination.sync="pagination"
             >
@@ -22,7 +22,7 @@
               <v-flex slot="no-data" style="height: 246px; line-height: 246px;">
                 <v-progress-circular indeterminate color="primary" v-if="networkLoading"></v-progress-circular>
                 <div v-else-if="networkError">网络出现异常 - 检查网络后刷新重试</div>
-                <div v-else>暂无园区记录 - 点击左侧添加</div>
+                <div v-else>暂无房屋记录</div>
               </v-flex>
             </v-data-iterator>
           </v-flex>
@@ -32,39 +32,53 @@
   </div>
 </template>
 <script>
+import "../../../../tests/mock/building-mock";
+
 export default {
   data: () => ({
     networkLoading: false,
     networkError: false,
-    parkInfoList: [],
-    newParkInfo: {
-      parkName: { text: "园区名称", value: "" },
-      acreage: { text: "面积(m²)", value: "" },
-      buildingNumber: { text: "建筑数量", value: "" },
-      fullAddress: { text: "地址", value: "" },
-      environment: { text: "环境描述", value: "" }
-    },
+    buildingInfo: {},
+    houseInfoArr: [],
+    newHouseInfo: {},
     pagination: {
-      rowsPerPage: 3
+      rowsPerPage: 5
     }
   }),
   mounted() {
     this.initialize();
   },
+  watch: {
+    $route: "initialize"
+  },
   methods: {
     initialize() {
       this.networkLoading = true;
+      this.buildingInfo = {};
+      this.houseInfoArr = [];
       this.$http
-        .post("/cms/parkInfo/list.json")
-        .then(res => {
-          this.networkLoading = false;
-
-          let resData = res.data.data;
-          this.parkInfoList = resData && resData.length ? resData : [];
-        })
-        .catch(() => {
+        .all([
+          this.$http.post("/cms/buildingInfo/list.json", {
+            buildingId: this.$route.params.buildingId
+          }),
+          this.$http.post("/cms/houseInfo/listByFloor.json", {
+            buildingId: this.$route.params.buildingId
+          })
+        ])
+        .then(
+          this.$http.spread((building, house) => {
+            this.networkLoading = false;
+            let bData = building.data.data;
+            let hData = house.data.data;
+            console.log(bData, hData);
+            this.buildingInfo = bData && bData.length ? bData[0] : {};
+            this.houseInfoArr = hData && hData.length ? hData : [];
+          })
+        )
+        .catch(err => {
           this.networkLoading = false;
           this.networkError = true;
+          console.log(err);
         });
     }
   }
