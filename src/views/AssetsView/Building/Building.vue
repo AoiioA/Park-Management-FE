@@ -47,6 +47,7 @@ export default {
   }),
   created() {
     this.initialize();
+    this.$store.commit("changeToolBarTitle", this.viewToolBarTitle);
   },
   watch: {
     $route() {

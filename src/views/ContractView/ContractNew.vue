@@ -203,6 +203,9 @@ export default {
       else return "";
     }
   },
+  created() {
+    this.$store.commit("changeToolBarTitle", "添加合同");
+  },
   methods: {
     getDay(date, day) {
       let time = new Date(

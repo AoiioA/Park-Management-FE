@@ -20,6 +20,9 @@ import { mapState } from "vuex";
 import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
+  components: {
+    ViewToolBar
+  },
   props: ["viewToolBarTitle"],
   data: () => ({
     viewToolBarTab: [
@@ -29,11 +32,11 @@ export default {
       { name: "已作废", to: "/contract/list/invalidated" }
     ]
   }),
-  components: {
-    ViewToolBar
-  },
   computed: {
     ...mapState({})
+  },
+  created() {
+    this.$store.commit("changeToolBarTitle", this.viewToolBarTitle);
   }
 };
 </script>

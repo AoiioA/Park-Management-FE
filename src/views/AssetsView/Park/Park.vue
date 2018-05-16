@@ -24,6 +24,9 @@ export default {
   }),
   components: {
     ViewToolBar
+  },
+  created() {
+    this.$store.commit("changeToolBarTitle", this.viewToolBarTitle);
   }
 };
 </script>

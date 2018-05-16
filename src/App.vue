@@ -12,7 +12,7 @@
       <v-footer app absolute inset height="auto" style="z-index:0">
         <v-layout row wrap justify-center>
           <v-flex xs12 py-3 text-xs-center>
-            &copy;2018 — <strong>BILIBALA</strong>
+            &copy;2018 — <strong>普惠互联</strong>
           </v-flex>
         </v-layout>
       </v-footer>

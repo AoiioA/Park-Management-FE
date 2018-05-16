@@ -5,7 +5,8 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    snackbar: []
+    snackbar: [],
+    toolBarTitle: ""
   },
   mutations: {
     addSnackBar(state, text, type) {
@@ -23,6 +24,9 @@ export default new Vuex.Store({
     },
     closeSnackBar(state, index) {
       state.snackbar[index].value = false;
+    },
+    changeToolBarTitle(state, title) {
+      state.toolBarTitle = title;
     }
   },
   actions: {}
