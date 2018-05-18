@@ -5,7 +5,28 @@
       :barTab="viewToolBarTab"
     >
       <span slot="bar-menu">
-        <v-btn flat @click.native="addSnackBar('假装添加楼宇成功~', 'success')">添加楼宇</v-btn>
+        <v-dialog v-model="newBuildingDialog" max-width="500px">
+          <v-btn flat slot="activator">添加楼宇</v-btn>
+          <v-card>
+            <v-card-title>
+              <span class="headline">添加楼宇</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container grid-list-md>
+                <v-layout wrap>
+                  <v-flex xs12 sm6 md4>
+                    <v-text-field v-model="editedBuilding.aaa" label="aaa"></v-text-field>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" flat @click.native="dialogClose">取消</v-btn>
+              <v-btn color="blue darken-1" flat @click.native="dialogSave">添加</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
         <v-btn icon>
           <v-icon>help</v-icon>
         </v-btn>
@@ -15,20 +36,6 @@
     <v-alert v-else-if="error" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
     <p v-else-if="viewToolBarTab.length==0" class="building-center">暂无楼宇记录 - <a @click.native="addSnackBar('假装添加楼宇成功~', 'success')">点击此处添加</a></p>
     <router-view v-else></router-view>
-    <v-container style="width:initial;position:fixed;right:0;bottom:54px;z-index:3" grid-list-md>
-      <v-layout column reverse wrap align-end>
-        <v-flex
-          v-for="(snackItem, index) in $store.state.snackbar"
-          :key="index"
-          tag="v-snackbar"
-          v-model="snackItem.value"
-          :color="snackItem.color"
-          style="position:static;"
-        >
-          {{ snackItem.text }}<v-btn flat color="pink" @click.native="closeSnackBar(index)">OK</v-btn>
-        </v-flex>
-      </v-layout>
-    </v-container>
   </div>
 </template>
 
@@ -43,7 +50,22 @@ export default {
   data: () => ({
     loading: false,
     error: null,
-    viewToolBarTab: []
+    viewToolBarTab: [],
+    newBuildingDialog: false,
+    editedBuilding: {
+      aaa: "",
+      bbb: "",
+      ccc: "",
+      ddd: "",
+      eee: ""
+    },
+    defaultBuilding: {
+      aaa: "",
+      bbb: "",
+      ccc: "",
+      ddd: "",
+      eee: ""
+    }
   }),
   created() {
     this.initialize();
@@ -52,7 +74,8 @@ export default {
   watch: {
     $route() {
       if (this.viewToolBarTab.length == 0) this.initialize();
-    }
+    },
+    newBuildingDialog: val => val || this.dialogClose()
   },
   methods: {
     initialize() {
@@ -87,11 +110,20 @@ export default {
           this.error = true;
         });
     },
+    dialogClose() {
+      if (confirm("取消后内容将不会保存")) {
+        this.newBuildingDialog = false;
+        setTimeout(() => {
+          this.editedBuilding = Object.assign({}, this.defaultBuilding);
+        }, 300);
+      }
+    },
+    dialogSave() {
+      this.dialogClose();
+      this.addSnackBar("假装添加楼宇成功~", "success");
+    },
     addSnackBar(text, type) {
       this.$store.commit("addSnackBar", text, type);
-    },
-    closeSnackBar(index) {
-      this.$store.commit("closeSnackBar", index);
     }
   }
 };

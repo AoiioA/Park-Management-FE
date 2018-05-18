@@ -43,8 +43,8 @@ export const houseByFloor = Mock.mock(
     count: 1,
     "data|3-10": [
       {
-        "floorNumber|+1": 1,
-        "data|10-30": [
+        "floorNo|+1": 1,
+        "data|10-50": [
           {
             "houseId|+1": 1,
             buildingId: 1,

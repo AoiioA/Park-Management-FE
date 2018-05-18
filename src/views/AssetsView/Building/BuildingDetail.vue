@@ -2,16 +2,23 @@
   <div class="building-detail">
     <v-jumbotron color="blue-grey lighten-4" height="auto">
       <v-container grid-list-xl>
-        <v-layout>
-          <v-flex>
-            <v-subheader>
-              <span class="subheading">楼层房源视图</span>
-              <v-spacer></v-spacer>
-              <v-btn-toggle v-model="houseFilter" class="mx-2 elevation-0">
-                <v-btn flat value="average">平均分配</v-btn>
-                <v-btn flat value="area">房源面积</v-btn>
-                <v-btn flat value="date">房源租期</v-btn>
-              </v-btn-toggle>
+        <v-layout justify-center align-center>
+          <v-flex xs12 lg10>
+            <v-subheader class="px-0">
+              <span style="min-width: 104px" class="mx-2">
+                <v-select
+                  disabled
+                  :items="houseFilterArr"
+                  v-model="houseFilter"
+                  item-text="text"
+                  item-value="value"
+                  return-object
+                  :hint="`切换房源视图类型`"
+                  persistent-hint
+                  single-line
+                  class="pt-0"
+                ></v-select>
+              </span>
               <v-spacer></v-spacer>
               <v-btn depressed>编辑楼宇</v-btn>
               <v-btn depressed color="primary">添加房源</v-btn>
@@ -29,14 +36,12 @@
         >
           <!-- <v-layout ></v-layout> -->
           <v-flex slot="item" slot-scope="props" xs12 lg10>
-            <v-card>
-              <chart
-                :options="getOption(props)"
-                theme="light"
-                auto-resize
-                style="height:300px;width:100%;"
-              ></chart>
-            </v-card>
+            <chart
+              :options="getOption(props)"
+              theme="light"
+              auto-resize
+              style="height:240px;width:100%;"
+            ></chart>
           </v-flex>
           <v-flex slot="no-data" style="height: 246px; line-height: 246px;">
             <v-progress-circular indeterminate color="primary" v-if="networkLoading"></v-progress-circular>
@@ -49,7 +54,7 @@
   </div>
 </template>
 <script>
-import "../../../../tests/mock/building-mock";
+import "@/mock/building-mock";
 
 export default {
   data: () => ({
@@ -61,7 +66,24 @@ export default {
     pagination: {
       rowsPerPage: 3
     },
-    houseFilter: "area"
+    houseFilter: {
+      text: "面积视图",
+      value: "area"
+    },
+    houseFilterArr: [
+      {
+        text: "平均视图",
+        value: "average"
+      },
+      {
+        text: "面积视图",
+        value: "area"
+      },
+      {
+        text: "期限视图",
+        value: "date"
+      }
+    ]
   }),
   watch: {
     $route: "initialize"
@@ -99,85 +121,98 @@ export default {
           console.log(err);
         });
     },
-    getOption: floor => ({
-      title: {
-        text: `第${floor.item.floorNumber}层`,
-        subtext: "",
-        textStyle: {
-          color: "#fff",
-          fontWeight: "500"
-        }
-      },
-      tooltip: {
-        formatter: "{b}: <br />面积：{c}m²"
-      },
-      series: [
-        {
-          name: `全部房源`,
-          type: "treemap",
-          width: "100%",
-          height: "100%",
-          leafDepth: 1,
-          levels: [
-            {
+    getOption: floor => {
+      const houseStatus = ["空置房源", "预定房源", "出租房源", "维护房源"];
+
+      let floorData = houseStatus.map((status, i) => ({
+        name: status,
+        value: [0, i],
+        children: []
+      }));
+
+      floor.item.data.forEach(house => {
+        floorData[house.resourceStatus].value[0] = (
+          parseFloat(house.buildArea) +
+          parseFloat(floorData[house.resourceStatus].value[0])
+        ).toFixed(2);
+
+        floorData[house.resourceStatus].children.push({
+          name: `${house.doorNumber}室`,
+          value: [parseFloat(house.buildArea)]
+          // link: "aaa"
+        });
+      });
+
+      return {
+        title: {
+          text: `第${floor.item.floorNo}层`,
+          subtext: "",
+          top: 10,
+          left: 10,
+          textStyle: {
+            color: "#fff",
+            fontWeight: "500"
+          }
+        },
+        tooltip: { formatter: a => `${a.name}: <br />面积：${a.value[0]}m²` },
+        series: [
+          {
+            name: `全部房源`,
+            value: 111,
+            type: "treemap",
+            width: "100%",
+            height: "100%",
+            // roam: "false",
+            nodeClick: "link",
+            breadcrumb: {
+              left: 0,
               itemStyle: {
-                normal: {}
+                borderWidth: 0,
+                opacity: 0.78
               }
             },
-            {
-              colorSaturation: [0.3, 0.6],
-              itemStyle: {
-                normal: {
-                  borderColorSaturation: 0.7,
-                  gapWidth: 2,
-                  borderWidth: 2
+            leafDepth: 1,
+            levels: [
+              {
+                // color: ["#37A2DA", "#32C5E9", "#67E0E3", "#9fe6b8"],
+                // color: ["#37A2DA", "#32C5E9", "#7bd9a5", "#AAA"],
+                // color: ["#23B6C9", "#EBB206", "#AB60B8", "#AAA"],
+                color: ["#4FC3F7", "#1E88E5", "#5C6BC0", "#90A4AE"],
+                colorMappingBy: "value",
+                squareRatio: 0.000001,
+                visualDimension: 1,
+                itemStyle: {
+                  normal: {
+                    borderColor: "#CFD8DC",
+                    gapWidth: 8
+                  }
+                }
+              },
+              {
+                colorSaturation: [0.6, 0.4],
+                itemStyle: {
+                  normal: {
+                    borderColorSaturation: 0.7,
+                    gapWidth: 4,
+                    borderWidth: 4
+                  }
+                }
+              },
+              {
+                colorSaturation: [0.6, 0.4],
+                itemStyle: {
+                  normal: {
+                    borderColorSaturation: 0.6,
+                    gapWidth: 1
+                  }
                 }
               }
-            },
-            {
-              colorSaturation: [0.3, 0.5],
-              itemStyle: {
-                normal: {
-                  borderColorSaturation: 0.6,
-                  gapWidth: 1
-                }
-              }
-            },
-            {
-              colorSaturation: [0.3, 0.5]
-            }
-          ],
-          data: (() => {
-            const houseStatus = [
-              "空置房源",
-              "出租房源",
-              "预定房源",
-              "维护房源"
-            ];
-            let floorData = houseStatus.map(status => ({
-              name: status,
-              value: 0,
-              children: []
-            }));
-            floor.item.data.forEach(house => {
-              floorData[house.resourceStatus].value += parseFloat(
-                house.buildArea
-              );
-              floorData[house.resourceStatus].value = parseFloat(
-                floorData[house.resourceStatus].value
-              ).toFixed(2);
-              floorData[house.resourceStatus].children.push({
-                name: `${house.doorNumber}室`,
-                value: parseFloat(house.buildArea)
-              });
-            });
-            return floorData;
-          })()
-        }
-      ]
-    })
+            ],
+            data: floorData
+          }
+        ]
+      };
+    }
   }
 };
 </script>
-<style lang="stylus" scoped>
-</style>
