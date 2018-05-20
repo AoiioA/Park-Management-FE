@@ -5,6 +5,17 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    rules: {
+      required: val =>
+        val instanceof Array
+          ? !!val.length
+          : !!val || val === 0 || "此项为必填项",
+      greaterThanZero: val => val > 0 || "此项需大于零",
+      email: value => {
+        const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return pattern.test(value) || "此项需按e-mail格式";
+      }
+    },
     snackbar: [],
     toolBarTitle: ""
   },

@@ -5,27 +5,49 @@
       :barTab="viewToolBarTab"
     >
       <span slot="bar-menu">
-        <v-dialog v-model="newBuildingDialog" max-width="500px">
+        <v-dialog v-model="newBuildingDialog" max-width="300px" persistent>
           <v-btn flat slot="activator">添加楼宇</v-btn>
-          <v-card>
-            <v-card-title>
-              <span class="headline">添加楼宇</span>
-            </v-card-title>
-            <v-card-text>
-              <v-container grid-list-md>
-                <v-layout wrap>
-                  <v-flex xs12 sm6 md4>
-                    <v-text-field v-model="editedBuilding.aaa" label="aaa"></v-text-field>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" flat @click.native="dialogClose">取消</v-btn>
-              <v-btn color="blue darken-1" flat @click.native="dialogSave">添加</v-btn>
-            </v-card-actions>
-          </v-card>
+          <v-form ref="newBuildingForm" v-model="newBuildingValid" lazy-validation>
+            <v-card>
+              <v-card-title>
+                <span class="headline">新楼宇即将添加</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container grid-list-xs>
+                  <v-layout wrap>
+                    <v-flex xs12>
+                      <v-text-field
+                        v-model="editedBuilding.buildingName"
+                        :rules="[$store.state.rules.required]"
+                        label="楼宇名称"
+                        hint="如 : 望京SOHO"
+                        persistent-hint
+                        required
+                      ></v-text-field>
+                    </v-flex>
+                    <v-flex xs12>
+                      <v-select
+                        v-model="editedBuilding.parkId"
+                        :items="parkArr"
+                        item-text="parkName"
+                        item-value="parkId"
+                        label="所属园区"
+                        hint="您可以在稍后选择或修改"
+                        persistent-hint
+                        autocomplete
+                      ></v-select>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+                <small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn depressed @click="newBuildingClose(true)">取消操作</v-btn>
+                <v-btn :disabled="!newBuildingValid" @click="newBuildingSave" depressed color="primary">确认添加</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
         </v-dialog>
         <v-btn icon>
           <v-icon>help</v-icon>
@@ -52,20 +74,20 @@ export default {
     error: null,
     viewToolBarTab: [],
     newBuildingDialog: false,
+    newBuildingValid: true,
     editedBuilding: {
-      aaa: "",
-      bbb: "",
-      ccc: "",
-      ddd: "",
-      eee: ""
+      buildingName: "",
+      park: ""
     },
     defaultBuilding: {
-      aaa: "",
-      bbb: "",
-      ccc: "",
-      ddd: "",
-      eee: ""
-    }
+      buildingName: "",
+      parkId: ""
+    },
+    parkArr: [
+      { parkName: "Reading", parkId: "Read" },
+      { parkName: "Writing", parkId: "Write" },
+      { parkName: "Coding", parkId: "Code" }
+    ]
   }),
   created() {
     this.initialize();
@@ -74,14 +96,12 @@ export default {
   watch: {
     $route() {
       if (this.viewToolBarTab.length == 0) this.initialize();
-    },
-    newBuildingDialog: val => val || this.dialogClose()
+    }
   },
   methods: {
     initialize() {
       this.loading = true;
       this.error = null;
-
       this.$http
         .post("/cms/buildingInfo/list.json", { delFlag: 1 })
         .then(res => {
@@ -110,17 +130,18 @@ export default {
           this.error = true;
         });
     },
-    dialogClose() {
-      if (confirm("取消后内容将不会保存")) {
+    newBuildingClose(isCancel) {
+      if (!isCancel || confirm("取消后内容将不会保存")) {
+        this.editedBuilding = Object.assign({}, this.defaultBuilding);
+        this.$refs.newBuildingForm.reset();
         this.newBuildingDialog = false;
-        setTimeout(() => {
-          this.editedBuilding = Object.assign({}, this.defaultBuilding);
-        }, 300);
       }
     },
-    dialogSave() {
-      this.dialogClose();
-      this.addSnackBar("假装添加楼宇成功~", "success");
+    newBuildingSave() {
+      if (this.$refs.newBuildingForm.validate()) {
+        this.newBuildingClose(false);
+        this.addSnackBar("假装添加楼宇成功~", "success");
+      }
     },
     addSnackBar(text, type) {
       this.$store.commit("addSnackBar", text, type);

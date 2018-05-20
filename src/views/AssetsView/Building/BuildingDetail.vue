@@ -38,8 +38,9 @@
           <v-flex slot="item" slot-scope="props" xs12 lg10>
             <chart
               :options="getOption(props)"
-              theme="light"
+              @click="clickHouse"
               auto-resize
+              theme="light"
               style="height:240px;width:100%;"
             ></chart>
           </v-flex>
@@ -138,14 +139,14 @@ export default {
 
         floorData[house.resourceStatus].children.push({
           name: `${house.doorNumber}室`,
-          value: [parseFloat(house.buildArea)]
-          // link: "aaa"
+          value: [parseFloat(house.buildArea)],
+          to: { path: "/house", query: { houseId: house.houseId } }
         });
       });
 
       return {
         title: {
-          text: `第${floor.item.floorNo}层`,
+          text: `房源 - ${floor.item.floorNo}层`,
           subtext: "",
           top: 10,
           left: 10,
@@ -212,6 +213,9 @@ export default {
           }
         ]
       };
+    },
+    clickHouse(obj) {
+      if (obj.data && obj.data.to) this.$router.push(obj.data.to);
     }
   }
 };
