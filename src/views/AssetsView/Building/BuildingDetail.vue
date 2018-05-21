@@ -140,7 +140,7 @@ export default {
         floorData[house.resourceStatus].children.push({
           name: `${house.doorNumber}室`,
           value: [parseFloat(house.buildArea)],
-          to: { path: "/house", query: { houseId: house.houseId } }
+          to: { path: "/house/house-detail", query: { houseId: house.houseId } }
         });
       });
 

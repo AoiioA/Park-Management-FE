@@ -10,62 +10,66 @@
         </v-flex>
         <v-flex xs12 md10 lg8>
           <v-stepper v-model="stepNum" vertical class="elevation-0 new-stepper">
-            <v-stepper-step :complete="stepNum > 1" step="1">
+            <v-stepper-step :rules="[() => !!formValid[0]]" :complete="stepNum>1" step="1">
               填写合同相关人
               <small>包含甲方、承租方、中介方信息</small>
             </v-stepper-step>
             <v-stepper-content step="1">
-              <v-container class="mb-3">
-                <!-- <v-subheader>甲方信息</v-subheader> -->
-                <v-layout row wrap>
-                  <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.signedPersonA" :rules="[$store.state.rules.required]" label="甲方公司" hint="" box required></v-text-field></v-flex>
-                  <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.partyA" :rules="[$store.state.rules.required]" label="甲方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
-                </v-layout>
-                <v-divider class="my-4"></v-divider>
-                <v-flex xs12 sm6>
-                  <v-radio-group v-model="newCTRT.type" :rules="[$store.state.rules.required]" required hint="切换承租方类型" persistent-hint row class="px-3 py-0">
-                    <v-radio label="公司承租" value="company"></v-radio>
-                    <v-radio label="个人承租" value="personal"></v-radio>
-                  </v-radio-group>
-                </v-flex>
-                <v-layout row wrap v-if="newCTRT.type=='company'">
-                  <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.companyName" :rules="[$store.state.rules.required]" label="承租方公司" hint="" persistent-hint box required></v-text-field></v-flex>
-                  <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.businessLicense" :rules="[$store.state.rules.required]" label="承租方营业执照" hint="" persistent-hint box required></v-text-field></v-flex>
-                  <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.legalPerson" :rules="[$store.state.rules.required]" label="承租方公司法人" hint="" persistent-hint box required></v-text-field></v-flex>
-                </v-layout>
-                <v-layout row wrap>
-                  <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.signedPersonB" :rules="[$store.state.rules.required]" label="承租方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
-                  <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.companyTel" :rules="[$store.state.rules.required]" mask="(+##)###-####-####" label="承租方联系方式" hint="" persistent-hint box required></v-text-field></v-flex>
-                  <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.companyIndustry" :rules="[$store.state.rules.required]" label="承租方所属行业" hint="" persistent-hint box required></v-text-field></v-flex>
-                  <v-flex xs12 class="pr-3"><v-text-field v-model="newCTRT.address" :rules="[$store.state.rules.required]" label="承租方通讯地址" hint="" persistent-hint box required></v-text-field></v-flex>
-                </v-layout>
-                <v-divider class="my-4"></v-divider>
-                <v-flex xs12 sm6><v-switch v-model="newCTRT.hasIntermediator" :label="newCTRT.hasIntermediator?'包含中介方':'无中介方'" class="px-0 py-0"></v-switch></v-flex>
-                <v-layout row wrap v-if="newCTRT.hasIntermediator">
-                  <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.intermediator" :rules="[$store.state.rules.required]" label="经纪人姓名" hint="" persistent-hint box required></v-text-field></v-flex>
-                  <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.idCode" :rules="[$store.state.rules.required]" mask="nnnnnnnnnnnnnnnnnn#" label="经纪人身份证" hint="" persistent-hint box required></v-text-field></v-flex>
-                  <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.intermediatorTel" :rules="[$store.state.rules.required]" mask="(+##)###-####-####" label="经纪人联系方式" hint="" persistent-hint box required></v-text-field></v-flex>
-                  <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.agency" :rules="[$store.state.rules.required]" label="经纪人公司" hint="" persistent-hint box required></v-text-field></v-flex>
-                </v-layout>
-              </v-container>
-              <v-btn color="primary" @click.native="stepNum++">下一节</v-btn>
+              <v-form ref="peopleForm" v-model="formValid[0]" lazy-validation>
+                <v-container grid-list-md class="mb-3">
+                  <!-- <v-subheader>甲方信息</v-subheader> -->
+                  <v-layout row wrap>
+                    <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.signedPersonA" :rules="[$store.state.rules.required]" label="甲方公司" hint="" box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.partyA" :rules="[$store.state.rules.required]" label="甲方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
+                  </v-layout>
+                  <v-divider class="my-4"></v-divider>
+                  <v-flex xs12 sm6>
+                    <v-radio-group v-model="newCTRT.type" :rules="[$store.state.rules.required]" required hint="切换承租方类型" persistent-hint row class="px-3 py-0">
+                      <v-radio label="公司承租" value="company"></v-radio>
+                      <v-radio label="个人承租" value="personal"></v-radio>
+                    </v-radio-group>
+                  </v-flex>
+                  <v-layout row wrap v-if="newCTRT.type=='company'">
+                    <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.companyName" :rules="[$store.state.rules.required]" label="承租方公司" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.businessLicense" :rules="[$store.state.rules.required]" label="承租方营业执照" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.legalPerson" :rules="[$store.state.rules.required]" label="承租方公司法人" hint="" persistent-hint box required></v-text-field></v-flex>
+                  </v-layout>
+                  <v-layout row wrap>
+                    <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.signedPersonB" :rules="[$store.state.rules.required]" label="承租方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.companyTel" :rules="[$store.state.rules.required]" mask="(+##)###-####-####" label="承租方联系方式" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.companyIndustry" :rules="[$store.state.rules.required]" label="承租方所属行业" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 class="pr-3"><v-text-field v-model="newCTRT.address" :rules="[$store.state.rules.required]" label="承租方通讯地址" hint="" persistent-hint box required></v-text-field></v-flex>
+                  </v-layout>
+                  <v-divider class="my-4"></v-divider>
+                  <v-flex xs12 sm6><v-switch v-model="newCTRT.hasIntermediator" :label="newCTRT.hasIntermediator?'包含中介方':'无中介方'" class="px-0 py-0"></v-switch></v-flex>
+                  <v-layout row wrap v-if="newCTRT.hasIntermediator">
+                    <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.intermediator" :rules="[$store.state.rules.required]" label="经纪人姓名" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.idCode" :rules="[$store.state.rules.required]" mask="nnnnnnnnnnnnnnnnnn#" label="经纪人身份证" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.intermediatorTel" :rules="[$store.state.rules.required]" mask="(+##)###-####-####" label="经纪人联系方式" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.agency" :rules="[$store.state.rules.required]" label="经纪人公司" hint="" persistent-hint box required></v-text-field></v-flex>
+                  </v-layout>
+                </v-container>
+                <v-btn @click.native="nextStep($refs.peopleForm)" color="primary">下一节</v-btn>
+              </v-form>
             </v-stepper-content>
-            <v-stepper-step :complete="stepNum > 2" step="2">
+            <v-stepper-step :rules="[() => !!formValid[1]]" :complete="stepNum>2" step="2">
               添加租赁房屋及租赁信息
               <small>不同种类的房源将分别按不同方式计费，请在第四部分核对总金额</small>
             </v-stepper-step>
             <v-stepper-content step="2">
-              <v-card color="grey lighten-1" class="mb-5" height="200px"></v-card>
-              <v-btn color="primary" @click.native="stepNum++">下一节</v-btn>
-              <v-btn flat @click.native="stepNum--">后退</v-btn>
+              <v-form ref="assetsForm" v-model="formValid[1]" lazy-validation>
+                <v-card color="grey lighten-1" class="mb-5" height="200px"></v-card>
+                <v-btn @click.native="nextStep($refs.assetsForm)" color="primary">下一节</v-btn>
+                <v-btn flat @click.native="stepNum--">后退</v-btn>
+              </v-form>
             </v-stepper-content>
-            <v-stepper-step :complete="stepNum > 3" step="3">
+            <v-stepper-step :rules="[() => !!formValid[2]]" :complete="stepNum>3" step="3">
               完善合同信息
               <small>包括合同编号、租赁时长、添加免租等</small>
             </v-stepper-step>
             <v-stepper-content step="3">
-              <v-card color="grey lighten-3" class="elevation-0 mb-3">
-                <v-container grid-list-md>
+              <v-form ref="dateForm" v-model="formValid[2]" lazy-validation>
+                <v-container grid-list-md class="mb-3">
                   <v-layout row wrap>
                     <v-flex xs12 sm6><v-text-field v-model="newCTRT.contractNo" mask="AAAA-########-####" label="合同编号" hint="例:ABCD-YYYYMMDD-1234 可由系统自动生成" persistent-hint box></v-text-field></v-flex>
                     <v-flex xs12 sm6><v-text-field v-model="newCTRT.contractName" :rules="[$store.state.rules.required]" label="合同名称" hint="" persistent-hint box required></v-text-field></v-flex>
@@ -96,9 +100,9 @@
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.liquidatedDamages" :rules="[$store.state.rules.required]" mask="#########" label="违约金(元)" hint="" persistent-hint box required></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
-              </v-card>
-              <v-btn color="primary" @click.native="stepNum++">下一节</v-btn>
-              <v-btn flat @click.native="stepNum--">后退</v-btn>
+                <v-btn @click.native="nextStep($refs.dateForm)" color="primary">下一节</v-btn>
+                <v-btn flat @click.native="stepNum--">后退</v-btn>
+              </v-form>
             </v-stepper-content>
             <v-stepper-step step="4">
               请确认信息无误并提交申请
@@ -106,7 +110,7 @@
             </v-stepper-step>
             <v-stepper-content step="4">
               <v-card color="grey lighten-1" class="mb-5" height="200px"></v-card>
-              <v-btn color="primary" @click.native="1">确认无误并提交</v-btn>
+              <v-btn :disabled="!formValid.reduce((all, el) => all && el)" @click.native="submitContract" color="primary">确认无误并提交</v-btn>
               <v-btn flat @click.native="stepNum--">后退</v-btn>
             </v-stepper-content>
           </v-stepper>
@@ -123,11 +127,6 @@ export default {
   name: "contract-new",
   data: () => ({
     stepNum: 1,
-    dateMenu: {
-      signingDate: false,
-      startDate: false,
-      endDate: false
-    },
     newCTRT: {
       // 甲方
       signedPersonA: "",
@@ -169,6 +168,12 @@ export default {
         }
       ]
     },
+    dateMenu: {
+      signingDate: false,
+      startDate: false,
+      endDate: false
+    },
+    formValid: [true, true, true, true],
     rules: {
       afterSigning: val =>
         Date(this.getDay(this.newCTRT.startDate, -1 * val)) >
@@ -203,6 +208,23 @@ export default {
     this.$store.commit("changeToolBarTitle", "添加合同");
   },
   methods: {
+    nextStep(el) {
+      el.validate();
+      this.stepNum++;
+    },
+    submitContract() {
+      if (this.formValid.reduce((all, el) => all && el)) {
+        this.$http
+          .post("/cms/buildingInfo/list.json", this.newCTRT)
+          .then(res => {
+            console.log(res);
+            this.addSnackBar("新合同已提交成功 即将开始审核", "success");
+          })
+          .catch(() => {
+            this.addSnackBar("新合同提交出现错误 请检查后重试", "error");
+          });
+      }
+    },
     getDay(date, day) {
       let time = new Date(
         new Date(date).getTime() + parseInt(day) * 24 * 60 * 60 * 1000
@@ -212,6 +234,9 @@ export default {
         2,
         0
       )}-${_.padStart(time.getDate(), 2, 0)}`;
+    },
+    addSnackBar(text, type) {
+      this.$store.commit("addSnackBar", text, type);
     }
   }
 };

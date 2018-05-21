@@ -104,7 +104,7 @@ export default {
           child: [
             { action: "business", title: "园区管理", url: "/park" },
             { action: "business", title: "楼宇管理", url: "/building" },
-            { action: "business", title: "房源管理", url: "/Room" }
+            { action: "business", title: "房源管理", url: "/house" }
           ]
         },
         {
