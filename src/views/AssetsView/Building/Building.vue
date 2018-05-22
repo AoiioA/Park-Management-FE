@@ -62,6 +62,7 @@
 </template>
 
 <script>
+import "@/mock/building-mock";
 import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {

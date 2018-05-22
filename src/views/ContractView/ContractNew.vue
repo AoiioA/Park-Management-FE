@@ -1,6 +1,6 @@
 <template>
   <transition name="slide-fade">
-    <v-container class="contract-new">
+    <v-container class="contract-new px-2">
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 md10 lg8 class="headline">
           <v-btn flat icon @click="$router.go(-1)">
@@ -16,37 +16,37 @@
             </v-stepper-step>
             <v-stepper-content step="1">
               <v-form ref="peopleForm" v-model="formValid[0]" lazy-validation>
-                <v-container grid-list-md class="mb-3">
+                <v-container grid-list-md>
                   <!-- <v-subheader>甲方信息</v-subheader> -->
                   <v-layout row wrap>
-                    <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.signedPersonA" :rules="[$store.state.rules.required]" label="甲方公司" hint="" box required></v-text-field></v-flex>
-                    <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.partyA" :rules="[$store.state.rules.required]" label="甲方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.signedPersonA" :rules="[$store.state.rules.required]" label="甲方公司" hint="" box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.partyA" :rules="[$store.state.rules.required]" label="甲方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
                   </v-layout>
-                  <v-divider class="my-4"></v-divider>
+                  <v-divider class="mt-3"></v-divider>
                   <v-flex xs12 sm6>
-                    <v-radio-group v-model="newCTRT.type" :rules="[$store.state.rules.required]" required hint="切换承租方类型" persistent-hint row class="px-3 py-0">
+                    <v-radio-group v-model="newCTRT.type" :rules="[$store.state.rules.required]" required hint="切换承租方类型" persistent-hint row>
                       <v-radio label="公司承租" value="company"></v-radio>
                       <v-radio label="个人承租" value="personal"></v-radio>
                     </v-radio-group>
                   </v-flex>
                   <v-layout row wrap v-if="newCTRT.type=='company'">
-                    <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.companyName" :rules="[$store.state.rules.required]" label="承租方公司" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.businessLicense" :rules="[$store.state.rules.required]" label="承租方营业执照" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.legalPerson" :rules="[$store.state.rules.required]" label="承租方公司法人" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.companyName" :rules="[$store.state.rules.required]" label="承租方公司" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.businessLicense" :rules="[$store.state.rules.required]" label="承租方营业执照" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.legalPerson" :rules="[$store.state.rules.required]" label="承租方公司法人" hint="" persistent-hint box required></v-text-field></v-flex>
                   </v-layout>
                   <v-layout row wrap>
-                    <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.signedPersonB" :rules="[$store.state.rules.required]" label="承租方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.companyTel" :rules="[$store.state.rules.required]" mask="(+##)###-####-####" label="承租方联系方式" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm4 class="pr-3"><v-text-field v-model="newCTRT.companyIndustry" :rules="[$store.state.rules.required]" label="承租方所属行业" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 class="pr-3"><v-text-field v-model="newCTRT.address" :rules="[$store.state.rules.required]" label="承租方通讯地址" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.signedPersonB" :rules="[$store.state.rules.required]" label="承租方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.companyTel" :rules="[$store.state.rules.required]" mask="(+##)###-####-####" label="承租方联系方式" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.companyIndustry" :rules="[$store.state.rules.required]" label="承租方所属行业" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12><v-text-field v-model="newCTRT.address" :rules="[$store.state.rules.required]" label="承租方通讯地址" hint="" persistent-hint box required></v-text-field></v-flex>
                   </v-layout>
                   <v-divider class="my-4"></v-divider>
-                  <v-flex xs12 sm6><v-switch v-model="newCTRT.hasIntermediator" :label="newCTRT.hasIntermediator?'包含中介方':'无中介方'" class="px-0 py-0"></v-switch></v-flex>
+                  <v-layout row wrap><v-flex xs12 sm6><v-switch v-model="newCTRT.hasIntermediator" :label="newCTRT.hasIntermediator?'包含中介方':'无中介方'" class="px-0 py-0"></v-switch></v-flex></v-layout>
                   <v-layout row wrap v-if="newCTRT.hasIntermediator">
-                    <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.intermediator" :rules="[$store.state.rules.required]" label="经纪人姓名" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.idCode" :rules="[$store.state.rules.required]" mask="nnnnnnnnnnnnnnnnnn#" label="经纪人身份证" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.intermediatorTel" :rules="[$store.state.rules.required]" mask="(+##)###-####-####" label="经纪人联系方式" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm6 class="pr-3"><v-text-field v-model="newCTRT.agency" :rules="[$store.state.rules.required]" label="经纪人公司" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.intermediator" :rules="[$store.state.rules.required]" label="经纪人姓名" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.idCode" :rules="[$store.state.rules.required]" mask="#################N" label="经纪人身份证" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.intermediatorTel" :rules="[$store.state.rules.required]" mask="(+##)###-####-####" label="经纪人联系方式" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.agency" :rules="[$store.state.rules.required]" label="经纪人公司" hint="" persistent-hint box required></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
                 <v-btn @click.native="nextStep($refs.peopleForm)" color="primary">下一节</v-btn>
@@ -58,7 +58,46 @@
             </v-stepper-step>
             <v-stepper-content step="2">
               <v-form ref="assetsForm" v-model="formValid[1]" lazy-validation>
-                <v-card color="grey lighten-1" class="mb-5" height="200px"></v-card>
+                <v-container grid-list-md>
+                  <v-layout row wrap v-for="(assets, assetsIndex) in newAssets" :key="assets.houseId">
+                    <v-flex xs6 sm3>
+                      <v-menu v-model="menu.building" :close-on-content-click="false" offset-y nudge-top="20" lazy>
+                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="assets.buildingName" label="签约楼宇" :hint="assets.parkName" persistent-hint box required readonly></v-text-field>
+                        <v-list v-if="assetsInfo.length">
+                          <v-menu v-for="(assetsPark, i) in assetsInfo" :key="i" offset-x style="display:block">
+                            <v-list-tile slot="activator" @click="1">
+                              <v-list-tile-title>{{ assetsPark.parkName }}</v-list-tile-title>
+                            </v-list-tile>
+                            <v-list>
+                              <v-list-tile v-for="(assetsBuilding, j) in assetsPark.building" :key="j" @click="changeBuilding(assetsIndex, i, j)">
+                                <v-list-tile-title>{{ assetsBuilding.buildingName }}</v-list-tile-title>
+                              </v-list-tile>
+                            </v-list>
+                          </v-menu>
+                        </v-list>
+                      </v-menu>
+                    </v-flex>
+                    <v-flex xs6 sm3>
+                      <v-menu v-model="menu.house" :disabled="!assets.buildingName" :close-on-content-click="false" offset-y nudge-top="20" lazy>
+                        <v-text-field slot="activator" :disabled="!assets.buildingName" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.floorNumber}层 - ${assets.doorNumber}室` : ''" label="签约房源" :hint="assets.doorNumber ? `${assets.buildArea}M²` : ''" persistent-hint box required readonly></v-text-field>
+                        <v-list>
+                          <v-menu v-for="(assetsFloor, i) in assetsFloorInfo" :key="i" offset-x style="display:block">
+                            <v-list-tile slot="activator" @click="1">
+                              <v-list-tile-title>{{ assetsFloor.floorNumber }}层</v-list-tile-title>
+                            </v-list-tile>
+                            <v-list>
+                              <v-list-tile v-for="(assetsHouse, j) in assetsFloor.house" :key="j" @click="changeHouse(assetsIndex, i, j)">
+                                <v-list-tile-title>{{ assetsHouse.doorNumber }}室</v-list-tile-title>
+                              </v-list-tile>
+                            </v-list>
+                          </v-menu>
+                        </v-list>
+                      </v-menu>
+                    </v-flex>
+                    <v-flex xs6 sm3><v-text-field v-model="assets.price" :disabled="!assets.houseId" :rules="[$store.state.rules.required]" mask="#########" label="平米单价(元)" :hint="assets.price ? `${30 * assets.price * assets.buildArea}元/30天` : ''" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs6 sm3><v-text-field v-model="assets.increaseRate" :disabled="!assets.houseId" :rules="[$store.state.rules.required]" label="年递增率(%)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
+                  </v-layout>
+                </v-container>
                 <v-btn @click.native="nextStep($refs.assetsForm)" color="primary">下一节</v-btn>
                 <v-btn flat @click.native="stepNum--">后退</v-btn>
               </v-form>
@@ -69,34 +108,34 @@
             </v-stepper-step>
             <v-stepper-content step="3">
               <v-form ref="dateForm" v-model="formValid[2]" lazy-validation>
-                <v-container grid-list-md class="mb-3">
+                <v-container grid-list-md>
                   <v-layout row wrap>
                     <v-flex xs12 sm6><v-text-field v-model="newCTRT.contractNo" mask="AAAA-########-####" label="合同编号" hint="例:ABCD-YYYYMMDD-1234 可由系统自动生成" persistent-hint box></v-text-field></v-flex>
                     <v-flex xs12 sm6><v-text-field v-model="newCTRT.contractName" :rules="[$store.state.rules.required]" label="合同名称" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm8><v-text-field v-model="newCTRT.contractAddress" :rules="[$store.state.rules.required]" label="合同签署地址" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm4>
-                      <v-menu :close-on-content-click="false" v-model="dateMenu.signingDate" offset-y lazy>
+                      <v-menu :close-on-content-click="false" v-model="menu.signingDate" offset-y lazy>
                         <v-text-field slot="activator" v-model="newCTRT.signingDate" :rules="[$store.state.rules.required]" label="签订日期" hint="仅可选择上个月后的日期" persistent-hint box required readonly></v-text-field>
-                        <v-date-picker v-model="newCTRT.signingDate" :min="getDay(new Date(), -30)" :first-day-of-week="0" show-current locale="zh-cn" @input="dateMenu.signingDate = false"></v-date-picker>
+                        <v-date-picker v-model="newCTRT.signingDate" :min="getDay(new Date(), -30)" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.signingDate = false"></v-date-picker>
                       </v-menu>
                     </v-flex>
                     <v-flex xs12 sm3>
-                      <v-menu :close-on-content-click="false" v-model="dateMenu.startDate" :disabled="!newCTRT.signingDate" offset-y lazy>
+                      <v-menu :close-on-content-click="false" v-model="menu.startDate" :disabled="!newCTRT.signingDate" offset-y lazy>
                         <v-text-field slot="activator" v-model="newCTRT.startDate" :rules="[$store.state.rules.required]" :disabled="!newCTRT.signingDate" label="记租开始日期" hint="" persistent-hint box required readonly></v-text-field>
-                        <v-date-picker v-model="newCTRT.startDate" :min="newCTRT.signingDate" :first-day-of-week="0" show-current locale="zh-cn" @input="dateMenu.startDate = false"></v-date-picker>
+                        <v-date-picker v-model="newCTRT.startDate" :min="newCTRT.signingDate" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.startDate = false"></v-date-picker>
                       </v-menu>
                     </v-flex>
                     <v-flex xs12 sm3>
-                      <v-menu :close-on-content-click="false" v-model="dateMenu.endDate" :disabled="!newCTRT.startDate" offset-y lazy>
+                      <v-menu :close-on-content-click="false" v-model="menu.endDate" :disabled="!newCTRT.startDate" offset-y lazy>
                         <v-text-field slot="activator" v-model="newCTRT.endDate" :rules="[$store.state.rules.required]" :disabled="!newCTRT.startDate" label="记租结束日期" hint="" persistent-hint box required readonly></v-text-field>
-                        <v-date-picker v-model="newCTRT.endDate" :min="newCTRT.startDate" :first-day-of-week="0" show-current locale="zh-cn" @input="dateMenu.endDate = false"></v-date-picker>
+                        <v-date-picker v-model="newCTRT.endDate" :min="newCTRT.startDate" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.endDate = false"></v-date-picker>
                       </v-menu>
                     </v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.beforeFree" :rules="[$store.state.rules.required]" mask="###" :disabled="!newCTRT.startDate" label="记租开始前免租(天)" :hint="beforeFreeHint" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.afterFree" :rules="[$store.state.rules.required]" mask="###" :disabled="!newCTRT.endDate" label="记租结束后免租(天)" :hint="afterFreeHint" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.rentDate" :rules="[$store.state.rules.required]" mask="###" label="租金缴纳应提前(天)" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.deposit" :rules="[$store.state.rules.required]" mask="#########" label="押金(元)" hint="合同生效后既缴纳 合同到期后返还" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.month" :rules="[$store.state.rules.required, $store.state.rules.greaterThanZero]" mask="##" label="租金缴纳间隔(月)" :hint="`每${newCTRT.month}个月缴纳${1000*newCTRT.month}元`" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.month" :rules="[$store.state.rules.required, $store.state.rules.noZero]" mask="##" label="租金缴纳间隔(月)" :hint="`每${newCTRT.month}个月缴纳${1000*newCTRT.month}元`" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.liquidatedDamages" :rules="[$store.state.rules.required]" mask="#########" label="违约金(元)" hint="" persistent-hint box required></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
@@ -126,7 +165,7 @@ import _ from "lodash";
 export default {
   name: "contract-new",
   data: () => ({
-    stepNum: 1,
+    stepNum: 2,
     newCTRT: {
       // 甲方
       signedPersonA: "",
@@ -158,17 +197,26 @@ export default {
       rentDate: 30,
       deposit: 0,
       month: 1,
-      increaseRate: 1,
-      liquidatedDamages: 0,
-      house: [
-        {
-          houseId: 1,
-          rent: 0,
-          type: "房屋"
-        }
-      ]
+      liquidatedDamages: 0
     },
-    dateMenu: {
+    newAssets: [],
+    defaultAssets: {
+      houseId: "",
+      parkName: "",
+      buildingName: "",
+      floorNumber: "",
+      doorNumber: "",
+      buildArea: "",
+      price: "",
+      increaseRate: "",
+      houseType: "",
+      earlyDate: ""
+    },
+    assetsInfo: [],
+    assetsFloorInfo: [],
+    menu: {
+      building: false,
+      house: false,
       signingDate: false,
       startDate: false,
       endDate: false
@@ -206,23 +254,103 @@ export default {
   },
   created() {
     this.$store.commit("changeToolBarTitle", "添加合同");
+    this.newAssets.push(this.defaultAssets);
+    this.initialize();
   },
   methods: {
-    nextStep(el) {
-      el.validate();
-      this.stepNum++;
-    },
-    submitContract() {
-      if (this.formValid.reduce((all, el) => all && el)) {
-        this.$http
-          .post("/cms/buildingInfo/list.json", this.newCTRT)
-          .then(res => {
-            console.log(res);
-            this.addSnackBar("新合同已提交成功 即将开始审核", "success");
-          })
-          .catch(() => {
-            this.addSnackBar("新合同提交出现错误 请检查后重试", "error");
+    initialize() {
+      this.$http
+        .post("/cms/assetsInfo/building.json")
+        .then(res => {
+          let resData = res.data.data;
+          resData = resData && resData.length ? resData : [];
+
+          let parkInfo = [];
+          resData.forEach(item => {
+            if (!parkInfo[item.parkId]) {
+              parkInfo[item.parkId] = {
+                parkId: item.parkId,
+                parkName: item.parkName,
+                building: []
+              };
+            }
+            parkInfo[item.parkId].building.push({
+              buildingId: item.buildingId,
+              buildingName: item.buildingName
+            });
           });
+          this.assetsInfo = parkInfo.filter(el => el);
+          console.log(this.assetsInfo);
+        })
+        .catch(() =>
+          this.addSnackBar("楼宇信息查询失败 请检查网络后重试", "error")
+        );
+    },
+    changeBuilding(assetsIndex, parkIndex, buildingIndex) {
+      // 关闭菜单
+      this.menu.building = false;
+      let assetsPark = this.assetsInfo[parkIndex];
+      let assetsBuilding = assetsPark.building[buildingIndex];
+      // 若楼宇ID改变
+      if (this.newAssets[assetsIndex].buildingId != assetsBuilding.buildingId) {
+        // 改变表单中楼宇信息
+        this.newAssets[assetsIndex] = Object.assign({}, this.defaultAssets, {
+          parkName: assetsPark.parkName,
+          buildingName: assetsBuilding.buildingName
+        });
+        // 请求该楼宇下房屋信息
+        this.$http
+          .post("/cms/assetsInfo/house.json", {
+            building: assetsBuilding.buildingId
+          })
+          .then(res => {
+            let resData = res.data.data;
+            resData = resData && resData.length ? resData : [];
+            // 将List形式的数据转换为Tree形式并存入assetsFloorInfo
+            let floorInfo = [];
+            resData.forEach(item => {
+              if (!floorInfo[item.floorNumber]) {
+                floorInfo[item.floorNumber] = {
+                  floorNumber: item.floorNumber,
+                  house: []
+                };
+              }
+              floorInfo[item.floorNumber].house.push({
+                houseId: item.houseId,
+                doorNumber: item.doorNumber,
+                buildArea: item.buildArea,
+                price: item.price,
+                increaseRate: item.increaseRate,
+                houseType: item.houseType,
+                earlyDate: item.earlyDate
+              });
+            });
+            this.assetsFloorInfo = floorInfo.filter(el => el);
+            console.log(this.assetsFloorInfo);
+          })
+          .catch(() =>
+            this.addSnackBar("楼宇信息查询失败 请检查网络后重试", "error")
+          );
+      }
+    },
+    changeHouse(assetsIndex, floorIndex, houseIndex) {
+      // 关闭菜单
+      this.menu.house = false;
+      let assetsFloor = this.assetsFloorInfo[floorIndex];
+      let assetsHouse = assetsFloor.house[houseIndex];
+      // 若房源ID改变
+      if (this.newAssets[assetsIndex].houseId != assetsHouse.houseId) {
+        // 改变表单中楼宇信息
+        Object.assign(this.newAssets[assetsIndex], {
+          houseId: assetsHouse.houseId,
+          floorNumber: assetsFloor.floorNumber,
+          doorNumber: assetsHouse.doorNumber,
+          buildArea: assetsHouse.buildArea,
+          price: assetsHouse.price,
+          increaseRate: assetsHouse.increaseRate,
+          houseType: assetsHouse.houseType,
+          earlyDate: assetsHouse.earlyDate
+        });
       }
     },
     getDay(date, day) {
@@ -234,6 +362,28 @@ export default {
         2,
         0
       )}-${_.padStart(time.getDate(), 2, 0)}`;
+    },
+    nextStep(el) {
+      el.validate();
+      this.stepNum++;
+    },
+    submitContract() {
+      this.$router.push({});
+      if (this.formValid.reduce((all, el) => all && el)) {
+        this.$http
+          .post("/cms/contract/add.json", this.newCTRT)
+          .then(res => {
+            if (res.data.code == 0) {
+              this.addSnackBar("新合同已提交成功 即将开始审核", "success");
+              // this.$router.push({});
+            } else {
+              this.addSnackBar(`合同提交错误: ${res.data.meg}`, "error");
+            }
+          })
+          .catch(() =>
+            this.addSnackBar("新合同提交出现错误 请检查后重试", "error")
+          );
+      }
     },
     addSnackBar(text, type) {
       this.$store.commit("addSnackBar", text, type);

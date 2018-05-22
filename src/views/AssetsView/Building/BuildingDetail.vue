@@ -55,8 +55,6 @@
   </div>
 </template>
 <script>
-import "@/mock/building-mock";
-
 export default {
   data: () => ({
     networkLoading: false,

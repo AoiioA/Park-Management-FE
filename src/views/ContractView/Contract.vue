@@ -8,6 +8,7 @@
 </template>
 
 <script>
+import "@/mock/contract-mock";
 import ContractNew from "@/views/ContractView/ContractNew.vue";
 
 export default {
