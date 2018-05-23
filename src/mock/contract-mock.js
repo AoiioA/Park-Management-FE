@@ -5,8 +5,8 @@ Mock.setup({
 });
 Mock.Random.now();
 
-export const building = Mock.mock(
-  "http://122.115.50.65/cms/assetsInfo/building.json",
+export const park = Mock.mock(
+  "http://122.115.50.65/cms/AssetsInfo/park.json",
   "post",
   {
     code: 0,
@@ -28,26 +28,37 @@ export const building = Mock.mock(
   }
 );
 
-export const house = Mock.mock(
-  "http://122.115.50.65/cms/assetsInfo/house.json",
+export const building = Mock.mock(
+  "http://122.115.50.65/cms/AssetsInfo/building.json",
   "post",
   {
     code: 0,
     msg: "OK",
     "data|10": [
       {
-        "buildingName|+1": [
-          `${Mock.Random.cword(2, 3)}大厦`,
-          `${Mock.Random.cword(2, 3)}大楼`
-        ],
         "houseId|+1": 1,
         "floorNumber|+1": [1, 2, 3, 4, 5, 6],
-        "doorNumber|+1": 101,
+        "doorNumber|+21": 101
+      }
+    ]
+  }
+);
+
+export const house = Mock.mock(
+  "http://122.115.50.65/cms/AssetsInfo/house.json",
+  "post",
+  {
+    code: 0,
+    msg: "OK",
+    "data|10": [
+      {
+        "houseId|+1": 1,
+        "floorNumber|+1": [1, 2, 3, 4, 5, 6],
+        "doorNumber|+21": 101,
         "buildArea|10-200.2": 1,
-        "price|100-1000": 1,
-        "increaseRate|+1": [1, 2, 3, 4, 5, 6],
+        "price|5-50": 1,
         "houseType|1": ["0", "1"],
-        "earlyDate|1": Mock.mock("@now()")
+        "availableDate|1": Mock.mock("@now()")
       }
     ]
   }
