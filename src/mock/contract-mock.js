@@ -50,7 +50,7 @@ export const house = Mock.mock(
   {
     code: 0,
     msg: "OK",
-    "data|10": [
+    "data|1": [
       {
         "houseId|+1": 1,
         "floorNumber|+1": [1, 2, 3, 4, 5, 6],

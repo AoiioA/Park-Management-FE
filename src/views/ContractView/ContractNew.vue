@@ -19,17 +19,17 @@
                 <v-container grid-list-md>
                   <!-- <v-subheader>甲方信息</v-subheader> -->
                   <v-layout row wrap>
-                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.signedPersonA" :rules="[$store.state.rules.required]" label="甲方公司" hint="" box required></v-text-field></v-flex>
-                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.partyA" :rules="[$store.state.rules.required]" label="甲方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.partyA" :rules="[$store.state.rules.required]" label="甲方公司" hint="" box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.signedPersonA" :rules="[$store.state.rules.required]" label="甲方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
                   </v-layout>
                   <v-divider class="mt-3"></v-divider>
                   <v-flex xs12 sm6>
-                    <v-radio-group v-model="newCTRT.type" :rules="[$store.state.rules.required]" required hint="切换承租方类型" persistent-hint row>
-                      <v-radio label="公司承租" value="company"></v-radio>
-                      <v-radio label="个人承租" value="personal"></v-radio>
+                    <v-radio-group v-model="newCTRT.customerType" :rules="[$store.state.rules.required]" required hint="切换承租方类型" persistent-hint row>
+                      <v-radio label="企业承租" value="企业"></v-radio>
+                      <v-radio label="个人承租" value="个人"></v-radio>
                     </v-radio-group>
                   </v-flex>
-                  <v-layout row wrap v-if="newCTRT.type=='company'">
+                  <v-layout row wrap v-if="newCTRT.customerType=='企业'">
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.companyName" :rules="[$store.state.rules.required]" label="承租方公司" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.businessLicense" :rules="[$store.state.rules.required]" label="承租方营业执照" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.legalPerson" :rules="[$store.state.rules.required]" label="承租方公司法人" hint="" persistent-hint box required></v-text-field></v-flex>
@@ -38,7 +38,7 @@
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.signedPersonB" :rules="[$store.state.rules.required]" label="承租方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.companyTel" :rules="[$store.state.rules.required]" mask="(+##)###-####-####" label="承租方联系方式" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.companyIndustry" :rules="[$store.state.rules.required]" label="承租方所属行业" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12><v-text-field v-model="newCTRT.address" :rules="[$store.state.rules.required]" label="承租方通讯地址" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12><v-text-field v-model="newCTRT.companyAddress" :rules="[$store.state.rules.required]" label="承租方通讯地址" hint="" persistent-hint box required></v-text-field></v-flex>
                   </v-layout>
                   <v-divider class="my-4"></v-divider>
                   <v-layout row wrap><v-flex xs12 sm6><v-switch v-model="newCTRT.hasIntermediator" :label="newCTRT.hasIntermediator?'包含中介方':'无中介方'" class="px-0 py-0"></v-switch></v-flex></v-layout>
@@ -65,7 +65,7 @@
                         <v-icon>delete</v-icon>
                       </v-btn>
                     </v-flex>
-                    <v-flex xs6 sm3 style="min-width: 150px;">
+                    <v-flex xs6 sm4 style="min-width: 200px;">
                       <v-menu v-model="assets.buildingMenu" :close-on-content-click="false" offset-y nudge-top="20" lazy>
                         <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="assets.buildingName" label="签约楼宇" :hint="assets.parkName" persistent-hint box required readonly></v-text-field>
                         <v-list v-if="assetsInfo.length" style="max-height: 200px; overflow-y: auto;">
@@ -82,9 +82,9 @@
                         </v-list>
                       </v-menu>
                     </v-flex>
-                    <v-flex xs6 sm3 style="min-width: 150px;">
+                    <v-flex xs6 sm4 style="min-width: 200px;">
                       <v-menu v-model="assets.houseMenu" :disabled="!assets.buildingName" :close-on-content-click="false" lazy offset-y nudge-top="20">
-                        <v-text-field slot="activator" :disabled="!assets.buildingName" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.doorNumber}室 - ${assets.floorNumber}层` : ''" label="签约房源" :hint="assets.availableDate?`${getDay(assets.availableDate, 0)}后可租`:''" persistent-hint box required readonly></v-text-field>
+                        <v-text-field slot="activator" :disabled="!assets.buildingName" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.doorNumber}室 - ${assets.floorNumber}层` : ''" label="签约房源" :hint="assets.availableDate?`${assets.buildArea}M²&nbsp;最早${getDay(assets.availableDate, 0)}可租`:''" persistent-hint box required readonly></v-text-field>
                         <v-list style="max-height: 200px; overflow-y: auto;">
                           <v-menu v-for="(assetsFloor, i) in assetsFloorInfo" :key="i" offset-x style="display:block">
                             <v-list-tile slot="activator" @click="1">
@@ -99,8 +99,7 @@
                         </v-list>
                       </v-menu>
                     </v-flex>
-                    <v-flex xs6 sm2 style="min-width: 150px;"><v-text-field v-model="assets.price" :disabled="!assets.houseId" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.greaterThanZero]" label="每平日价(元)" :hint="assets.buildArea ? `${assets.buildArea}M²` : ''" persistent-hint type="number" box required></v-text-field></v-flex>
-                    <v-flex xs6 sm3 style="min-width: 150px;"><v-text-field v-model="assets.increaseRate" :disabled="!assets.houseId" :rules="[$store.state.rules.required]" label="年递增率(%)" :hint="assets.buildArea?`首年约${parseInt(30 * assets.price * assets.buildArea)}元/30天`:''" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <v-flex xs6 sm3 style="min-width: 150px;"><v-text-field v-model="assets.price" :disabled="!assets.houseId" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.greaterThanZero]" label="每平日价(元)" :hint="assets.buildArea ? `首年约${parseInt(30 * assets.price * assets.buildArea)}元/30天` : ''" persistent-hint type="number" box required></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
                 <v-btn @click="addNewAssets" flat color="primary">添加房源</v-btn>
@@ -140,10 +139,34 @@
                     </v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.beforeFree" :rules="[$store.state.rules.required]" mask="###" :disabled="!newCTRT.startDate" label="记租开始前免租(天)" :hint="beforeFreeHint" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.afterFree" :rules="[$store.state.rules.required]" mask="###" :disabled="!newCTRT.endDate" label="记租结束后免租(天)" :hint="afterFreeHint" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.rentDate" :rules="[$store.state.rules.required]" mask="###" label="租金缴纳应提前(天)" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.deposit" :rules="[$store.state.rules.required, $store.state.rules.greaterThanZero]" label="押金(元)" hint="合同生效后既缴纳 合同到期后返还" persistent-hint type="number" box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.month" :rules="[$store.state.rules.required, $store.state.rules.noZero]" mask="##" label="租金缴纳间隔(月)" :hint="`每${newCTRT.month}个月缴纳${1000*newCTRT.month}元`" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.liquidatedDamages" :rules="[$store.state.rules.required, $store.state.rules.greaterThanZero]" label="违约金(元)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.rentDate" :rules="[$store.state.rules.required]" mask="###" label="租金缴纳应提前(天)" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.deposit" :rules="[$store.state.rules.required, $store.state.rules.greaterThanZero]" label="押金(元)" hint="合同生效后既缴纳<br />合同到期后返还" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.liquidatedDamages" :rules="[$store.state.rules.required, $store.state.rules.greaterThanZero]" label="违约金(元)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <!-- <v-flex xs12 sm4><v-text-field v-model="newCTRT.month" :rules="[$store.state.rules.required, $store.state.rules.noZero]" mask="##" label="租金缴纳间隔(月)" hint="" persistent-hint box required></v-text-field></v-flex> -->
+                    <v-flex xs12 sm4>
+                      <v-menu v-model="menu.month" lazy offset-y nudge-top="20">
+                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="`每${newCTRT.month}个月`" label="租金缴纳间隔" hint="" persistent-hint box required readonly></v-text-field>
+                        <v-list>
+                          <v-list-tile v-for="monthNum in [1, 3, 6, 12]" :key="monthNum" @click="newCTRT.month=monthNum">
+                            <v-list-tile-title>每{{monthNum}}个月</v-list-tile-title>
+                          </v-list-tile>
+                        </v-list>
+                      </v-menu>
+                    </v-flex>
+                    <v-flex xs12 sm4>
+                      <v-menu v-model="menu.increaseBase" lazy offset-y nudge-top="20">
+                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="['首年租金', '上一年租金'][newCTRT.increaseBase]" label="租金年递增率基数" hint="" persistent-hint box required readonly></v-text-field>
+                        <v-list>
+                          <v-list-tile @click="newCTRT.increaseBase=0">
+                            <v-list-tile-title>首年租金</v-list-tile-title>
+                          </v-list-tile>
+                          <v-list-tile @click="newCTRT.increaseBase=1">
+                            <v-list-tile-title>上一年租金</v-list-tile-title>
+                          </v-list-tile>
+                        </v-list>
+                      </v-menu>
+                    </v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.increaseRate" :rules="[$store.state.rules.required]" label="年递增率(%)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
                 <v-btn @click.native="nextStep($refs.dateForm)" color="primary">下一节</v-btn>
@@ -172,13 +195,13 @@ import _ from "lodash";
 export default {
   name: "contract-new",
   data: () => ({
-    stepNum: 2,
+    stepNum: 3,
     newCTRT: {
       // 甲方
       signedPersonA: "",
       partyA: "",
       // 承租方
-      type: "company",
+      customerType: "企业",
       companyName: "",
       businessLicense: "",
       legalPerson: "",
@@ -193,6 +216,7 @@ export default {
       intermediatorTel: "",
       agency: "",
       // 合同信息
+      exContractNo: "",
       contractNo: "",
       contractName: "",
       address: "",
@@ -204,6 +228,8 @@ export default {
       rentDate: 30,
       deposit: 0,
       month: 1,
+      increaseBase: 0,
+      increaseRate: 3,
       liquidatedDamages: 0
     },
     newAssets: [],
@@ -217,7 +243,6 @@ export default {
       doorNumber: "",
       buildArea: 0,
       price: 10,
-      increaseRate: 3,
       houseType: 1,
       availableDate: ""
     },
@@ -226,7 +251,9 @@ export default {
     menu: {
       signingDate: false,
       startDate: false,
-      endDate: false
+      endDate: false,
+      month: false,
+      increaseBase: false
     },
     formValid: [true, true, true, true],
     rules: {
@@ -332,10 +359,6 @@ export default {
               floorInfo[item.floorNumber].house.push({
                 houseId: item.houseId,
                 doorNumber: item.doorNumber
-                // buildArea: item.buildArea,
-                // price: item.price,
-                // houseType: item.houseType,
-                // availableDate: item.availableDate
               });
             });
             this.assetsFloorInfo = floorInfo.filter(el => el);
@@ -358,10 +381,6 @@ export default {
           houseId: assetsHouse.houseId,
           floorNumber: assetsFloor.floorNumber,
           doorNumber: assetsHouse.doorNumber
-          // buildArea: assetsHouse.buildArea,
-          // price: assetsHouse.price,
-          // houseType: assetsHouse.houseType,
-          // availableDate: assetsHouse.availableDate
         });
 
         // 请求该楼宇下房屋信息
@@ -372,6 +391,7 @@ export default {
           .then(res => {
             let resData = res.data.data;
             if (resData) {
+              console.log(resData);
               Object.assign(this.newAssets[assetsIndex], {
                 buildArea: resData.buildArea,
                 price: resData.price,
@@ -406,7 +426,6 @@ export default {
           contractHouseDtos: this.newAssets.map(item => ({
             houseId: item.houseId,
             rent: item.price,
-            increaseRate: item.increaseRate,
             type: "房屋"
           }))
         })
@@ -417,7 +436,6 @@ export default {
       //       contractHouseDtos: this.newAssets.map(item => ({
       //         houseId: item.houseId,
       //         rent: item.price,
-      //         increaseRate: item.increaseRate,
       //         type: "房屋"
       //       }))
       //     }))
