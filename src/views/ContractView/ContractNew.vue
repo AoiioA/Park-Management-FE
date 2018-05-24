@@ -37,7 +37,17 @@
                   <v-layout row wrap>
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.signedPersonB" :rules="[$store.state.rules.required]" label="承租方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.companyTel" :rules="[$store.state.rules.required]" mask="(+##)###-####-####" label="承租方联系方式" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.companyIndustry" :rules="[$store.state.rules.required]" label="承租方所属行业" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <!-- <v-flex xs12 sm4><v-text-field v-model="newCTRT.companyIndustry" :rules="[$store.state.rules.required]" label="承租方所属行业" hint="" persistent-hint box required></v-text-field></v-flex> -->
+                    <v-flex xs12 sm4>
+                      <v-menu v-model="menu.companyIndustry" lazy offset-y nudge-top="20">
+                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="newCTRT.companyIndustry" label="承租方所属行业" hint="" persistent-hint box required readonly></v-text-field>
+                        <v-list style="max-height: 200px; overflow-y: auto;">
+                          <v-list-tile v-for="industry in companyIndustryArr" :key="industry" @click="newCTRT.companyIndustry=industry">
+                            <v-list-tile-title>{{industry}}</v-list-tile-title>
+                          </v-list-tile>
+                        </v-list>
+                      </v-menu>
+                    </v-flex>
                     <v-flex xs12><v-text-field v-model="newCTRT.companyAddress" :rules="[$store.state.rules.required]" label="承租方通讯地址" hint="" persistent-hint box required></v-text-field></v-flex>
                   </v-layout>
                   <v-divider class="my-4"></v-divider>
@@ -68,8 +78,11 @@
                     <v-flex xs6 sm4 style="min-width: 200px;">
                       <v-menu v-model="assets.buildingMenu" :close-on-content-click="false" offset-y nudge-top="20" lazy>
                         <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="assets.buildingName" label="签约楼宇" :hint="assets.parkName" persistent-hint box required readonly></v-text-field>
-                        <v-list v-if="assetsInfo.length" style="max-height: 200px; overflow-y: auto;">
-                          <v-menu v-for="(assetsPark, i) in assetsInfo" :key="i" offset-x style="display:block">
+                        <v-list style="max-height: 200px; overflow-y: auto;">
+                          <v-list-tile v-if="!assetsInfo.length">
+                            <v-list-tile-title>暂无房源可以添加</v-list-tile-title>
+                          </v-list-tile>
+                          <v-menu v-else v-for="(assetsPark, i) in assetsInfo" :key="i" offset-x style="display:block">
                             <v-list-tile slot="activator" @click="1">
                               <v-list-tile-title>{{ assetsPark.parkName }}</v-list-tile-title>
                             </v-list-tile>
@@ -86,7 +99,10 @@
                       <v-menu v-model="assets.houseMenu" :disabled="!assets.buildingName" :close-on-content-click="false" lazy offset-y nudge-top="20">
                         <v-text-field slot="activator" :disabled="!assets.buildingName" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.doorNumber}室 - ${assets.floorNumber}层` : ''" label="签约房源" :hint="assets.availableDate?`${assets.buildArea}M²&nbsp;最早${getDay(assets.availableDate, 0)}可租`:''" persistent-hint box required readonly></v-text-field>
                         <v-list style="max-height: 200px; overflow-y: auto;">
-                          <v-menu v-for="(assetsFloor, i) in assetsFloorInfo" :key="i" offset-x style="display:block">
+                          <v-list-tile v-if="!assetsFloorInfo.length">
+                            <v-list-tile-title>暂无房源可以添加</v-list-tile-title>
+                          </v-list-tile>
+                          <v-menu v-else v-for="(assetsFloor, i) in assetsFloorInfo" :key="i" offset-x style="display:block">
                             <v-list-tile slot="activator" @click="1">
                               <v-list-tile-title>{{ assetsFloor.floorNumber }}层</v-list-tile-title>
                             </v-list-tile>
@@ -155,18 +171,18 @@
                     </v-flex>
                     <v-flex xs12 sm4>
                       <v-menu v-model="menu.increaseBase" lazy offset-y nudge-top="20">
-                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="['首年租金', '上一年租金'][newCTRT.increaseBase]" label="租金年递增率基数" hint="" persistent-hint box required readonly></v-text-field>
+                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="['首年租金', '上一年租金'][newCTRTOther.increaseBase]" label="租金年递增率基数" hint="" persistent-hint box required readonly></v-text-field>
                         <v-list>
-                          <v-list-tile @click="newCTRT.increaseBase=0">
+                          <v-list-tile @click="newCTRTOther.increaseBase=0">
                             <v-list-tile-title>首年租金</v-list-tile-title>
                           </v-list-tile>
-                          <v-list-tile @click="newCTRT.increaseBase=1">
+                          <v-list-tile @click="newCTRTOther.increaseBase=1">
                             <v-list-tile-title>上一年租金</v-list-tile-title>
                           </v-list-tile>
                         </v-list>
                       </v-menu>
                     </v-flex>
-                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.increaseRate" :rules="[$store.state.rules.required]" label="年递增率(%)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRTOther.increaseRate" :rules="[$store.state.rules.required]" label="年递增率(%)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
                 <v-btn @click.native="nextStep($refs.dateForm)" color="primary">下一节</v-btn>
@@ -179,7 +195,7 @@
             </v-stepper-step>
             <v-stepper-content step="4">
               <!-- <v-card color="grey lighten-1" class="mb-5" height="200px"></v-card> -->
-              <v-btn :disabled="formValid.reduce((all, el) => all && el)" @click.native="submitContract" color="primary">确认无误并提交</v-btn>
+              <v-btn :disabled="!formValid.reduce((all, el) => all && el)" @click.native="submitContract" color="primary">确认无误并提交</v-btn>
               <v-btn flat @click.native="stepNum=1">返回查看</v-btn>
             </v-stepper-content>
           </v-stepper>
@@ -195,7 +211,10 @@ import _ from "lodash";
 export default {
   name: "contract-new",
   data: () => ({
-    stepNum: 3,
+    stepNum: 1,
+    formValid: [true, true, true, true],
+    assetsInfo: [],
+    assetsFloorInfo: [],
     newCTRT: {
       // 甲方
       signedPersonA: "",
@@ -228,9 +247,11 @@ export default {
       rentDate: 30,
       deposit: 0,
       month: 1,
-      increaseBase: 0,
-      increaseRate: 3,
       liquidatedDamages: 0
+    },
+    newCTRTOther: {
+      increaseBase: 0,
+      increaseRate: 3
     },
     newAssets: [],
     defaultAssets: {
@@ -246,16 +267,30 @@ export default {
       houseType: 1,
       availableDate: ""
     },
-    assetsInfo: [],
-    assetsFloorInfo: [],
+    companyIndustryArr: [
+      "IT/通信/电子/互联网",
+      "文化/传媒/娱乐/体育",
+      "文体教育/工艺美术",
+      "金融业",
+      "服务业",
+      "商业服务",
+      "房地产/建筑业",
+      "能源/矿产/环保",
+      "农/林/牧/渔",
+      "政府/非盈利机构",
+      "贸易/批发/零售/租赁业",
+      "生产/加工/制造",
+      "交通/运输/物流/仓储",
+      "其他"
+    ],
     menu: {
+      companyIndustry: false,
       signingDate: false,
       startDate: false,
       endDate: false,
       month: false,
       increaseBase: false
     },
-    formValid: [true, true, true, true],
     rules: {
       afterSigning: val =>
         Date(this.getDay(this.newCTRT.startDate, -1 * val)) >
@@ -297,7 +332,6 @@ export default {
         .post("/cms/AssetsInfo/park.json")
         .then(res => {
           let resData = res.data.data;
-          console.log(resData);
           resData = resData && resData.length ? resData : [];
           // 将List形式的数据转换为Tree形式并存入assetsInfo
           let parkInfo = [];
@@ -315,7 +349,6 @@ export default {
             });
           });
           this.assetsInfo = parkInfo.filter(el => el);
-          console.log(this.assetsInfo, this.newAssets);
         })
         .catch(() =>
           this.addSnackBar("楼宇信息查询失败 请检查网络后重试", "error")
@@ -346,6 +379,7 @@ export default {
           })
           .then(res => {
             let resData = res.data.data;
+            console.log(resData);
             resData = resData && resData.length ? resData : [];
             // 将List形式的数据转换为Tree形式并存入assetsFloorInfo
             let floorInfo = [];
@@ -362,7 +396,6 @@ export default {
               });
             });
             this.assetsFloorInfo = floorInfo.filter(el => el);
-            console.log(this.assetsInfo, this.newAssets);
           })
           .catch(() =>
             this.addSnackBar("楼宇信息查询失败 请检查网络后重试", "error")
@@ -391,7 +424,6 @@ export default {
           .then(res => {
             let resData = res.data.data;
             if (resData) {
-              console.log(resData);
               Object.assign(this.newAssets[assetsIndex], {
                 buildArea: resData.buildArea,
                 price: resData.price,
@@ -399,7 +431,6 @@ export default {
                 availableDate: resData.availableDate
               });
             }
-            console.log(this.assetsInfo, this.newAssets);
           })
           .catch(() =>
             this.addSnackBar("楼宇信息查询失败 请检查网络后重试", "error")
@@ -426,6 +457,8 @@ export default {
           contractHouseDtos: this.newAssets.map(item => ({
             houseId: item.houseId,
             rent: item.price,
+            increaseBase: this.newCTRTOther.increaseBase,
+            increaseRate: this.newCTRTOther.increaseRate / 100,
             type: "房屋"
           }))
         })
@@ -436,6 +469,8 @@ export default {
       //       contractHouseDtos: this.newAssets.map(item => ({
       //         houseId: item.houseId,
       //         rent: item.price,
+      //         increaseBase: this.newCTRTOther.increaseBase,
+      //         increaseRate: this.newCTRTOther.increaseRate / 100,
       //         type: "房屋"
       //       }))
       //     }))
@@ -448,7 +483,7 @@ export default {
       //       }
       //     })
       //     .catch(() =>
-      //       this.addSnackBar("新合同提交出现错误 请检查后重试", "error")
+      //       this.addSnackBar("新合同提交出现错误 请检查网络后重试", "error")
       //     );
       // }
     },
