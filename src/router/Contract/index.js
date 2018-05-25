@@ -19,7 +19,7 @@ export default [
     props: route => ({
       detailId: route.query.detailId,
       newItem: route.query.newItem,
-      renewItem: route.query.renewItem
+      renewNo: route.query.renewNo
     }),
     children: [
       {

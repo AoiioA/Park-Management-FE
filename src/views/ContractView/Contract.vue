@@ -4,31 +4,31 @@
       <v-btn flat slot="newContractBtn" :to="{ query: { newItem: 'yes' } }">添加合同</v-btn>
     </router-view>
     <contract-new v-if="newItem"></contract-new>
+    <contract-detail v-if="detailId"></contract-detail>
   </div>
 </template>
 
 <script>
-import "@/mock/contract-mock";
+// import "@/mock/contract-mock";
 import ContractNew from "@/views/ContractView/ContractNew.vue";
+import ContractDetail from "@/views/ContractView/ContractDetail.vue";
 
 export default {
   props: {
     detailId: {
-      type: String,
-      default: ""
+      type: String
     },
     newItem: {
-      type: String,
-      default: ""
+      type: String
     },
-    renewItem: {
-      type: String,
-      default: ""
+    renewNo: {
+      type: String
     }
   },
   data: () => ({}),
   components: {
-    ContractNew
+    ContractNew,
+    ContractDetail
   }
 };
 </script>
