@@ -29,6 +29,7 @@ export default {
       { name: "待审核", to: "/contract/list/submitted" },
       { name: "生效中", to: "/contract/list/fulfilling" },
       { name: "已到期", to: "/contract/list/expired" },
+      { name: "已退租", to: "/contract/list/refunded" },
       { name: "已作废", to: "/contract/list/invalidated" }
     ]
   }),

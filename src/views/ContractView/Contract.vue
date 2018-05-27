@@ -14,17 +14,7 @@ import ContractNew from "@/views/ContractView/ContractNew.vue";
 import ContractDetail from "@/views/ContractView/ContractDetail.vue";
 
 export default {
-  props: {
-    detailId: {
-      type: String
-    },
-    newItem: {
-      type: String
-    },
-    renewNo: {
-      type: String
-    }
-  },
+  props: ["detailId", "newItem", "renewId"],
   data: () => ({}),
   components: {
     ContractNew,

@@ -2,13 +2,14 @@
   <transition name="slide-fade">
     <v-container class="contract-new px-2">
       <v-layout align-start align-content-start justify-center wrap>
-        <v-flex xs12 md10 lg8 class="headline">
-          <v-btn flat icon @click="$router.go(-1)">
-            <v-icon>close</v-icon>
-          </v-btn>
-          添加新合同并提交审核
-        </v-flex>
         <v-flex xs12 md10 lg8>
+          <v-toolbar dense flat>
+            <v-toolbar-side-icon @click="$router.go(-1)">
+              <v-icon>close</v-icon>
+            </v-toolbar-side-icon>
+            <v-toolbar-title>添加新合同并提交审核</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
           <v-stepper v-model="stepNum" vertical class="elevation-0 new-stepper">
             <v-stepper-step :rules="[() => !!formValid[0]]" :complete="stepNum>1" step="1">
               填写合同相关人
@@ -194,7 +195,7 @@
               <small>未通过的申请将出现在作废合同列表中供重新填写</small>
             </v-stepper-step>
             <v-stepper-content step="4">
-              <v-data-table :items="rentDetailList" item-key="name" hide-actions hide-headers class="mb-4">
+              <!-- <v-data-table :items="rentDetailList" item-key="name" hide-actions hide-headers class="mb-4">
                 <template slot="items" slot-scope="props">
                   <tr @click="props.expanded = !props.expanded">
                     <td>{{ props.item.name }}</td>
@@ -210,10 +211,10 @@
                     <v-card-text>Peek-a-boo!</v-card-text>
                   </v-card>
                 </template>
-              </v-data-table>
-              <v-btn :disabled="formValid.reduce((all, el) => all && el)" @click.native="submitContract(true)" color="primary">确认无误并提交</v-btn>
-              <v-btn flat @click.native="submitContract(false)">仅保存</v-btn>
-              <v-btn flat @click.native="stepNum--">后退</v-btn>
+              </v-data-table> -->
+              <v-btn :disabled="!formValid.reduce((all, el) => all && el)" @click.native="submitContract(true)" color="primary">确认无误并提交</v-btn>
+              <v-btn :disabled="!formValid.reduce((all, el) => all && el)" @click.native="submitContract(false)" flat>仅保存</v-btn>
+              <v-btn @click.native="stepNum--" flat>后退</v-btn>
             </v-stepper-content>
           </v-stepper>
         </v-flex>
@@ -438,7 +439,6 @@ export default {
               isAdded: (resDataItem => {
                 let isAdded = false;
                 this.newAssets.map(el => {
-                  console.log(resDataItem.houseId, el.houseId);
                   if (resDataItem.houseId == el.houseId) {
                     isAdded = true;
                   }
@@ -513,7 +513,7 @@ export default {
       let CTRTData = Object.assign(
         {
           contractState: isSummit ? "待审核" : "待提交",
-          exContractNo: this.$route.query.renewNo || null
+          exContractNo: this.$route.query.renewId || null
         },
         this.newCTRT,
         {
@@ -527,7 +527,6 @@ export default {
         }
       );
       console.log(CTRTData);
-      if (isSummit) this.$router.push({});
       if (this.formValid.reduce((all, el) => all && el)) {
         this.$http
           .post("/cms/contractSub/addContract.json", CTRTData)
@@ -535,7 +534,7 @@ export default {
             if (res.data.code == 0) {
               if (!isSummit) {
                 this.addSnackBar("新合同已保存成功 可稍后编辑", "success");
-                this.$router.push({});
+                if (isSummit) this.$router.push({});
               } else {
                 this.addSnackBar("新合同已提交成功 即将开始审核", "success");
               }
@@ -572,12 +571,12 @@ export default {
   width: 100%;
   max-width: 100%;
   min-height: 100%;
-  background: #eee;
+  background: #f5f5f5;
   z-index: 1;
 
   .new-stepper {
     max-width: 800px;
-    background: #eee;
+    background: #f5f5f5;
   }
 }
 </style>

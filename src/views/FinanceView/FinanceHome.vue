@@ -9,30 +9,22 @@
         </v-btn>
       </span>
     </view-tool-bar>
-    <v-container fill-height>
-      <v-layout align-center justify-center>
-        <v-flex xs3>
-          <v-card>
-            <v-container>
-              <h1>Oops~</h1>This module is not completed, so it can't be used yet!
-            </v-container>
-          </v-card>
-        </v-flex>
-      </v-layout>
-    </v-container>
+    <not-find></not-find>
     <!-- <router-view></router-view> -->
   </v-layout>
 </template>
 
 <script>
 import ViewToolBar from "@/components/ViewToolBar.vue";
+import NotFind from "@/views/NotFind.vue";
 
 export default {
   data: () => ({
     barTitle: "租金管理"
   }),
   components: {
-    ViewToolBar
+    ViewToolBar,
+    NotFind
   }
 };
 </script>

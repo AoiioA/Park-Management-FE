@@ -20,7 +20,7 @@
                 </v-btn>
                 <span>刷新数据</span>
               </v-tooltip>
-              <v-menu offset-y left :nudge-bottom="10">
+              <!-- <v-menu offset-y left :nudge-bottom="10">
                 <v-btn icon slot="activator">
                   <v-icon>more_vert</v-icon>
                 </v-btn>
@@ -38,7 +38,7 @@
                     </v-list-tile-content>
                   </v-list-tile>
                 </v-list>
-              </v-menu>
+              </v-menu> -->
             </v-card-title>
             <v-divider></v-divider>
             <v-data-table
@@ -55,48 +55,60 @@
                 <tr @click="props.expanded = !props.expanded">
                   <td>{{ props.item.contractNo }}</td>
                   <td>{{ props.item.contractName }}</td>
-                  <td>{{ props.item.companyName }}</td>
-                  <td>{{ props.item.agency }}</td>
+                  <td>{{ props.item.companyInfo.companyName }}</td>
+                  <td>{{ props.item.signedPersonA }}</td>
                   <td>{{ props.item.signingDate.slice(0, 10) }}</td>
                   <td>{{ props.item.startDate.slice(0, 10) }}</td>
                   <td>{{ props.item.endDate.slice(0, 10) }}</td>
                   <td class="text-xs-center px-0">
-                    <v-btn icon class="mx-0" @click.stop="1">
-                      <v-icon color="primary">edit</v-icon>
+                    <v-btn icon class="mx-0" :to="{ query: { detailId: props.item.id } }">
+                      <v-icon color="primary">visibility</v-icon>
                     </v-btn>
-                    <v-btn icon class="mx-0" @click.stop="1">
+                    <!-- <v-btn icon class="mx-0" @click.stop="1">
                       <v-icon color="purple lighten-1">file_download</v-icon>
-                    </v-btn>
+                    </v-btn> -->
                   </td>
                 </tr>
               </template>
               <template slot="expand" slot-scope="props">
                 <v-container>
-                  <v-list two-line subheader>
-                    <v-subheader>相关资产</v-subheader>
-                    <template v-for="(house, houseIndex) in props.item.house">
-                      <v-list-tile :key="houseIndex" avatar ripple>
-                        <v-list-tile-content>
-                          <v-list-tile-title>{{ house.buildName }}</v-list-tile-title>
-                          <v-list-tile-sub-title>{{ house.buildName }} 5层 504室</v-list-tile-sub-title>
-                          <v-list-tile-sub-title>月租金: {{ house.rent }}&nbsp;&nbsp;&nbsp;租金年递增率(%): {{ house.increaseRate }}</v-list-tile-sub-title>
-                        </v-list-tile-content>
-                        <v-list-tile-content>
-                          <v-list-tile-title>月租金(元) : {{ house.rent }}</v-list-tile-title>
-                          <v-list-tile-sub-title>年递增率(%) : {{ house.increaseRate }}</v-list-tile-sub-title>
-                        </v-list-tile-content>
-                        <v-list-tile-content>
-                          <v-list-tile-title>月租金(元) : {{ house.rent }}</v-list-tile-title>
-                          <v-list-tile-sub-title>年递增率(%) : {{ house.increaseRate }}</v-list-tile-sub-title>
-                        </v-list-tile-content>
-                        <v-list-tile-action>
-                          <v-list-tile-action-text>总面积 : 532m²</v-list-tile-action-text>
-                          <v-list-tile-action-text>月租金(元) : {{ house.rent }}&nbsp;&nbsp;&nbsp;年递增率(%) : {{ house.increaseRate }}</v-list-tile-action-text>
-                        </v-list-tile-action>
-                      </v-list-tile>
-                      <!-- <v-divider v-if="houseIndex + 1 < props.item.house.length" :key="`line${houseIndex}`"></v-divider> -->
-                    </template>
-                  </v-list>
+                  <v-layout>
+                    <v-flex xs6>
+                      <v-list dense subheader>
+                        <v-subheader><h3>租金信息</h3></v-subheader>
+                        <v-list-tile>
+                          <v-list-tile-content class="body-2">记租前免租 : {{ props.item.beforeFree }}天</v-list-tile-content>
+                          <v-list-tile-content class="body-2 align-end">记租后免租 : {{ props.item.afterFree }}天</v-list-tile-content>
+                        </v-list-tile>
+                        <v-list-tile>
+                          <v-list-tile-content class="body-2">押金 : {{ props.item.deposit }}元&nbsp;&nbsp;&nbsp;&nbsp;违约金 : {{ props.item.liquidatedDamages }}元</v-list-tile-content>
+                          <v-list-tile-content class="body-2 align-end">缴纳间隔 : 每{{ props.item.month }}个月</v-list-tile-content>
+                        </v-list-tile>
+                        <v-list-tile>
+                          <v-list-tile-content class="body-2">租金递增率 : {{ 100 * props.item.houseInfo[0].increaseRate }}%</v-list-tile-content>
+                          <v-list-tile-content class="body-2 align-end">递增基数 : 基于{{ ["首年", "上一年"][props.item.houseInfo[0].increaseBase] }}</v-list-tile-content>
+                        </v-list-tile>
+                      </v-list>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-list dense subheader>
+                        <v-subheader><h3>相关资产</h3></v-subheader>
+                        <template v-for="(house, houseIndex) in props.item.houseInfo">
+                          <v-list-tile :key="houseIndex" avatar ripple @click="$router.push({ path: '/house/house-detail', query: { detailId: house.houseId } })">
+                            <v-list-tile-content>
+                              <v-list-tile-title>{{ `${house.parkName} - ${house.buildName}` }}</v-list-tile-title>
+                              <v-list-tile-sub-title>{{`${house.floorNumber}层 ${house.doorNumber}室`}}</v-list-tile-sub-title>
+                            </v-list-tile-content>
+                            <v-list-tile-action>
+                              <v-list-tile-action-text>总面积 : {{ house.buildArea }}m²</v-list-tile-action-text>
+                              <v-list-tile-action-text>月租金 : {{ house.rent }}元</v-list-tile-action-text>
+                            </v-list-tile-action>
+                          </v-list-tile>
+                          <!-- <v-divider v-if="houseIndex + 1 < props.item.house.length" :key="`line${houseIndex}`"></v-divider> -->
+                        </template>
+                      </v-list>
+                    </v-flex>
+                  </v-layout>
                 </v-container>
               </template>
             </v-data-table>
@@ -116,9 +128,9 @@ export default {
     headers: [
       { text: "合同编号", value: "contractNo", sortable: false },
       { text: "合同名", value: "contractName" },
-      { text: "承租方", value: "companyName" },
-      { text: "中介方", value: "agency" },
-      { text: "签署日期", value: "signingDate" },
+      { text: "承租方", value: "companyInfo" },
+      { text: "甲方签订人", value: "signedPersonA" },
+      { text: "签订日期", value: "signingDate" },
       { text: "计租日期", value: "startDate" },
       { text: "到期日期", value: "endDate" },
       { text: "操作", value: "id", align: "center", sortable: false }
@@ -137,248 +149,10 @@ export default {
           this.networkLoading = false;
           let resData = res.data.data;
           this.contractList = resData && resData.length ? resData : [];
-          this.contractList = [
-            {
-              id: 1,
-              contractNo: "zhrkj-20180808-1234",
-              partyA: "中海融科技有限公司",
-              contractName: "写字楼租赁合同",
-              partyB: 1,
-              type: 1,
-              signingDate: "2018-05-04 00:00:00",
-              startDate: "2018-05-04 00:00:00",
-              endDate: "2018-06-27 00:00:00",
-              beforeFree: 30,
-              afterFree: 30,
-              deposit: 29999,
-              signedPersonA: "甲方A",
-              signedPersonB: "客户B",
-              address: "北京市海淀区资本大厦",
-              createTime: "2018-05-04 15:09:55",
-              intermediator: "中介A",
-              idCode: "123456199608086666",
-              agency: "链家网",
-              intermediatorTel: 13888888888,
-              companyTel: 13666666666,
-              companyName: "信息技术有限公司",
-              businessLicense: "123456789012345",
-              house: [
-                {
-                  houseId: 1,
-                  buildName: "望京SOHO",
-                  increaseRate: "2.00",
-                  rent: 9999
-                },
-                {
-                  houseId: 1,
-                  buildName: "望京SOHO",
-                  increaseRate: "3.00",
-                  rent: 8999
-                }
-              ]
-            },
-            {
-              id: 2,
-              contractNo: "zhrkj-20180808-1234",
-              partyA: "中海融科技有限公司",
-              contractName: "写字楼租赁合同",
-              partyB: 1,
-              type: 1,
-              signingDate: "2018-05-04 00:00:00",
-              startDate: "2018-05-04 00:00:00",
-              endDate: "2018-06-27 00:00:00",
-              beforeFree: 30,
-              afterFree: 30,
-              deposit: 29999,
-              signedPersonA: "甲方A",
-              signedPersonB: "客户B",
-              address: "北京市海淀区资本大厦",
-              createTime: "2018-05-04 15:09:55",
-              intermediator: "中介A",
-              idCode: "123456199608086666",
-              agency: "链家网",
-              intermediatorTel: 13888888888,
-              companyTel: 13666666666,
-              companyName: "信息技术有限公司",
-              businessLicense: "123456789012345",
-              house: [
-                {
-                  houseId: 1,
-                  buildName: "望京SOHO",
-                  increaseRate: "2.00",
-                  rent: 9999
-                },
-                {
-                  houseId: 1,
-                  buildName: "望京SOHO",
-                  increaseRate: "3.00",
-                  rent: 8999
-                }
-              ]
-            },
-            {
-              id: 3,
-              contractNo: "zhrkj-20180808-1234",
-              partyA: "中海融科技有限公司",
-              contractName: "写字楼租赁合同",
-              partyB: 1,
-              type: 1,
-              signingDate: "2018-05-04 00:00:00",
-              startDate: "2018-05-04 00:00:00",
-              endDate: "2018-06-27 00:00:00",
-              beforeFree: 30,
-              afterFree: 30,
-              deposit: 29999,
-              signedPersonA: "甲方A",
-              signedPersonB: "客户B",
-              address: "北京市海淀区资本大厦",
-              createTime: "2018-05-04 15:09:55",
-              intermediator: "中介A",
-              idCode: "123456199608086666",
-              agency: "链家网",
-              intermediatorTel: 13888888888,
-              companyTel: 13666666666,
-              companyName: "信息技术有限公司",
-              businessLicense: "123456789012345",
-              house: [
-                {
-                  houseId: 1,
-                  buildName: "望京SOHO",
-                  increaseRate: "2.00",
-                  rent: 9999
-                },
-                {
-                  houseId: 1,
-                  buildName: "望京SOHO",
-                  increaseRate: "3.00",
-                  rent: 8999
-                }
-              ]
-            }
-          ];
         })
         .catch(() => {
           this.networkLoading = false;
           this.networkError = true;
-          this.contractList = [
-            {
-              id: 1,
-              contractNo: "zhrkj-20180808-1234",
-              partyA: "中海融科技有限公司",
-              contractName: "写字楼租赁合同",
-              partyB: 1,
-              type: 1,
-              signingDate: "2018-05-04 00:00:00",
-              startDate: "2018-05-04 00:00:00",
-              endDate: "2018-06-27 00:00:00",
-              beforeFree: 30,
-              afterFree: 30,
-              deposit: 29999,
-              signedPersonA: "甲方A",
-              signedPersonB: "客户B",
-              address: "北京市海淀区资本大厦",
-              createTime: "2018-05-04 15:09:55",
-              intermediator: "中介A",
-              idCode: "123456199608086666",
-              agency: "链家网",
-              intermediatorTel: 13888888888,
-              companyTel: 13666666666,
-              companyName: "信息技术有限公司",
-              businessLicense: "123456789012345",
-              house: [
-                {
-                  houseId: 1,
-                  buildName: "望京SOHO",
-                  increaseRate: "2.00",
-                  rent: 9999
-                },
-                {
-                  houseId: 1,
-                  buildName: "望京SOHO",
-                  increaseRate: "3.00",
-                  rent: 8999
-                }
-              ]
-            },
-            {
-              id: 2,
-              contractNo: "zhrkj-20180808-1234",
-              partyA: "中海融科技有限公司",
-              contractName: "写字楼租赁合同",
-              partyB: 1,
-              type: 1,
-              signingDate: "2018-05-04 00:00:00",
-              startDate: "2018-05-04 00:00:00",
-              endDate: "2018-06-27 00:00:00",
-              beforeFree: 30,
-              afterFree: 30,
-              deposit: 29999,
-              signedPersonA: "甲方A",
-              signedPersonB: "客户B",
-              address: "北京市海淀区资本大厦",
-              createTime: "2018-05-04 15:09:55",
-              intermediator: "中介A",
-              idCode: "123456199608086666",
-              agency: "链家网",
-              intermediatorTel: 13888888888,
-              companyTel: 13666666666,
-              companyName: "信息技术有限公司",
-              businessLicense: "123456789012345",
-              house: [
-                {
-                  houseId: 1,
-                  buildName: "望京SOHO",
-                  increaseRate: "2.00",
-                  rent: 9999
-                },
-                {
-                  houseId: 1,
-                  buildName: "望京SOHO",
-                  increaseRate: "3.00",
-                  rent: 8999
-                }
-              ]
-            },
-            {
-              id: 3,
-              contractNo: "zhrkj-20180808-1234",
-              partyA: "中海融科技有限公司",
-              contractName: "写字楼租赁合同",
-              partyB: 1,
-              type: 1,
-              signingDate: "2018-05-04 00:00:00",
-              startDate: "2018-05-04 00:00:00",
-              endDate: "2018-06-27 00:00:00",
-              beforeFree: 30,
-              afterFree: 30,
-              deposit: 29999,
-              signedPersonA: "甲方A",
-              signedPersonB: "客户B",
-              address: "北京市海淀区资本大厦",
-              createTime: "2018-05-04 15:09:55",
-              intermediator: "中介A",
-              idCode: "123456199608086666",
-              agency: "链家网",
-              intermediatorTel: 13888888888,
-              companyTel: 13666666666,
-              companyName: "信息技术有限公司",
-              businessLicense: "123456789012345",
-              house: [
-                {
-                  houseId: 1,
-                  buildName: "望京SOHO",
-                  increaseRate: "2.00",
-                  rent: 9999
-                },
-                {
-                  houseId: 1,
-                  buildName: "望京SOHO",
-                  increaseRate: "3.00",
-                  rent: 8999
-                }
-              ]
-            }
-          ];
         });
     }
   }

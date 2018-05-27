@@ -7,7 +7,7 @@ import axios from "axios";
 import VueAxios from "vue-axios";
 
 import "vuetify/dist/vuetify.min.css";
-import "material-design-icons-iconfont/dist/material-design-icons.css";
+// import "material-design-icons-iconfont/dist/material-design-icons.css";
 import Vuetify from "vuetify";
 
 import ECharts from "vue-echarts/components/ECharts";

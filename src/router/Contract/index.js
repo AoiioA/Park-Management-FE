@@ -10,6 +10,7 @@ import ContractList from "@/views/ContractView/ContractList/ContractList.vue";
 import Submitted from "@/views/ContractView/ContractList/Submitted.vue";
 import Fulfilling from "@/views/ContractView/ContractList/Fulfilling.vue";
 import Expired from "@/views/ContractView/ContractList/Expired.vue";
+import Refunded from "@/views/ContractView/ContractList/Refunded.vue";
 import Invalidated from "@/views/ContractView/ContractList/Invalidated.vue";
 
 export default [
@@ -19,7 +20,7 @@ export default [
     props: route => ({
       detailId: route.query.detailId,
       newItem: route.query.newItem,
-      renewNo: route.query.renewNo
+      renewId: route.query.renewId
     }),
     children: [
       {
@@ -64,6 +65,11 @@ export default [
             path: "expired",
             name: "expired",
             component: Expired
+          },
+          {
+            path: "refunded",
+            name: "refunded",
+            component: Refunded
           },
           {
             path: "invalidated",
