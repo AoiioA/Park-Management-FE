@@ -2,7 +2,7 @@ import AnalysisHome from "@/views/AnalysisView/AnalysisHome.vue";
 
 export default [
   {
-    path: "/analysis",
+    path: "analysis",
     name: "analysis",
     component: AnalysisHome
   }

@@ -4,12 +4,16 @@
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 md10 lg8>
           <v-toolbar dense flat>
-            <v-toolbar-side-icon @click="$router.go(-1)">
+            <v-toolbar-side-icon @click="$router.push({})">
               <v-icon>close</v-icon>
             </v-toolbar-side-icon>
             <v-toolbar-title>合同详情</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
+        </v-flex>
+        <v-progress-circular indeterminate color="primary" v-if="loading" class="center-box"></v-progress-circular>
+        <v-alert v-else-if="error" :value="true" type="error" class="center-box">网络出现异常 - 检查网络后刷新重试</v-alert>
+        <v-flex xs12 md10 lg8 v-else>
           <v-jumbotron height="auto">
             <v-container grid-list-lg fill-height>
               <v-layout wrap>
@@ -97,15 +101,15 @@
                       </v-list-tile>
                       <v-list-tile>
                         <v-list-tile-content>签订日期:</v-list-tile-content>
-                        <v-list-tile-content class="align-end">{{ CTRTInfo.signingDate.slice(0, 10) }}</v-list-tile-content>
+                        <v-list-tile-content v-if="CTRTInfo.signingDate" class="align-end">{{ CTRTInfo.signingDate.slice(0, 10) }}</v-list-tile-content>
                       </v-list-tile>
                       <v-list-tile>
                         <v-list-tile-content>记租开始日期:</v-list-tile-content>
-                        <v-list-tile-content class="align-end">{{ CTRTInfo.startDate.slice(0, 10) }}</v-list-tile-content>
+                        <v-list-tile-content v-if="CTRTInfo.startDate" class="align-end">{{ CTRTInfo.startDate.slice(0, 10) }}</v-list-tile-content>
                       </v-list-tile>
                       <v-list-tile>
                         <v-list-tile-content>记租结束日期:</v-list-tile-content>
-                        <v-list-tile-content class="align-end">{{ CTRTInfo.endDate.slice(0, 10) }}</v-list-tile-content>
+                        <v-list-tile-content v-if="CTRTInfo.endDate" class="align-end">{{ CTRTInfo.endDate.slice(0, 10) }}</v-list-tile-content>
                       </v-list-tile>
                       <v-list-tile>
                         <v-list-tile-content>记租前免租:</v-list-tile-content>
@@ -129,7 +133,7 @@
                       </v-list-tile>
                       <v-list-tile>
                         <v-list-tile-content>年递增率:</v-list-tile-content>
-                        <v-list-tile-content class="align-end">{{ 100*CTRTInfo.houseAndBuildingDtos[0].increaseRate }}%</v-list-tile-content>
+                        <v-list-tile-content class="align-end">{{ 100 * CTRTInfo.houseAndBuildingDtos[0].increaseRate }}%</v-list-tile-content>
                       </v-list-tile>
                       <v-list-tile>
                         <v-list-tile-content>年递增率基数:</v-list-tile-content>
@@ -144,7 +148,7 @@
                     <v-list dense style="height: 262px;overflow: auto;">
                       <v-list-tile v-for="(house, houseIndex) in CTRTInfo.houseAndBuildingDtos" :key="houseIndex" avatar ripple @click="$router.push({ path: '/house/house-detail', query: { detailId: house.id } })">
                         <v-list-tile-content>
-                          <v-list-tile-title>{{ `${house.parkName} - ${house.buildName}` }}</v-list-tile-title>
+                          <v-list-tile-title>{{ `${house.parkName} - ${house.buildingName}` }}</v-list-tile-title>
                           <v-list-tile-sub-title>{{`${house.floorNumber}层 ${house.doorNumber}室`}}</v-list-tile-sub-title>
                         </v-list-tile-content>
                         <v-list-tile-action>
@@ -168,14 +172,13 @@
                     :headers="rentHeaders"
                     :items="CTRTInfo.contractRentTotalDto.contractRentDetailDtoList"
                     item-key="payDay"
-                    hide-actions
                     class="elevation-1 mb-5"
                   >
                     <template slot="items" slot-scope="props">
                       <!-- <tr @click="props.expanded = !props.expanded"> -->
-                      <td>{{ props.item.fromDate.slice(0, 10) }}</td>
-                      <td>{{ props.item.endDate.slice(0, 10) }}</td>
-                      <td>{{ props.item.payDay.slice(0, 10) }}</td>
+                      <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
+                      <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
+                      <td v-if="props.item.payDay">{{ props.item.payDay.slice(0, 10) }}</td>
                       <td>{{ props.item.total }}元</td>
                       <!-- </tr> -->
                     </template>
@@ -309,6 +312,8 @@
 export default {
   name: "contract-detail",
   data: () => ({
+    loading: false,
+    error: null,
     dialog: {
       fab: false,
       examineDialog: false,
@@ -322,10 +327,10 @@ export default {
     },
     CTRTInfo: {},
     rentHeaders: [
-      { text: "起始日期", value: "fromDate", sortable: false },
-      { text: "结束日期", value: "endDate", sortable: false },
-      { text: "缴纳日期", value: "payDay", sortable: false },
-      { text: "租金", value: "total", sortable: false }
+      { text: "待缴起始日期", value: "fromDate", sortable: false },
+      { text: "待缴结束日期", value: "endDate", sortable: false },
+      { text: "缴纳截至日期", value: "payDay", sortable: false },
+      { text: "待缴租金", value: "total", sortable: false }
     ],
     invalidatedInfo: "",
     refundInfo: "",
@@ -353,107 +358,25 @@ export default {
   },
   methods: {
     initialize() {
+      this.loading = true;
+      this.error = null;
       this.$http
         .get("/cms/contract/view.json", {
           params: {
             id: this.$route.query.detailId
           }
-          // },
-          // {
-          //   id: this.$route.query.detailId
         })
         .then(res => {
+          this.loading = false;
           let resData = res.data.data;
-          resData = resData && resData.length ? resData[1] : {};
           this.CTRTInfo = resData;
           console.log(this.CTRTInfo);
         })
-        .catch(() =>
-          this.addSnackBar("合同详情查询失败 请检查网络后刷新", "error")
-        );
-      this.CTRTInfo = {
-        address: "string",
-        afterFree: 0,
-        agency: "链家网",
-        beforeFree: 0,
-        businessLicense: "string",
-        companyName: "北京普惠互联科技有限公司",
-        companyTel: "string",
-        companyIndustry: "",
-        legalPerson: "",
-        contractName: "string",
-        contractNo: "string",
-        contractRentTotalDto: {
-          afterFreeEndDate: "2018-05-27T08:15:02.532Z",
-          afterFreeStartDate: "2018-05-27T08:15:02.532Z",
-          beforeFreeEndDate: "2018-05-27T08:15:02.532Z",
-          beforeFreeStartDate: "2018-05-27T08:15:02.532Z",
-          contractRentDetailDtoList: [
-            {
-              endDate: "2018-05-27T08:15:02.532Z",
-              fromDate: "2018-05-27T08:15:02.532Z",
-              houseRentDetailDtoList: [
-                {
-                  buildArea: 0,
-                  increaseRate: "string",
-                  rent: 0,
-                  singleTotal: 0
-                }
-              ],
-              payDay: "2018-05-27T08:15:02.532Z",
-              total: 12345
-            },
-            {
-              endDate: "2018-06-27T08:15:02.532Z",
-              fromDate: "2018-06-27T08:15:02.532Z",
-              houseRentDetailDtoList: [
-                {
-                  buildArea: 0,
-                  increaseRate: "string",
-                  rent: 0,
-                  singleTotal: 0
-                }
-              ],
-              payDay: "2018-06-27T08:15:02.532Z",
-              total: 23456
-            }
-          ],
-          remark: "string"
-        },
-        createTime: "2018-05-27T08:15:02.532Z",
-        customerType: "string",
-        deposit: 0,
-        endDate: "2018-05-27T08:15:02.532Z",
-        exContractNo: "string",
-        houseAndBuildingDtos: [
-          {
-            buildArea: 0,
-            buildingId: 0,
-            buildingName: "string",
-            doorNumber: "string",
-            floorNumber: 0,
-            houseId: 0,
-            id: 0,
-            increaseRate: "string",
-            increaseType: 0,
-            rent: 0,
-            roomNumber: "string",
-            type: "string"
-          }
-        ],
-        id: 0,
-        idCode: "123456199009099999",
-        intermediatorName: "中介C",
-        intermediatorTel: "8613999999999",
-        liquidatedDamages: 0,
-        month: 3,
-        partyA: "中海融科技有限公司",
-        partyB: 0,
-        signedPersonA: "甲方A",
-        signedPersonB: "乙方B",
-        signingDate: "2018-05-27T08:15:02.532Z",
-        startDate: "2018-05-27T08:15:02.532Z"
-      };
+        .catch(err => {
+          this.loading = false;
+          this.error = err;
+          this.addSnackBar("合同详情查询失败 请检查网络后刷新", "error");
+        });
     },
     closeInvalidated() {
       this.dialog.invalidatedDialog = false;
@@ -563,5 +486,11 @@ export default {
   min-height: 100%;
   background: #f5f5f5;
   z-index: 1;
+  .center-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
 </style>

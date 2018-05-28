@@ -1,6 +1,10 @@
 import Vue from "vue";
 import Router from "vue-router";
 
+import Login from "@/views/User/Login.vue";
+
+import Home from "@/views/Home.vue";
+
 import NotFind from "@/views/NotFind.vue";
 
 // Analysis Module - 分析模块
@@ -24,19 +28,43 @@ export default new Router({
   routes: [
     {
       path: "/",
-      redirect: { name: "dashboard" }
+      redirect: { path: "/home" }
     },
     {
-      path: "/404",
-      name: "NotFind",
-      component: NotFind
+      path: "/login",
+      name: "login",
+      component: Login
     },
-    ...Analysis,
-    ...Assets,
-    ...Contract,
-    ...Dashboard,
-    ...Finance,
-    ...Property,
-    ...Sale
+    {
+      path: "/home",
+      component: Home,
+      props: { viewToolBarTitle: "园区管理" },
+      children: [
+        {
+          path: "",
+          redirect: { name: "dashboard" }
+        },
+        ...Analysis,
+        ...Assets,
+        ...Contract,
+        ...Dashboard,
+        ...Finance,
+        ...Property,
+        ...Sale,
+        {
+          path: "404",
+          name: "NotFind",
+          component: NotFind
+        },
+        {
+          path: "*",
+          redirect: { name: "NotFind" }
+        }
+      ]
+    },
+    {
+      path: "*",
+      redirect: "/"
+    }
   ]
 });

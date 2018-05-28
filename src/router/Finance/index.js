@@ -2,7 +2,7 @@ import FinanceHome from "@/views/FinanceView/FinanceHome.vue";
 
 export default [
   {
-    path: "/finance",
+    path: "finance",
     name: "finance",
     component: FinanceHome
   }

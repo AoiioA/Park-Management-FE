@@ -2,7 +2,6 @@
   <v-jumbotron color="blue-grey lighten-4" height="auto">
     <v-container grid-list-xl fill-height>
       <v-layout align-start align-content-start justify-center wrap>
-        <v-flex xs12 xl10 tag="h1" class="title grey--text text--darken-1">合同列表</v-flex>
         <v-flex xs12 xl10>
           <v-card>
             <v-card-title class="py-2">
@@ -10,7 +9,7 @@
                 flat
                 solo
                 prepend-icon="search"
-                label="在全部合同中检索..."
+                label="在合同中检索..."
                 v-model="search"
               ></v-text-field>
               <!-- <v-btn color="primary" @click="1">添加合同</v-btn> -->
@@ -42,7 +41,7 @@
             </v-card-title>
             <v-divider></v-divider>
             <v-data-table
-              :no-data-text="networkError?`网络出现异常 - 检查网络后刷新重试`:`暂无记录 - 点击上方按钮添加`"
+              :no-data-text="networkError?`网络出现异常 - 检查网络后刷新重试`:`暂无记录`"
               :no-results-text="`没能找到“${ search }”的结果...`"
               :search="search"
               :headers="headers"
@@ -52,10 +51,10 @@
             >
               <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
               <template slot="items" slot-scope="props">
-                <tr @click="props.expanded = !props.expanded">
+                <!-- <tr @click="props.expanded = !props.expanded"> -->
                   <td>{{ props.item.contractNo }}</td>
                   <td>{{ props.item.contractName }}</td>
-                  <td>{{ props.item.companyInfo.companyName }}</td>
+                  <td>{{ props.item.companyName }}</td>
                   <td>{{ props.item.signedPersonA }}</td>
                   <td>{{ props.item.signingDate.slice(0, 10) }}</td>
                   <td>{{ props.item.startDate.slice(0, 10) }}</td>
@@ -68,9 +67,9 @@
                       <v-icon color="purple lighten-1">file_download</v-icon>
                     </v-btn> -->
                   </td>
-                </tr>
+                <!-- </tr> -->
               </template>
-              <template slot="expand" slot-scope="props">
+              <!-- <template slot="expand" slot-scope="props">
                 <v-container>
                   <v-layout>
                     <v-flex xs6>
@@ -91,26 +90,23 @@
                       </v-list>
                     </v-flex>
                     <v-flex xs6>
-                      <v-list dense subheader>
+                      <v-list dense subheader style="height: 164px;overflow: auto;">
                         <v-subheader><h3>相关资产</h3></v-subheader>
-                        <template v-for="(house, houseIndex) in props.item.houseInfo">
-                          <v-list-tile :key="houseIndex" avatar ripple @click="$router.push({ path: '/house/house-detail', query: { detailId: house.houseId } })">
-                            <v-list-tile-content>
-                              <v-list-tile-title>{{ `${house.parkName} - ${house.buildName}` }}</v-list-tile-title>
-                              <v-list-tile-sub-title>{{`${house.floorNumber}层 ${house.doorNumber}室`}}</v-list-tile-sub-title>
-                            </v-list-tile-content>
-                            <v-list-tile-action>
-                              <v-list-tile-action-text>总面积 : {{ house.buildArea }}m²</v-list-tile-action-text>
-                              <v-list-tile-action-text>月租金 : {{ house.rent }}元</v-list-tile-action-text>
-                            </v-list-tile-action>
-                          </v-list-tile>
-                          <!-- <v-divider v-if="houseIndex + 1 < props.item.house.length" :key="`line${houseIndex}`"></v-divider> -->
-                        </template>
+                        <v-list-tile v-for="(house, houseIndex) in props.item.houseInfo" :key="houseIndex" avatar ripple @click="$router.push({ path: '/home/house/house-detail', query: { detailId: house.houseId } })">
+                          <v-list-tile-content>
+                            <v-list-tile-title>{{ `${house.parkName} - ${house.buildName}` }}</v-list-tile-title>
+                            <v-list-tile-sub-title>{{`${house.floorNumber}层 ${house.doorNumber}室`}}</v-list-tile-sub-title>
+                          </v-list-tile-content>
+                          <v-list-tile-action>
+                            <v-list-tile-action-text>总面积 : {{ house.buildArea }}m²</v-list-tile-action-text>
+                            <v-list-tile-action-text>月租金 : {{ house.rent }}元</v-list-tile-action-text>
+                          </v-list-tile-action>
+                        </v-list-tile>
                       </v-list>
                     </v-flex>
                   </v-layout>
                 </v-container>
-              </template>
+              </template> -->
             </v-data-table>
           </v-card>
         </v-flex>
@@ -128,7 +124,7 @@ export default {
     headers: [
       { text: "合同编号", value: "contractNo", sortable: false },
       { text: "合同名", value: "contractName" },
-      { text: "承租方", value: "companyInfo" },
+      { text: "承租方", value: "companyName" },
       { text: "甲方签订人", value: "signedPersonA" },
       { text: "签订日期", value: "signingDate" },
       { text: "计租日期", value: "startDate" },

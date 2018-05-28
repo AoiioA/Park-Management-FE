@@ -120,7 +120,7 @@ export default {
           }));
 
           if (
-            "/building/".indexOf(this.$route.fullPath) > -1 &&
+            this.$route.name !== "building-detail" &&
             this.viewToolBarTab.length
           ) {
             this.$router.push(this.viewToolBarTab[0].to);

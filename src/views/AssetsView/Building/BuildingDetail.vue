@@ -34,7 +34,6 @@
           wrap
           justify-center
         >
-          <!-- <v-layout ></v-layout> -->
           <v-flex slot="item" slot-scope="props" xs12 lg10>
             <chart
               :options="getOption(props)"
@@ -138,7 +137,10 @@ export default {
         floorData[house.resourceStatus].children.push({
           name: `${house.doorNumber}室`,
           value: [parseFloat(house.buildArea)],
-          to: { path: "/house/house-detail", query: { houseId: house.houseId } }
+          to: {
+            path: "/home/house/house-detail",
+            query: { houseId: house.houseId }
+          }
         });
       });
 

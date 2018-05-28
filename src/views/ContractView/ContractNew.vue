@@ -4,12 +4,14 @@
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 md10 lg8>
           <v-toolbar dense flat>
-            <v-toolbar-side-icon @click="$router.go(-1)">
+            <v-toolbar-side-icon @click="$router.push({})">
               <v-icon>close</v-icon>
             </v-toolbar-side-icon>
             <v-toolbar-title>添加新合同并提交审核</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
+        </v-flex>
+        <v-flex xs12 md10 lg8>
           <v-stepper v-model="stepNum" vertical class="elevation-0 new-stepper">
             <v-stepper-step :rules="[() => !!formValid[0]]" :complete="stepNum>1" step="1">
               填写合同相关人

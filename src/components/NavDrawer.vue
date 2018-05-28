@@ -96,56 +96,66 @@ export default {
           action: "dashboard",
           title: "工作台",
           active: true,
-          child: [{ action: "dashboard", title: "总览", url: "/dashboard" }]
+          child: [
+            { action: "dashboard", title: "总览", url: "/home/dashboard" }
+          ]
         },
         {
           action: "business",
           title: "资产管理",
           child: [
-            { action: "business", title: "园区管理", url: "/park" },
-            { action: "business", title: "楼宇管理", url: "/building" },
-            { action: "business", title: "房源管理", url: "/house" }
+            { action: "business", title: "园区管理", url: "/home/park" },
+            { action: "business", title: "楼宇管理", url: "/home/building" },
+            { action: "business", title: "房源管理", url: "/home/house" }
           ]
         },
         {
           action: "gavel",
           title: "招商管理",
           child: [
-            { action: "gavel", title: "预约管理", url: "/sale" },
-            { action: "gavel", title: "客户管理", url: "/404" },
-            { action: "gavel", title: "中介商管理", url: "/404" }
+            { action: "gavel", title: "预约管理", url: "/home/sale" },
+            { action: "gavel", title: "客户管理", url: "/home/404" },
+            { action: "gavel", title: "中介商管理", url: "/home/404" }
           ]
         },
         {
           action: "receipt",
           title: "合同管理",
           child: [
-            { action: "receipt", title: "合同概览", url: "/contract/list" },
-            { action: "receipt", title: "合同审核", url: "/contract/examine" }
+            {
+              action: "receipt",
+              title: "合同概览",
+              url: "/home/contract/list"
+            },
+            {
+              action: "receipt",
+              title: "合同审核",
+              url: "/home/contract/examine"
+            }
           ]
         },
         {
           action: "attach_money",
           title: "财务管理",
           child: [
-            { action: "attach_money", title: "租金管理", url: "/finance" },
-            { action: "attach_money", title: "其他费用", url: "/404" }
+            { action: "attach_money", title: "租金管理", url: "/home/finance" },
+            { action: "attach_money", title: "其他费用", url: "/home/404" }
           ]
         },
         {
           action: "build",
           title: "物业管理",
           child: [
-            { action: "build", title: "资产维护", url: "/property" },
-            { action: "build", title: "水电管理", url: "/404" },
-            { action: "build", title: "卫生管理", url: "/404" }
+            { action: "build", title: "资产维护", url: "/home/property" },
+            { action: "build", title: "水电管理", url: "/home/404" },
+            { action: "build", title: "卫生管理", url: "/home/404" }
           ]
         },
         {
           action: "bubble_chart",
           title: "数据分析",
           child: [
-            { action: "bubble_chart", title: "数据概览", url: "/analysis" }
+            { action: "bubble_chart", title: "数据概览", url: "/home/analysis" }
           ]
         }
       ]

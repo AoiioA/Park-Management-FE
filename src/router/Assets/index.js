@@ -11,7 +11,7 @@ import HouseDetail from "@/views/AssetsView/House/HouseDetail.vue";
 
 export default [
   {
-    path: "/park",
+    path: "park",
     component: Park,
     props: { viewToolBarTitle: "园区管理" },
     children: [
@@ -27,7 +27,7 @@ export default [
     ]
   },
   {
-    path: "/building",
+    path: "building",
     component: Building,
     props: { viewToolBarTitle: "楼宇管理" },
     children: [
@@ -44,7 +44,7 @@ export default [
     ]
   },
   {
-    path: "/house",
+    path: "house",
     component: House,
     props: { viewToolBarTitle: "房源管理" },
     children: [

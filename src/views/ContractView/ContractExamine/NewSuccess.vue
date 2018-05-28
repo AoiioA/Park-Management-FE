@@ -77,7 +77,9 @@ export default {
     initialize() {
       this.networkLoading = true;
       this.$http
-        .post("/cms/contract/throwALeaseSuccessList.json")
+        .post("/cms/contractSub/queryByState.json", {
+          contractState: "已签订"
+        })
         .then(res => {
           this.networkLoading = false;
           let resData = res.data.data;
