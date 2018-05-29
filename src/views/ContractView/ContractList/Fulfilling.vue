@@ -86,7 +86,7 @@
                         </v-list-tile>
                         <v-list-tile>
                           <v-list-tile-content class="body-2">租金递增率 : {{ 100 * props.item.houseInfo[0].increaseRate }}%</v-list-tile-content>
-                          <v-list-tile-content class="body-2 align-end">递增基数 : 基于{{ ["首年", "上一年"][props.item.houseInfo[0].increaseBase] }}</v-list-tile-content>
+                          <v-list-tile-content class="body-2 align-end">递增基数 : 基于{{ ["首年", "上一年"][props.item.houseInfo[0].increaseType] }}</v-list-tile-content>
                         </v-list-tile>
                       </v-list>
                     </v-flex>

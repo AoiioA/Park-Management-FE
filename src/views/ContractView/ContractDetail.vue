@@ -137,7 +137,7 @@
                       </v-list-tile>
                       <v-list-tile>
                         <v-list-tile-content>年递增率基数:</v-list-tile-content>
-                        <v-list-tile-content class="align-end">{{ ['首年租金', '上一年租金'][CTRTInfo.houseAndBuildingDtos[0].increaseBase] }}</v-list-tile-content>
+                        <v-list-tile-content class="align-end">{{ ['首年租金', '上一年租金'][CTRTInfo.houseAndBuildingDtos[0].increaseType] }}</v-list-tile-content>
                       </v-list-tile>
                     </v-list>
                   </v-card>
