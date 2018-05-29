@@ -1,10 +1,10 @@
 <template>
   <div class="fill-height contract">
     <router-view>
-      <v-btn flat slot="newContractBtn" :to="{ query: { newItem: 'yes' } }">添加合同</v-btn>
+      <v-btn flat slot="newContractBtn" :to="{ query: { newType: 'new' } }">添加合同</v-btn>
     </router-view>
-    <contract-new v-if="newItem"></contract-new>
-    <contract-detail v-if="detailId"></contract-detail>
+    <contract-new v-if="newType"></contract-new>
+    <contract-detail v-if="detailType&&detailId"></contract-detail>
   </div>
 </template>
 
@@ -14,7 +14,7 @@ import ContractNew from "@/views/ContractView/ContractNew.vue";
 import ContractDetail from "@/views/ContractView/ContractDetail.vue";
 
 export default {
-  props: ["detailId", "newItem", "renewId"],
+  props: ["detailType", "detailId", "newType", "renewId"],
   data: () => ({}),
   components: {
     ContractNew,

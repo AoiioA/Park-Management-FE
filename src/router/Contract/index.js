@@ -18,8 +18,9 @@ export default [
     path: "contract",
     component: Contract,
     props: route => ({
+      detailType: route.query.detailType,
       detailId: route.query.detailId,
-      newItem: route.query.newItem,
+      newType: route.query.newType,
       renewId: route.query.renewId
     }),
     children: [

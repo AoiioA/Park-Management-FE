@@ -3,6 +3,7 @@
     <v-container grid-list-xl fill-height>
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 xl10>
+          <v-subheader>待审合同</v-subheader>
           <v-card>
             <v-card-title class="py-2">
               <v-text-field
@@ -39,7 +40,7 @@
                 <td>{{ props.item.startDate.slice(0, 10) }}</td>
                 <td>{{ props.item.endDate.slice(0, 10) }}</td>
                 <td class="text-xs-center px-0">
-                  <v-btn icon class="mx-0" :to="{ query: { detailId: props.item.id } }">
+                  <v-btn icon class="mx-0" :to="{ query: { detailType: $route.name, detailId: props.item.id } }">
                     <v-icon color="primary">visibility</v-icon>
                   </v-btn>
                 </td>
@@ -70,6 +71,11 @@ export default {
     ],
     contractList: []
   }),
+  watch: {
+    $route(val) {
+      if (JSON.stringify(val.query) == "{}") this.initialize();
+    }
+  },
   mounted() {
     this.initialize();
   },

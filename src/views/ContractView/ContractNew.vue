@@ -7,11 +7,13 @@
             <v-toolbar-side-icon @click="$router.push({})">
               <v-icon>close</v-icon>
             </v-toolbar-side-icon>
-            <v-toolbar-title>添加新合同并提交审核</v-toolbar-title>
+            <v-toolbar-title>{{CTRTInfoURL[$route.query.newType].title}}并提交审核</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
         </v-flex>
-        <v-flex xs12 md10 lg8>
+        <v-progress-circular indeterminate color="primary" v-if="networkLoading" class="center-box"></v-progress-circular>
+        <v-alert v-else-if="networkError" :value="true" type="error" class="center-box">网络出现异常 - 检查网络后刷新重试</v-alert>
+        <v-flex xs12 md10 lg8 v-else>
           <v-stepper v-model="stepNum" vertical class="elevation-0 new-stepper">
             <v-stepper-step :rules="[() => !!formValid[0]]" :complete="stepNum>1" step="1">
               填写合同相关人
@@ -231,6 +233,17 @@ import _ from "lodash";
 export default {
   name: "contract-new",
   data: () => ({
+    networkLoading: false,
+    networkError: null,
+    CTRTInfoURL: {
+      new: { title: "添加新合同", to: "contractSub/queryOne" },
+      editing: { title: "编辑待提交合同", to: "contractSub/queryOne" },
+      failed: { title: "编辑未过审合同", to: "contractSub/queryOne" },
+      fulfilling: { title: "续签生效合同", to: "contract/view" },
+      invalidated: { title: "续签作废合同", to: "contract/viewCancelContract" },
+      refunded: { title: "续签退租合同", to: "contract/viewThrowALease" },
+      expired: { title: "续签到期合同", to: "contract/view" }
+    },
     stepNum: 1,
     formValid: [true, true, true, true],
     assetsInfo: [],
@@ -371,11 +384,33 @@ export default {
   },
   created() {
     this.$store.commit("changeToolBarTitle", "添加合同");
-    this.addNewAssets();
+    this.getPark();
     this.initialize();
+    this.addNewAssets();
   },
   methods: {
     initialize() {
+      this.networkLoading = true;
+      this.networkError = null;
+      this.$http
+        .get(`/cms/${this.CTRTInfoURL[this.$route.query.newType].to}.json`, {
+          params: {
+            id: this.$route.query.renewId
+          }
+        })
+        .then(res => {
+          this.networkLoading = false;
+          let resData = res.data.data;
+          this.CTRTInfo = resData;
+          console.log(this.CTRTInfo);
+        })
+        .catch(err => {
+          this.networkLoading = false;
+          this.networkError = err;
+          this.addSnackBar("合同详情查询失败 请检查网络后刷新", "error");
+        });
+    },
+    getPark() {
       this.$http
         .post("/cms/AssetsInfo/park.json")
         .then(res => {
@@ -576,6 +611,12 @@ export default {
   background: #f5f5f5;
   z-index: 1;
 
+  .center-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
   .new-stepper {
     max-width: 800px;
     background: #f5f5f5;

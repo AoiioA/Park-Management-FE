@@ -28,9 +28,9 @@ export default {
     tabInfo: {
       examine: [
         { name: "待审核", to: "submitted" },
-        { name: "新增通过", to: "new-success" },
-        { name: "续签通过", to: "renew-success" },
-        { name: "未通过", to: "failed" }
+        { name: "新增过审", to: "new-success" },
+        { name: "续签过审", to: "renew-success" },
+        { name: "未过审", to: "failed" }
       ],
       list: [
         { name: "待提交", to: "editing" },

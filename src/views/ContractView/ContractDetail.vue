@@ -11,8 +11,8 @@
             <v-spacer></v-spacer>
           </v-toolbar>
         </v-flex>
-        <v-progress-circular indeterminate color="primary" v-if="loading" class="center-box"></v-progress-circular>
-        <v-alert v-else-if="error" :value="true" type="error" class="center-box">网络出现异常 - 检查网络后刷新重试</v-alert>
+        <v-progress-circular indeterminate color="primary" v-if="networkLoading" class="center-box"></v-progress-circular>
+        <v-alert v-else-if="networkError" :value="true" type="error" class="center-box">网络出现异常 - 检查网络后刷新重试</v-alert>
         <v-flex xs12 md10 lg8 v-else>
           <v-jumbotron height="auto">
             <v-container grid-list-lg fill-height>
@@ -200,7 +200,7 @@
               </v-btn>
               <span>展开操作</span>
             </v-tooltip>
-            <v-dialog v-model="dialog.invalidatedDialog" persistent max-width="480">
+            <v-dialog v-if="$route.query.detailType=='fulfilling'" v-model="dialog.invalidatedDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>delete_sweep</v-icon>
@@ -230,7 +230,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-model="dialog.refundDialog" persistent max-width="480">
+            <v-dialog v-if="$route.query.detailType=='fulfilling'" v-model="dialog.refundDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>money_off</v-icon>
@@ -260,7 +260,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-model="dialog.examineDialog" persistent max-width="480">
+            <v-dialog v-if="$route.query.detailType=='submitted'" v-model="dialog.examineDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>how_to_reg</v-icon>
@@ -299,6 +299,18 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
+            <v-tooltip left v-if="$route.query.detailType=='editing'">
+              <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: 'editing', renewId: CTRTInfo.id } })">
+                <v-icon>edit</v-icon>
+              </v-btn>
+              <span>编辑</span>
+            </v-tooltip>
+            <v-tooltip left v-if="$route.query.detailType=='fulfilling'">
+              <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: $route.query.detailType, renewId: CTRTInfo.id } })">
+                <v-icon>edit</v-icon>
+              </v-btn>
+              <span>续签</span>
+            </v-tooltip>
           </v-speed-dial>
         </v-flex>
       </v-layout>
@@ -312,8 +324,19 @@
 export default {
   name: "contract-detail",
   data: () => ({
-    loading: false,
-    error: null,
+    networkLoading: false,
+    networkError: null,
+    CTRTInfoURL: {
+      submitted: { name: "待审核", to: "contractSub/queryOne" },
+      "new-success": { name: "新增过审", to: "contractSub/queryOne" },
+      "renew-success": { name: "续签过审", to: "contractSub/queryOne" },
+      failed: { name: "未过审", to: "contractSub/queryOne" },
+      editing: { name: "待提交", to: "contractSub/queryOne" },
+      fulfilling: { name: "生效中", to: "contract/view" },
+      invalidated: { name: "已作废", to: "contract/viewCancelContract" },
+      refunded: { name: "已退租", to: "contract/viewThrowALease" },
+      expired: { name: "已到期", to: "contract/view" }
+    },
     dialog: {
       fab: false,
       examineDialog: false,
@@ -358,23 +381,23 @@ export default {
   },
   methods: {
     initialize() {
-      this.loading = true;
-      this.error = null;
+      this.networkLoading = true;
+      this.networkError = null;
       this.$http
-        .get("/cms/contract/view.json", {
+        .get(`/cms/${this.CTRTInfoURL[this.$route.query.detailType].to}.json`, {
           params: {
             id: this.$route.query.detailId
           }
         })
         .then(res => {
-          this.loading = false;
+          this.networkLoading = false;
           let resData = res.data.data;
           this.CTRTInfo = resData;
           console.log(this.CTRTInfo);
         })
         .catch(err => {
-          this.loading = false;
-          this.error = err;
+          this.networkLoading = false;
+          this.networkError = err;
           this.addSnackBar("合同详情查询失败 请检查网络后刷新", "error");
         });
     },
@@ -388,14 +411,15 @@ export default {
     saveInvalidated() {
       if (this.$refs.invalidatedForm.validate()) {
         this.$http
-          .post("/cms/contractSub/cancel.json", {
+          .post("/cms/contract/cancel.json", {
             id: this.CTRTInfo.id,
-            cancelReason: this.invalidatedInfo
+            reason: this.invalidatedInfo
           })
           .then(res => {
             if (res.data.code == 0) {
               this.addSnackBar("合同已作废成功", "success");
               this.closeInvalidated();
+              this.$router.push({});
             } else {
               this.addSnackBar(`合同作废错误: ${res.data.meg}`, "error");
             }
@@ -415,7 +439,7 @@ export default {
     saveRefund() {
       if (this.$refs.refundForm.validate()) {
         this.$http
-          .post("/cms/contractSub/throwALease.json", {
+          .post("/cms/contract/throwALease.json", {
             id: this.CTRTInfo.id,
             reason: this.refundInfo
           })
@@ -423,6 +447,7 @@ export default {
             if (res.data.code == 0) {
               this.addSnackBar("合同已退租成功", "success");
               this.closeRefund();
+              this.$router.push({});
             } else {
               this.addSnackBar(`合同退租错误: ${res.data.meg}`, "error");
             }
@@ -451,6 +476,7 @@ export default {
             if (res.data.code == 0) {
               this.addSnackBar("合同已审核成功", "success");
               this.closeExamine();
+              this.$router.push({});
             } else {
               this.addSnackBar(`合同审核错误: ${res.data.meg}`, "error");
             }
@@ -486,6 +512,7 @@ export default {
   min-height: 100%;
   background: #f5f5f5;
   z-index: 1;
+
   .center-box {
     position: absolute;
     top: 50%;
