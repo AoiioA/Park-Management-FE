@@ -7,13 +7,13 @@ import BuildingAll from "@/views/AssetsView/Building/BuildingAll.vue";
 
 import House from "@/views/AssetsView/House/House.vue";
 import HouseSearch from "@/views/AssetsView/House/HouseSearch.vue";
+import HouseNew from "@/views/AssetsView/House/HouseNew.vue";
 import HouseDetail from "@/views/AssetsView/House/HouseDetail.vue";
 
 export default [
   {
     path: "park",
     component: Park,
-    props: { viewToolBarTitle: "园区管理" },
     children: [
       {
         path: "",
@@ -29,7 +29,6 @@ export default [
   {
     path: "building",
     component: Building,
-    props: { viewToolBarTitle: "楼宇管理" },
     children: [
       {
         path: "building-detail/:buildingId",
@@ -46,11 +45,15 @@ export default [
   {
     path: "house",
     component: House,
-    props: { viewToolBarTitle: "房源管理" },
     children: [
       {
         path: "",
         redirect: { name: "house-search" }
+      },
+      {
+        path: "house-new",
+        name: "house-new",
+        component: HouseNew
       },
       {
         path: "house-search",

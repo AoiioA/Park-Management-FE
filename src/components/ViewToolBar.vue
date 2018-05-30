@@ -6,9 +6,9 @@
   >
     <v-layout class="mx-3 bar-content">
       <v-flex>
-        <div class="ml-2 mb-2 py-2 bar-title">{{ barTitle }}</div>
+        <div class="ml-2 mb-2 py-2 bar-title">{{ $store.state.toolBarTitle }}</div>
       </v-flex>
-      <slot name="bar-menu" class="bar-menu"></slot>
+      <slot name="bar-menu"></slot>
     </v-layout>
     <v-tabs
       v-if="barTab&&barTab.length"
@@ -31,7 +31,6 @@
 export default {
   name: "ViewToolBar",
   props: {
-    barTitle: String,
     barTab: Array
   }
 };

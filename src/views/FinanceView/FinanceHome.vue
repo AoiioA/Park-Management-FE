@@ -1,8 +1,6 @@
 <template>
   <v-layout column class="fill-height finance-home">
-    <view-tool-bar
-      :barTitle="barTitle"
-    >
+    <view-tool-bar>
       <span slot="bar-menu">
         <v-btn icon>
           <v-icon>help</v-icon>
@@ -19,9 +17,10 @@ import ViewToolBar from "@/components/ViewToolBar.vue";
 import NotFind from "@/views/NotFind.vue";
 
 export default {
-  data: () => ({
-    barTitle: "租金管理"
-  }),
+  data: () => ({}),
+  created() {
+    this.$store.commit("changeToolBarTitle", "租金管理");
+  },
   components: {
     ViewToolBar,
     NotFind

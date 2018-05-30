@@ -1,9 +1,6 @@
 <template>
   <div class="fill-height building">
-    <view-tool-bar
-      :barTitle="viewToolBarTitle"
-      :barTab="viewToolBarTab"
-    >
+    <view-tool-bar :barTab="viewToolBarTab">
       <span slot="bar-menu">
         <v-dialog v-model="newBuildingDialog" max-width="300px" persistent>
           <v-btn flat slot="activator">添加楼宇</v-btn>
@@ -69,7 +66,6 @@ export default {
   components: {
     ViewToolBar
   },
-  props: ["viewToolBarTitle"],
   data: () => ({
     loading: false,
     error: null,
@@ -91,8 +87,8 @@ export default {
     ]
   }),
   created() {
+    this.$store.commit("changeToolBarTitle", "楼宇概览");
     this.initialize();
-    this.$store.commit("changeToolBarTitle", this.viewToolBarTitle);
   },
   watch: {
     $route() {

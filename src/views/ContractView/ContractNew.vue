@@ -58,7 +58,7 @@
                   <v-divider class="my-4"></v-divider>
                   <v-layout row wrap><v-flex xs12 sm6><v-switch v-model="newCTRT.hasIntermediator" :label="newCTRT.hasIntermediator?'包含中介方':'无中介方'" class="px-0 py-0"></v-switch></v-flex></v-layout>
                   <v-layout row wrap v-if="newCTRT.hasIntermediator">
-                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.intermediator" :rules="[$store.state.rules.required]" label="经纪人姓名" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.intermediatorName" :rules="[$store.state.rules.required]" label="经纪人姓名" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm6><v-text-field v-model="newCTRT.idCode" :rules="[$store.state.rules.required]" mask="#################N" label="经纪人身份证" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm6><v-text-field v-model="newCTRT.intermediatorTel" :rules="[$store.state.rules.required]" mask="(+##)###-####-####" label="经纪人联系方式" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm6><v-text-field v-model="newCTRT.agency" :rules="[$store.state.rules.required]" label="经纪人公司" hint="" persistent-hint box required></v-text-field></v-flex>
@@ -161,10 +161,10 @@
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.beforeFree" :rules="[$store.state.rules.required, $store.state.rules.greaterThanZero]" :disabled="!newCTRT.startDate" label="记租开始前免租(天)" :hint="beforeFreeHint" persistent-hint type="number" box required></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.afterFree" :rules="[$store.state.rules.required, $store.state.rules.greaterThanZero]" :disabled="!newCTRT.endDate" label="记租结束后免租(天)" :hint="afterFreeHint" persistent-hint type="number" box required></v-text-field></v-flex>
                     <v-flex xs12 sm4>
-                      <v-menu v-model="menu.houseUse" lazy offset-y nudge-top="20">
-                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="newCTRTOther.houseUse" label="租赁用途" hint="" persistent-hint box required readonly></v-text-field>
+                      <v-menu v-model="menu.purpose" lazy offset-y nudge-top="20">
+                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="newCTRTOther.purpose" label="租赁用途" hint="" persistent-hint box required readonly></v-text-field>
                         <v-list style="max-height: 200px; overflow-y: auto;">
-                          <v-list-tile v-for="use in houseUseInfo" :key="use" @click="newCTRTOther.houseUse=use">
+                          <v-list-tile v-for="use in purposeInfo" :key="use" @click="newCTRTOther.purpose=use">
                             <v-list-tile-title>{{ use }}</v-list-tile-title>
                           </v-list-tile>
                         </v-list>
@@ -226,7 +226,7 @@
                   </v-card>
                 </template>
               </v-data-table> -->
-              <v-btn :disabled="formValid.reduce((all, el) => all && el)" @click.native="submitContract(true)" color="primary" depressed>确认无误并提交</v-btn>
+              <v-btn :disabled="!formValid.reduce((all, el) => all && el)" @click.native="submitContract(true)" color="primary" depressed>确认无误并提交</v-btn>
               <v-btn :disabled="!formValid.reduce((all, el) => all && el)" @click.native="submitContract(false)" flat>仅保存</v-btn>
               <v-btn @click.native="stepNum--" flat>后退</v-btn>
             </v-stepper-content>
@@ -273,7 +273,7 @@ export default {
       companyAddress: "",
       // 中介方
       hasIntermediator: true,
-      intermediator: "",
+      intermediatorName: "",
       idCode: "",
       intermediatorTel: "",
       agency: "",
@@ -295,7 +295,7 @@ export default {
     newCTRTOther: {
       increaseType: 0,
       increaseRate: 3,
-      houseUse: ""
+      purpose: ""
     },
     newAssets: [],
     defaultAssets: {
@@ -356,10 +356,10 @@ export default {
       "交通/运输/物流/仓储",
       "其他"
     ],
-    houseUseInfo: ["办公", "餐饮", "娱乐"],
+    purposeInfo: ["办公", "餐饮", "娱乐"],
     menu: {
       companyIndustry: false,
-      houseUse: false,
+      purpose: false,
       signingDate: false,
       startDate: false,
       endDate: false,
@@ -421,7 +421,7 @@ export default {
           Object.assign(
             this.newCTRT,
             _.omit(resData, [
-              "id",
+              "operationType",
               "contractRentTotalDto",
               "houseAndBuildingDtos",
               "signingDate",
@@ -435,7 +435,7 @@ export default {
           this.newCTRTOther = {
             increaseType: resDataAssets[0].increaseType,
             increaseRate: resDataAssets[0].increaseRate,
-            houseUse: resDataAssets[0].houseUse
+            purpose: resDataAssets[0].purpose
           };
           // 改变newAssets
           resDataAssets.map(item => {
@@ -517,13 +517,13 @@ export default {
               isAdded: (resDataItem => {
                 let isAdded = false;
                 this.newAssets.map(el => {
-                  if (resDataItem.houseId == el.houseId) {
+                  if (resDataItem.id == el.houseId) {
                     isAdded = true;
                   }
                 });
                 return isAdded;
               })(resDataItem),
-              houseId: resDataItem.houseId,
+              houseId: resDataItem.id,
               doorNumber: resDataItem.doorNumber
             });
           });
@@ -550,7 +550,7 @@ export default {
         // 请求该楼宇下房屋信息
         this.$http
           .post("/cms/AssetsInfo/house.json", {
-            houseId: assetsHouse.houseId
+            id: assetsHouse.houseId
           })
           .then(res => {
             let resData = res.data.data[0];
@@ -595,14 +595,14 @@ export default {
             rent: item.price,
             increaseType: this.newCTRTOther.increaseType,
             increaseRate: this.newCTRTOther.increaseRate / 100,
-            houseUse: this.newCTRTOther.houseUse,
+            purpose: this.newCTRTOther.purpose,
             type: "房屋"
           }))
         },
         (() =>
           this.$route.query.newType == "editing"
             ? {
-                contractId: Number(this.$route.query.renewId),
+                id: Number(this.$route.query.renewId),
                 exContractNo: this.newCTRT.exContractNo
               }
             : {

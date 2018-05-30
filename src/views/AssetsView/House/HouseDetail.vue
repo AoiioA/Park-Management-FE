@@ -13,16 +13,16 @@
     </v-jumbotron>
   </div>
 </template>
-<script>
-// import "@/mock/house-mock";
 
+<script>
 export default {
   data: () => ({}),
+  created() {
+    this.$store.commit("changeToolBarTitle", "房源详情");
+    this.initialize();
+  },
   watch: {
     $route: "initialize"
-  },
-  mounted() {
-    this.initialize();
   },
   methods: {
     initialize() {

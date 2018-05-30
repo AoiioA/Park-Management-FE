@@ -18,9 +18,8 @@
     </v-jumbotron>
   </div>
 </template>
-<script>
-// import "@/mock/house-mock";
 
+<script>
 export default {
   data: () => ({
     loading: false,
@@ -28,6 +27,9 @@ export default {
     houseArr: [],
     houseId: 1
   }),
+  created() {
+    this.initialize();
+  },
   methods: {
     initialize() {
       this.networkLoading = true;

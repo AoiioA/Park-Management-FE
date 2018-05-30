@@ -1,9 +1,6 @@
 <template>
   <div class="fill-height contract-list">
-    <view-tool-bar
-      :barTitle="viewToolBarTitle"
-      :barTab="viewToolBarTab"
-    >
+    <view-tool-bar :barTab="viewToolBarTab">
       <span slot="bar-menu">
         <slot name="newContractBtn"></slot>
         <v-btn icon>
@@ -23,7 +20,6 @@ export default {
   components: {
     ViewToolBar
   },
-  props: ["viewToolBarTitle"],
   data: () => ({
     tabInfo: {
       examine: [
@@ -41,6 +37,9 @@ export default {
       ]
     }
   }),
+  created() {
+    this.$store.commit("changeToolBarTitle", "合同概览");
+  },
   computed: {
     viewToolBarTab() {
       for (const page in this.tabInfo) {
@@ -53,9 +52,6 @@ export default {
       }
     },
     ...mapState({})
-  },
-  created() {
-    this.$store.commit("changeToolBarTitle", this.viewToolBarTitle);
   }
 };
 </script>

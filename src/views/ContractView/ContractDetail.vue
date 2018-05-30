@@ -162,7 +162,7 @@
               </v-layout>
             </v-container>
           </v-jumbotron>
-          <v-jumbotron height="auto">
+          <v-jumbotron height="auto" v-if="CTRTInfo.contractRentTotalDto">
             <v-container grid-list-lg fill-height>
               <v-layout align-start align-content-start justify-center wrap>
                 <!-- <v-flex xs12 md12 class="subheading grey--text text--darken-1">租金明细</v-flex> -->
@@ -230,7 +230,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-if="$route.query.detailType=='fulfilling'" v-model="dialog.refundDialog" persistent max-width="480">
+            <v-dialog v-if="['fulfilling'].indexOf($route.query.detailType)" v-model="dialog.refundDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>money_off</v-icon>
@@ -260,7 +260,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-if="$route.query.detailType=='submitted'" v-model="dialog.examineDialog" persistent max-width="480">
+            <v-dialog v-if="['submitted'].indexOf($route.query.detailType)" v-model="dialog.examineDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>how_to_reg</v-icon>
@@ -299,13 +299,13 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-tooltip left v-if="$route.query.detailType=='editing'">
+            <v-tooltip left v-if="['editing'].indexOf($route.query.detailType)">
               <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: 'editing', renewId: CTRTInfo.id } })">
                 <v-icon>edit</v-icon>
               </v-btn>
               <span>编辑</span>
             </v-tooltip>
-            <v-tooltip left v-if="$route.query.detailType=='fulfilling'">
+            <v-tooltip left v-if="['fulfilling'].indexOf($route.query.detailType)">
               <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: $route.query.detailType, renewId: CTRTInfo.id } })">
                 <v-icon>edit</v-icon>
               </v-btn>
@@ -377,6 +377,7 @@ export default {
     ]
   }),
   created() {
+    this.$store.commit("changeToolBarTitle", "合同详情");
     this.initialize();
   },
   methods: {
@@ -393,7 +394,6 @@ export default {
           this.networkLoading = false;
           let resData = res.data.data;
           this.CTRTInfo = resData;
-          console.log(this.CTRTInfo);
         })
         .catch(err => {
           this.networkLoading = false;

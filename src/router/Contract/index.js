@@ -17,12 +17,6 @@ export default [
   {
     path: "contract",
     component: Contract,
-    props: route => ({
-      detailType: route.query.detailType,
-      detailId: route.query.detailId,
-      newType: route.query.newType,
-      renewId: route.query.renewId
-    }),
     children: [
       {
         path: "",
@@ -31,7 +25,6 @@ export default [
       {
         path: "examine",
         component: ContractList,
-        props: { viewToolBarTitle: "合同审核" },
         children: [
           {
             path: "",
@@ -62,7 +55,6 @@ export default [
       {
         path: "list",
         component: ContractList,
-        props: { viewToolBarTitle: "合同概览" },
         children: [
           {
             path: "",

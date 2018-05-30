@@ -21,7 +21,7 @@
               </span>
               <v-spacer></v-spacer>
               <v-btn depressed>编辑楼宇</v-btn>
-              <v-btn depressed color="primary">添加房源</v-btn>
+              <v-btn @click="$router.push({ name: 'house-new' })" depressed color="primary">添加房源</v-btn>
             </v-subheader>
           </v-flex>
         </v-layout>
@@ -86,7 +86,8 @@ export default {
   watch: {
     $route: "initialize"
   },
-  mounted() {
+  created() {
+    this.$store.commit("changeToolBarTitle", "楼宇详情");
     this.initialize();
   },
   methods: {

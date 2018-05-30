@@ -14,16 +14,30 @@ import ContractNew from "@/views/ContractView/ContractNew.vue";
 import ContractDetail from "@/views/ContractView/ContractDetail.vue";
 
 export default {
-  props: ["detailType", "detailId", "newType", "renewId"],
-  data: () => ({}),
   components: {
     ContractNew,
     ContractDetail
+  },
+  data: () => ({}),
+  computed: {
+    detailType() {
+      return this.$route.query.detailType;
+    },
+    detailId() {
+      return this.$route.query.detailId;
+    },
+    newType() {
+      return this.$route.query.newType;
+    },
+    renewId() {
+      return this.$route.query.renewId;
+    }
   }
 };
 </script>
 
 <style lang="stylus" scoped>
-.contract
-  position relative
+.contract {
+  position: relative;
+}
 </style>
