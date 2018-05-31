@@ -9,12 +9,15 @@
               <!-- <small>包含甲方、承租方、中介方信息</small> -->
             </v-stepper-step>
             <v-stepper-content step="1">
-              <v-form ref="houseForm" v-model="formValid" lazy-validation>
+              <v-progress-circular indeterminate color="primary" v-if="networkLoading" class="center-box"></v-progress-circular>
+              <v-alert v-else-if="networkError" :value="true" type="error" class="center-box">网络出现异常 - 检查网络后刷新重试</v-alert>
+              <v-form v-else ref="houseForm" v-model="formValid" lazy-validation>
                 <v-container grid-list-md>
+                  <v-subheader>归属信息</v-subheader>
                   <v-layout row wrap>
-                    <v-flex xs12 sm4>
+                    <v-flex xs12 sm3>
                       <v-menu v-model="menu.buildingMenu" :close-on-content-click="false" offset-y nudge-top="20" lazy>
-                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="newAssets.buildingName" label="签约楼宇" :hint="newAssets.parkName" persistent-hint box required readonly></v-text-field>
+                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="newHouse.buildingName" label="签约楼宇" :hint="newHouse.parkName" persistent-hint box required readonly></v-text-field>
                         <v-list style="max-height: 200px; overflow-y: auto;">
                           <v-list-tile v-if="!assetsInfo.length">
                             <v-list-tile-title>暂无房源可以添加</v-list-tile-title>
@@ -32,91 +35,143 @@
                         </v-list>
                       </v-menu>
                     </v-flex>
-                    <v-flex xs12 sm8><v-text-field v-model="newHouse.companyAddress" :rules="[$store.state.rules.required]" label="承租方通讯地址" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.floorNumber" mask="###" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="楼层" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.roomNumber" mask="#####" :rules="[$store.state.rules.required]" label="房间号" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model="newHouse.doorNumber" :rules="[$store.state.rules.required]" label="门牌号" hint="" persistent-hint box required></v-text-field></v-flex>
+                  </v-layout>
+                  <v-divider class="my-3"></v-divider>
+                  <v-subheader>建筑信息</v-subheader>
+                  <v-layout row wrap>
+                    <v-flex xs12 sm3><v-text-field v-model="newHouse.orientation" :rules="[$store.state.rules.required]" label="房源朝向" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model="newHouse.buildArea" :rules="[$store.state.rules.required]" label="建筑面积(m²)" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model="newHouse.usageRate" :rules="[$store.state.rules.required]" label="使用率" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model="newHouse.houseType" :rules="[$store.state.rules.required]" label="房源类型" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.accommodatingNumber" mask="####" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="容纳人数" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model="newHouse.isDecoration" :rules="[$store.state.rules.required]" label="已装修" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-if="newHouse.isDecoration" v-model="newHouse.decorationSituation" :rules="[$store.state.rules.required]" label="装修程度" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-if="newHouse.isDecoration" v-model="newHouse.isOfficeFurniture" :rules="[$store.state.rules.required]" label="含办公家具" hint="" persistent-hint box required></v-text-field></v-flex>
+                  </v-layout>
+                  <v-divider class="my-3"></v-divider>
+                  <v-subheader>财务信息</v-subheader>
+                  <v-layout row wrap>
+                    <v-flex xs12 sm4><v-text-field v-model.number="newHouse.price" :rules="[$store.state.rules.required, $store.state.rules.nonnegative, $store.state.rules.noZero]" label="预计租金(元/m²)" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newHouse.priceUnit" :rules="[$store.state.rules.required]" label="价格单位" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model.number="newHouse.propertyFee" :rules="[$store.state.rules.required, $store.state.rules.nonnegative, $store.state.rules.noZero]" label="物业费(元/天•m²)" hint="" persistent-hint box required></v-text-field></v-flex>
+                  </v-layout>
+                  <v-divider class="my-3"></v-divider>
+                  <v-subheader>其他信息</v-subheader>
+                  <v-layout row wrap>
+                    <v-flex xs12 sm4><v-text-field v-model="newHouse.isRegister" :rules="[$store.state.rules.required]" label="已注册" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newHouse.isFireProcedure" :rules="[$store.state.rules.required]" label="有消防手续" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newHouse.other" :rules="[$store.state.rules.required]" label="其他" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12><v-text-field v-model="newHouse.remark" :rules="[$store.state.rules.required]" label="备注" hint="" persistent-hint box required></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
                 <v-btn :disabled="!formValid" @click.native="submitHouse()" color="primary" depressed>确认无误并提交</v-btn>
               </v-form>
             </v-stepper-content>
-            <v-stepper-step :complete="isUploadImg" step="2">上传房屋照片</v-stepper-step>
+            <v-stepper-step :complete="isSubmitHouse" step="2">上传房屋照片</v-stepper-step>
             <v-stepper-content step="2">
-              <v-progress-circular indeterminate color="primary" v-if="networkLoading" class="center-box"></v-progress-circular>
-              <v-alert v-else-if="networkError" :value="true" type="error" class="center-box">网络出现异常 - 检查网络后刷新重试</v-alert>
-              <v-container v-else grid-list-xs fluid class="mb-3">
+              <v-container grid-list-xs fluid class="mb-3">
                 <v-layout row wrap>
-                  <v-flex v-for="n in 2" :key="n" xs12 sm4 md3 xl2>
+                  <v-flex v-for="(file, fileIndex) in saveFile" :key="file.name" xs12 sm4 md3 xl2>
                     <v-card flat>
                       <v-card-media
-                        :src="`https://unsplash.it/150/300?image=${Math.floor(Math.random() * 100) + 1}`"
+                        :src="`http://122.115.50.65/filesystem/${file.path}`"
                         height="150px"
                       >
-                        <!-- <v-btn @click.native="1" :loading="uploadLoading" color="primary" outline>上传图片</v-btn> -->
+                        <v-container fill-height fluid>
+                          <v-layout column>
+                            <v-flex class="text-xs-right">
+                              <v-tooltip top>
+                                <v-btn slot="activator" :loading="file.loading" @click="delFile(fileIndex)" small icon dark class="mx-0 my-0">
+                                  <v-icon>cloud_off</v-icon>
+                                </v-btn>
+                                <span>从云端移除</span>
+                              </v-tooltip>
+                            </v-flex>
+                          </v-layout>
+                        </v-container>
+                      </v-card-media>
+                    </v-card>
+                  </v-flex>
+                  <v-flex v-for="file in newFileList" :key="file.id" xs12 sm4 md3 xl2>
+                    <v-card flat>
+                      <v-card-media
+                        class="white--text"
+                        :src="file.thumb"
+                        height="150px"
+                      >
+                        <v-container fill-height fluid style="background: rgba(128,128,128,.5)">
+                          <v-layout column>
+                            <v-flex class="text-xs-right">
+                              <v-btn
+                                slot="activator"
+                                :disabled="upload.minSize>file.size||file.size>upload.size"
+                                :loading="$refs.upload && $refs.upload.active"
+                                @click.prevent="$refs.upload.active = true"
+                                small icon dark
+                                class="mx-0 my-0"
+                              ><v-icon>cloud_queue</v-icon></v-btn>
+                              <v-btn
+                                slot="activator"
+                                :disabled="$refs.upload && $refs.upload.active"
+                                @click.prevent="$refs.upload.remove(file)"
+                                small icon dark
+                                class="mx-0 my-0"
+                              ><v-icon>close</v-icon></v-btn>
+                            </v-flex>
+                            <v-flex xs12></v-flex>
+                            <v-flex class="caption">
+                              {{file.name}}<br />{{file.size | formatSize}}
+                              <small v-if="file.size>upload.size" class="red--text">(过大)</small>
+                              <small v-if="upload.minSize>file.size" class="red--text">(过小)</small>
+                            </v-flex>
+                          </v-layout>
+                        </v-container>
                       </v-card-media>
                     </v-card>
                   </v-flex>
                   <v-flex xs12 sm4 md3 xl2>
                     <v-card flat>
-                      <v-btn
-                        @click="openUploadImg"
-                        tag="v-container"
-                        color="primary"
-                        outline
-                        class="px-0 py-0 text-xs-center"
-                        style="height: 150px;cursor: pointer;"
+                      <file-upload
+                        ref="upload"
+                        v-model="newFileList"
+                        :data="{ type: 2, id: saveHouse.id }"
+                        :post-action="upload.postAction"
+                        :accept="upload.accept"
+                        :extensions="upload.extensions"
+                        :size="upload.size || 0"
+                        :multiple="upload.multiple"
+                        :thread="upload.thread < 1 ? 1 : (upload.thread > 5 ? 5 : upload.thread)"
+                        :directory="upload.directory"
+                        :drop-directory="upload.dropDirectory"
+                        @input-filter="inputFilter"
+                        @input-file="inputFile"
+                        style="display: block;"
                       >
-                        <v-layout column justify-center>
-                          <v-flex><v-icon>cloud_upload</v-icon></v-flex>
-                          <v-flex>添加图片</v-flex>
-                        </v-layout>
-                      </v-btn>
-                      <v-dialog v-model="menu.uploadDialog" persistent max-width="290">
-                        <v-card>
-                          <v-card-title class="headline">Use Google's location service?</v-card-title>
-                          <v-card-text>Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.</v-card-text>
-                          <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn @click.native="cancelUploadImg()" flat>取消</v-btn>
-                            <v-btn @click.native="uploadImg()" :loading="uploadLoading" color="primary" depressed>上传图片</v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-dialog>
+                        <v-btn
+                          tag="v-container"
+                          color="primary"
+                          outline
+                          class="px-0 py-0 text-xs-center"
+                          style="height: 150px;cursor: pointer;"
+                        >
+                          <v-layout column justify-center v-if="!newFileList.length">
+                            <v-flex><v-icon>add</v-icon></v-flex>
+                            <v-flex>添加图片</v-flex>
+                          </v-layout>
+                          <v-layout column justify-center v-else>
+                            <v-flex><v-icon>refresh</v-icon></v-flex>
+                            <v-flex>更换待传图片</v-flex>
+                          </v-layout>
+                        </v-btn>
+                      </file-upload>
                     </v-card>
                   </v-flex>
                 </v-layout>
               </v-container>
-              <v-btn @click.native="$route.go(-1)" color="primary" depressed>确认完成</v-btn>
-              <ul>
-                <li v-for="file in fileList" :key="file.id">
-                  <span>{{file.name}}</span> -
-                  <span>{{file.size | formatSize}}</span> -
-                  <span v-if="file.error">{{file.error}}</span>
-                  <span v-else-if="file.success">success</span>
-                  <span v-else-if="file.active">active</span>
-                  <span v-else-if="file.active">active</span>
-                  <span v-else></span>
-                </li>
-              </ul>
-              <file-upload
-                post-action="/upload/post"
-                extensions="gif,jpg,jpeg,png,webp"
-                accept="image/png,image/gif,image/jpeg,image/webp"
-                :multiple="true"
-                :size="1024 * 1024 * 10"
-                v-model="fileList"
-                @input-filter="inputFilter"
-                @input-file="inputFile"
-                ref="upload">
-                <i class="fa fa-plus"></i>
-                Select files
-              </file-upload>
-              <button type="button" class="btn btn-success" v-if="!$refs.upload || !$refs.upload.active" @click.prevent="$refs.upload.active = true">
-                <i class="fa fa-arrow-up" aria-hidden="true"></i>
-                Start Upload
-              </button>
-              <button type="button" class="btn btn-danger"  v-else @click.prevent="$refs.upload.active = false">
-                <i class="fa fa-stop" aria-hidden="true"></i>
-                Stop Upload
-              </button>
+              <v-btn @click="$router.go(-1)" color="primary" depressed>{{ newFileList.length?"上传完成":"跳过上传"}}</v-btn>
             </v-stepper-content>
           </v-stepper>
         </v-flex>
@@ -126,7 +181,9 @@
 </template>
 
 <script>
+import ImageCompressor from "image-compressor.js";
 import FileUpload from "vue-upload-component";
+
 export default {
   components: {
     FileUpload
@@ -134,30 +191,67 @@ export default {
   data: () => ({
     networkLoading: false,
     networkError: null,
-    uploadLoading: false,
-    uploadError: null,
+    menu: {
+      buildingMenu: false
+    },
     stepNum: 1,
-    isUploadImg: false,
+    assetsInfo: [],
     formValid: true,
-    fileList: [],
-    newHouse: {},
-    newAssets: {
+    newHouse: {
+      // 归属信息
       parkId: "",
       parkName: "",
       buildingId: "",
-      buildingName: ""
+      buildingName: "",
+      floorNumber: "",
+      roomNumber: "",
+      doorNumber: "",
+      // 建筑信息
+      orientation: "",
+      buildArea: "",
+      usageRate: "",
+      houseType: "",
+      accommodatingNumber: "",
+      isDecoration: "",
+      decorationSituation: "",
+      isOfficeFurniture: "",
+      // 财务信息
+      price: "",
+      priceUnit: "",
+      propertyFee: "",
+      // 其他信息
+      isRegister: "",
+      isFireProcedure: "",
+      other: "",
+      remark: ""
     },
-    assetsInfo: [],
-    menu: {
-      uploadDialog: false,
-      buildingMenu: false
+    saveHouse: {
+      id: 1
     },
-    rules: {
-      afterSigning: val =>
-        Date(this.getDay(this.newHouse.startDate, -1 * val)) >
-          Date(this.newHouse.signingDate) || "免租开始日期需晚于合同签订日期"
-    }
+    isSubmitHouse: false,
+    upload: {
+      postAction:
+        "http://122.115.50.65/cms/housePhotoInfo/uploadTypePhoto.json",
+      accept: "image/png,image/gif,image/jpeg,image/webp",
+      extensions: /\.(gif|jpe?g|png|webp)$/i,
+      size: 1024 * 1024 * 2,
+      minSize: 128 * 1024,
+      multiple: false,
+      thread: 1,
+      directory: false,
+      dropDirectory: false
+    },
+    newFileList: [],
+    saveFile: []
   }),
+  watch: {
+    "newHouse.floorNumber": function(val) {
+      this.newHouse.doorNumber = `${val} - ${this.newHouse.roomNumber}`;
+    },
+    "newHouse.roomNumber": function(val) {
+      this.newHouse.doorNumber = `${this.newHouse.floorNumber} - ${val}`;
+    }
+  },
   created() {
     this.$store.commit("changeToolBarTitle", "添加房源");
     this.getPark();
@@ -190,7 +284,9 @@ export default {
           });
           this.assetsInfo = parkInfo.filter(el => el);
         })
-        .catch(() => this.addSnackBar("楼宇信息查询失败", "error"));
+        .catch(() =>
+          this.$store.commit("addSnackBar", "楼宇信息查询失败", "error")
+        );
     },
     changeBuilding(assetsPark, assetsBuilding) {
       // 关闭菜单
@@ -198,7 +294,7 @@ export default {
       // 将assetsFloorInfo置空
       this.assetsFloorInfo = [];
       // 改变表单中楼宇信息
-      Object.assign(this.newAssets, {
+      Object.assign(this.newHouse, {
         parkId: assetsPark.parkId,
         parkName: assetsPark.parkName,
         buildingId: assetsBuilding.buildingId,
@@ -207,43 +303,127 @@ export default {
     },
     inputFilter(newFile, oldFile, prevent) {
       if (newFile && !oldFile) {
-        // Before adding a file
         // 添加文件前
-        // Filter system files or hide files
         // 过滤系统文件 和隐藏文件
         if (/(\/|^)(Thumbs\.db|desktop\.ini|\..+)$/.test(newFile.name)) {
           return prevent();
         }
-        // Filter php html js file
         // 过滤 php html js 文件
         if (/\.(php5?|html?|jsx?)$/i.test(newFile.name)) {
           return prevent();
+        }
+        // 自动压缩
+        if (newFile.file && newFile.type.substr(0, 6) === "image/") {
+          newFile.error = "compressing";
+          const imageCompressor = new ImageCompressor(null, {
+            convertSize: Infinity,
+            maxWidth: 1920,
+            maxHeight: 1080
+          });
+          imageCompressor
+            .compress(newFile.file)
+            .then(file => {
+              this.$refs.upload.update(newFile, {
+                error: "",
+                file,
+                size: file.size,
+                type: file.type
+              });
+            })
+            .catch(err => {
+              this.$refs.upload.update(newFile, {
+                error: err.message || "compress"
+              });
+            });
+        }
+      }
+      if (newFile && (!oldFile || newFile.file !== oldFile.file)) {
+        // 创建 blob 字段
+        newFile.blob = "";
+        let URL = window.URL || window.webkitURL;
+        if (URL && URL.createObjectURL) {
+          newFile.blob = URL.createObjectURL(newFile.file);
+        }
+        // Thumbnails
+        // 缩略图
+        newFile.thumb = "";
+        if (newFile.blob && newFile.type.substr(0, 6) === "image/") {
+          newFile.thumb = newFile.blob;
         }
       }
     },
     inputFile(newFile, oldFile) {
       if (newFile && !oldFile) {
-        // add
+        // 添加文件
         console.log("add", newFile);
       }
       if (newFile && oldFile) {
-        // update
+        // 更新文件
         console.log("update", newFile);
+
+        if (newFile.active && !oldFile.active) {
+          // 上传之前
+          // 最小尺寸
+          if (
+            newFile.size >= 0 &&
+            this.minSize > 0 &&
+            newFile.size < this.minSize
+          ) {
+            this.$refs.upload.update(newFile, { error: "size" });
+          }
+        }
+
+        // 上传进度
+        if (newFile.progress !== oldFile.progress) {
+          console.log("progress", newFile.progress, newFile);
+        }
+
+        // 上传错误
+        if (newFile.error && !oldFile.error) {
+          console.log("error", newFile.error, newFile, newFile.xhr.response);
+          this.$store.commit("addSnackBar", "图片上传失败", "error");
+        }
+
+        // 上传成功
+        if (newFile.success && !oldFile.success) {
+          console.log("success", newFile.success, newFile.xhr);
+          let res = JSON.parse(newFile.xhr.response);
+          if (res.code == 0) {
+            this.saveFile.push(res.data);
+            this.$refs.upload.remove(newFile.id);
+          } else {
+            this.$store.commit(
+              "addSnackBar",
+              `图片上传失败: ${res.msg}`,
+              "error"
+            );
+          }
+        }
       }
       if (!newFile && oldFile) {
-        // remove
+        // 删除文件
         console.log("remove", oldFile);
       }
     },
-    openUploadImg() {
-      console.log(this.$refs.upload);
-      this.menu.uploadDialog = true;
-    },
-    uploadImg() {
-      this.menu.uploadDialog = false;
-    },
-    cancelUploadImg() {
-      this.menu.uploadDialog = false;
+    delFile(index) {
+      this.$http
+        .get(
+          `/cms/housePhotoInfo/deleteAttachment/${this.saveFile[index].name}`
+        )
+        .then(res => {
+          if (res.data.code == 0) {
+            this.saveFile.splice(index, 1);
+          } else {
+            this.$store.commit(
+              "addSnackBar",
+              `图片删除失败: ${res.data.msg}`,
+              "error"
+            );
+          }
+        })
+        .catch(err =>
+          this.$store.commit("addSnackBar", `图片删除失败: ${err}`, "error")
+        );
     },
     submitHouse() {
       this.$refs.houseForm.validate();

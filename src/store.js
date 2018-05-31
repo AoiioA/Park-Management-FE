@@ -12,7 +12,7 @@ export default new Vuex.Store({
           ? !!val.length
           : !!val || val === 0 || "此项为必填项",
       noZero: val => val != 0 || "此项不能为零",
-      greaterThanZero: val => val >= 0 || "此项不能为负",
+      nonnegative: val => val >= 0 || "此项不能为负",
       email: value => {
         const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return pattern.test(value) || "此项需按e-mail格式";

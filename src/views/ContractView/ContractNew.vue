@@ -120,7 +120,7 @@
                         </v-list>
                       </v-menu>
                     </v-flex>
-                    <v-flex xs6 sm3 style="min-width: 150px;"><v-text-field v-model="assets.price" :disabled="!assets.houseId" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.greaterThanZero]" label="每平日价(元)" :hint="assets.buildArea ? `首年约${parseInt(30 * assets.price * assets.buildArea)}元/30天` : ''" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <v-flex xs6 sm3 style="min-width: 150px;"><v-text-field v-model="assets.price" :disabled="!assets.houseId" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="每平日价(元)" :hint="assets.buildArea ? `首年约${parseInt(30 * assets.price * assets.buildArea)}元/30天` : ''" persistent-hint type="number" box required></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
                 <v-btn @click="addNewAssets({})" flat color="primary">添加房源</v-btn>
@@ -158,8 +158,8 @@
                         <v-date-picker v-model="newCTRT.endDate" :min="newCTRT.startDate" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.endDate = false"></v-date-picker>
                       </v-menu>
                     </v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.beforeFree" :rules="[$store.state.rules.required, $store.state.rules.greaterThanZero]" :disabled="!newCTRT.startDate" label="记租开始前免租(天)" :hint="beforeFreeHint" persistent-hint type="number" box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.afterFree" :rules="[$store.state.rules.required, $store.state.rules.greaterThanZero]" :disabled="!newCTRT.endDate" label="记租结束后免租(天)" :hint="afterFreeHint" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.beforeFree" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" :disabled="!newCTRT.startDate" label="记租开始前免租(天)" :hint="beforeFreeHint" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.afterFree" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" :disabled="!newCTRT.endDate" label="记租结束后免租(天)" :hint="afterFreeHint" persistent-hint type="number" box required></v-text-field></v-flex>
                     <v-flex xs12 sm4>
                       <v-menu v-model="menu.purpose" lazy offset-y nudge-top="20">
                         <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="newCTRTOther.purpose" label="租赁用途" hint="" persistent-hint box required readonly></v-text-field>
@@ -170,9 +170,9 @@
                         </v-list>
                       </v-menu>
                     </v-flex>
-                    <!-- <v-flex xs12 sm4><v-text-field v-model="newCTRT.rentDate" :rules="[$store.state.rules.required, $store.state.rules.greaterThanZero]" label="租金缴纳应提前(天)" hint="" persistent-hint type="number" box required></v-text-field></v-flex> -->
-                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.deposit" :rules="[$store.state.rules.required, $store.state.rules.greaterThanZero]" label="押金(元)" hint="合同生效后既缴纳<br />合同到期后返还" persistent-hint type="number" box required></v-text-field></v-flex>
-                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.liquidatedDamages" :rules="[$store.state.rules.required, $store.state.rules.greaterThanZero]" label="违约金(元)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <!-- <v-flex xs12 sm4><v-text-field v-model="newCTRT.rentDate" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="租金缴纳应提前(天)" hint="" persistent-hint type="number" box required></v-text-field></v-flex> -->
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.deposit" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="押金(元)" hint="合同生效后既缴纳<br />合同到期后返还" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.liquidatedDamages" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="违约金(元)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
                     <!-- <v-flex xs12 sm4><v-text-field v-model="newCTRT.month" :rules="[$store.state.rules.required, $store.state.rules.noZero]" mask="##" label="租金缴纳间隔(月)" hint="" persistent-hint box required></v-text-field></v-flex> -->
                     <v-flex xs12 sm4>
                       <v-menu v-model="menu.month" lazy offset-y nudge-top="20">
@@ -517,13 +517,13 @@ export default {
               isAdded: (resDataItem => {
                 let isAdded = false;
                 this.newAssets.map(el => {
-                  if (resDataItem.id == el.houseId) {
+                  if (resDataItem.houseId == el.houseId) {
                     isAdded = true;
                   }
                 });
                 return isAdded;
               })(resDataItem),
-              houseId: resDataItem.id,
+              houseId: resDataItem.houseId,
               doorNumber: resDataItem.doorNumber
             });
           });
@@ -550,7 +550,7 @@ export default {
         // 请求该楼宇下房屋信息
         this.$http
           .post("/cms/AssetsInfo/house.json", {
-            id: assetsHouse.houseId
+            houseId: assetsHouse.houseId
           })
           .then(res => {
             let resData = res.data.data[0];
