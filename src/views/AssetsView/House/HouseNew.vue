@@ -5,8 +5,8 @@
         <v-flex xs12 md10 lg8>
           <v-stepper v-model="stepNum" vertical class="elevation-0 new-stepper">
             <v-stepper-step :rules="[() => !!formValid]" :complete="stepNum>1" step="1">
-              提交基础房源信息
-              <!-- <small>包含甲方、承租方、中介方信息</small> -->
+              提交房源信息
+              <!-- <small></small> -->
             </v-stepper-step>
             <v-stepper-content step="1">
               <v-progress-circular indeterminate color="primary" v-if="networkLoading" class="center-box"></v-progress-circular>
@@ -355,11 +355,11 @@ export default {
     inputFile(newFile, oldFile) {
       if (newFile && !oldFile) {
         // 添加文件
-        console.log("add", newFile);
+        // console.log("add", newFile);
       }
       if (newFile && oldFile) {
         // 更新文件
-        console.log("update", newFile);
+        // console.log("update", newFile);
 
         if (newFile.active && !oldFile.active) {
           // 上传之前
@@ -375,18 +375,18 @@ export default {
 
         // 上传进度
         if (newFile.progress !== oldFile.progress) {
-          console.log("progress", newFile.progress, newFile);
+          // console.log("progress", newFile.progress, newFile);
         }
 
         // 上传错误
         if (newFile.error && !oldFile.error) {
-          console.log("error", newFile.error, newFile, newFile.xhr.response);
+          // console.log("error", newFile.error, newFile, newFile.xhr.response);
           this.$store.commit("addSnackBar", "图片上传失败", "error");
         }
 
         // 上传成功
         if (newFile.success && !oldFile.success) {
-          console.log("success", newFile.success, newFile.xhr);
+          // console.log("success", newFile.success, newFile.xhr);
           let res = JSON.parse(newFile.xhr.response);
           if (res.code == 0) {
             this.saveFile.push(res.data);
@@ -402,7 +402,7 @@ export default {
       }
       if (!newFile && oldFile) {
         // 删除文件
-        console.log("remove", oldFile);
+        // console.log("remove", oldFile);
       }
     },
     delFile(index) {

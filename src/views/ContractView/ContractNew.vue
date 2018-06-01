@@ -610,7 +610,6 @@ export default {
               })(),
         this.newCTRT
       );
-      console.log(CTRTData);
       let submitUrl =
         this.$route.query.newType == "editing"
           ? "modifyUnSubmit"

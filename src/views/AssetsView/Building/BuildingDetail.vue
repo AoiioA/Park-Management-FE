@@ -109,7 +109,6 @@ export default {
             this.networkLoading = false;
             let bData = building.data.data;
             let hData = house.data.data;
-            console.log(bData, hData);
             this.buildingInfo = bData && bData.length ? bData[0] : {};
             this.houseInfoArr = hData && hData.length ? hData : [];
           })
@@ -117,7 +116,7 @@ export default {
         .catch(err => {
           this.networkLoading = false;
           this.networkError = true;
-          console.log(err);
+          this.$store.commit("addSnackBar", `失败${err}`, "error");
         });
     },
     getOption: floor => {

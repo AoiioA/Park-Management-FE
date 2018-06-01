@@ -44,7 +44,7 @@ export default {
         .catch(err => {
           this.networkLoading = false;
           this.networkError = true;
-          console.log(err);
+          this.$store.commit("addSnackBar", `失败${err}`, "error");
         });
     }
   }
