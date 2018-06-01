@@ -13,7 +13,7 @@
               <v-alert v-else-if="networkError" :value="true" type="error" class="center-box">网络出现异常 - 检查网络后刷新重试</v-alert>
               <v-form v-else ref="houseForm" v-model="formValid" lazy-validation>
                 <v-container grid-list-md>
-                  <v-subheader>归属信息</v-subheader>
+                  <v-subheader>建筑信息</v-subheader>
                   <v-layout row wrap>
                     <v-flex xs12 sm3>
                       <v-menu v-model="menu.buildingMenu" :close-on-content-click="false" offset-y nudge-top="20" lazy>
@@ -36,35 +36,52 @@
                       </v-menu>
                     </v-flex>
                     <v-flex xs12 sm3><v-text-field v-model.number="newHouse.floorNumber" mask="###" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="楼层" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.roomNumber" mask="#####" :rules="[$store.state.rules.required]" label="房间号" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newHouse.doorNumber" :rules="[$store.state.rules.required]" label="门牌号" hint="" persistent-hint box required></v-text-field></v-flex>
-                  </v-layout>
-                  <v-divider class="my-3"></v-divider>
-                  <v-subheader>建筑信息</v-subheader>
-                  <v-layout row wrap>
-                    <v-flex xs12 sm3><v-text-field v-model="newHouse.orientation" :rules="[$store.state.rules.required]" label="房源朝向" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newHouse.buildArea" :rules="[$store.state.rules.required]" label="建筑面积(m²)" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newHouse.usageRate" :rules="[$store.state.rules.required]" label="使用率" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newHouse.houseType" :rules="[$store.state.rules.required]" label="房源类型" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3>
+                      <v-menu v-model="menu.decorationSituationMenu" lazy offset-y nudge-top="20">
+                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="decorationInfo[newHouse.decorationSituation]" label="装修程度" hint="" persistent-hint box required readonly></v-text-field>
+                        <v-list>
+                          <v-list-tile v-for="(decoration, decorationIndex) in decorationInfo" :key="decorationIndex" @click="newHouse.decorationSituation=decorationIndex">
+                            <v-list-tile-title>{{ decoration }}</v-list-tile-title>
+                          </v-list-tile>
+                        </v-list>
+                      </v-menu>
+                    </v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.orientation" :rules="[$store.state.rules.required]" label="房源朝向" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.buildArea" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="建筑面积(m²)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.usageRate" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="使用率(%)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model.number="newHouse.accommodatingNumber" mask="####" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="容纳人数" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newHouse.isDecoration" :rules="[$store.state.rules.required]" label="已装修" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-if="newHouse.isDecoration" v-model="newHouse.decorationSituation" :rules="[$store.state.rules.required]" label="装修程度" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-if="newHouse.isDecoration" v-model="newHouse.isOfficeFurniture" :rules="[$store.state.rules.required]" label="含办公家具" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs6 sm3><v-switch :label="`${newHouse.isDecoration?'可':'不可'}自行装修`" v-model="newHouse.isDecoration" @change="newHouse.isDecoration=Number(newHouse.isDecoration)"></v-switch></v-flex>
+                    <v-flex xs6 sm3><v-switch :label="`${newHouse.isOfficeFurniture?'含':'不含'}办公家具`" v-model="newHouse.isOfficeFurniture" @change="newHouse.isOfficeFurniture=Number(newHouse.isOfficeFurniture)"></v-switch></v-flex>
+                    <v-flex xs6 sm3><v-switch :label="`${newHouse.isRegister?'可':'不可'}注册`" v-model="newHouse.isRegister" @change="newHouse.isRegister=Number(newHouse.isRegister)"></v-switch></v-flex>
+                    <v-flex xs6 sm3><v-switch :label="`${newHouse.isFireProcedure?'有':'无'}消防手续`" v-model="newHouse.isFireProcedure" @change="newHouse.isFireProcedure=Number(newHouse.isFireProcedure)"></v-switch></v-flex>
                   </v-layout>
                   <v-divider class="my-3"></v-divider>
                   <v-subheader>财务信息</v-subheader>
                   <v-layout row wrap>
-                    <v-flex xs12 sm4><v-text-field v-model.number="newHouse.price" :rules="[$store.state.rules.required, $store.state.rules.nonnegative, $store.state.rules.noZero]" label="预计租金(元/m²)" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm4><v-text-field v-model="newHouse.priceUnit" :rules="[$store.state.rules.required]" label="价格单位" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm4><v-text-field v-model.number="newHouse.propertyFee" :rules="[$store.state.rules.required, $store.state.rules.nonnegative, $store.state.rules.noZero]" label="物业费(元/天•m²)" hint="" persistent-hint box required></v-text-field></v-flex>
-                  </v-layout>
-                  <v-divider class="my-3"></v-divider>
-                  <v-subheader>其他信息</v-subheader>
-                  <v-layout row wrap>
-                    <v-flex xs12 sm4><v-text-field v-model="newHouse.isRegister" :rules="[$store.state.rules.required]" label="已注册" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm4><v-text-field v-model="newHouse.isFireProcedure" :rules="[$store.state.rules.required]" label="有消防手续" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm4><v-text-field v-model="newHouse.other" :rules="[$store.state.rules.required]" label="其他" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12><v-text-field v-model="newHouse.remark" :rules="[$store.state.rules.required]" label="备注" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3>
+                      <v-menu v-model="menu.houseTypeMenu" lazy offset-y nudge-top="20">
+                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="['整租'][newHouse.houseType]" label="房源类型" hint="" persistent-hint box required readonly></v-text-field>
+                        <v-list style="max-height: 200px; overflow-y: auto;">
+                          <v-list-tile v-for="(type, typeIndex) in ['整租']" :key="typeIndex" @click="newHouse.houseType=typeIndex">
+                            <v-list-tile-title>{{ type }}</v-list-tile-title>
+                          </v-list-tile>
+                        </v-list>
+                      </v-menu>
+                    </v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.price" :rules="[$store.state.rules.required, $store.state.rules.nonnegative, $store.state.rules.noZero]" label="起始定价" type="number" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3>
+                      <v-menu v-model="menu.priceUnitMenu" lazy offset-y nudge-top="20">
+                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="['元/m²·天'][newHouse.priceUnit]" label="价格单位" hint="" persistent-hint box required readonly></v-text-field>
+                        <v-list style="max-height: 200px; overflow-y: auto;">
+                          <v-list-tile v-for="(unit, unitIndex) in ['元/m²·天']" :key="unitIndex" @click="newHouse.priceUnit=unitIndex">
+                            <v-list-tile-title>{{ unit }}</v-list-tile-title>
+                          </v-list-tile>
+                        </v-list>
+                      </v-menu>
+                    </v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.propertyFee" :rules="[$store.state.rules.required, $store.state.rules.nonnegative, $store.state.rules.noZero]" label="物业费(元/天•m²)" type="number" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12><v-text-field v-model="newHouse.remark" label="备注" hint="" persistent-hint box></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
                 <v-btn :disabled="!formValid" @click.native="submitHouse()" color="primary" depressed>确认无误并提交</v-btn>
@@ -122,7 +139,7 @@
                               ><v-icon>close</v-icon></v-btn>
                             </v-flex>
                             <v-flex xs12></v-flex>
-                            <v-flex class="caption">
+                            <v-flex class="caption" style="white-space:normal; word-break:break-all;">
                               {{file.name}}<br />{{file.size | formatSize}}
                               <small v-if="file.size>upload.size" class="red--text">(过大)</small>
                               <small v-if="upload.minSize>file.size" class="red--text">(过小)</small>
@@ -137,7 +154,7 @@
                       <file-upload
                         ref="upload"
                         v-model="newFileList"
-                        :data="{ type: 2, id: saveHouse.id }"
+                        :data="{ type: 2, id: saveHouse.houseId }"
                         :post-action="upload.postAction"
                         :accept="upload.accept"
                         :extensions="upload.extensions"
@@ -192,41 +209,42 @@ export default {
     networkLoading: false,
     networkError: null,
     menu: {
-      buildingMenu: false
+      buildingMenu: false,
+      orientation: false,
+      decorationSituationMenu: false,
+      houseType: false,
+      priceUnit: false
     },
+    decorationInfo: ["毛坯", "简装修", "中等装修", "豪华装修", "精装修"],
     stepNum: 1,
     assetsInfo: [],
     formValid: true,
     newHouse: {
-      // 归属信息
+      // 建筑信息
       parkId: "",
       parkName: "",
       buildingId: "",
       buildingName: "",
       floorNumber: "",
-      roomNumber: "",
       doorNumber: "",
-      // 建筑信息
       orientation: "",
       buildArea: "",
       usageRate: "",
-      houseType: "",
       accommodatingNumber: "",
-      isDecoration: "",
       decorationSituation: "",
-      isOfficeFurniture: "",
+      isDecoration: 1,
+      isOfficeFurniture: 1,
+      isRegister: 1,
+      isFireProcedure: 1,
       // 财务信息
+      houseType: "",
       price: "",
       priceUnit: "",
       propertyFee: "",
-      // 其他信息
-      isRegister: "",
-      isFireProcedure: "",
-      other: "",
       remark: ""
     },
     saveHouse: {
-      id: 1
+      houseId: 1
     },
     isSubmitHouse: false,
     upload: {
@@ -244,14 +262,6 @@ export default {
     newFileList: [],
     saveFile: []
   }),
-  watch: {
-    "newHouse.floorNumber": function(val) {
-      this.newHouse.doorNumber = `${val} - ${this.newHouse.roomNumber}`;
-    },
-    "newHouse.roomNumber": function(val) {
-      this.newHouse.doorNumber = `${this.newHouse.floorNumber} - ${val}`;
-    }
-  },
   created() {
     this.$store.commit("changeToolBarTitle", "添加房源");
     this.getPark();
@@ -407,11 +417,12 @@ export default {
     },
     delFile(index) {
       this.$http
-        .get(
-          `/cms/housePhotoInfo/deleteAttachment/${this.saveFile[index].name}`
-        )
+        .post("/cms/housePhotoInfo/deleteAttachment.json", {
+          name: this.saveFile[index].name,
+          type: 2
+        })
         .then(res => {
-          if (res.data.code == 0) {
+          if (res.data.code != 500) {
             this.saveFile.splice(index, 1);
           } else {
             this.$store.commit(
@@ -426,8 +437,26 @@ export default {
         );
     },
     submitHouse() {
-      this.$refs.houseForm.validate();
-      this.stepNum++;
+      // console.log(this.newHouse);
+      if (this.$refs.houseForm.validate()) {
+        this.$http
+          .post("/cms/housePhotoInfo/add.json", this.newHouse)
+          .then(res => {
+            if (res.data.code != 500) {
+              this.saveHouse = res.data.data ? res.data.data : { houseId: 1 };
+              this.stepNum++;
+            } else {
+              this.$store.commit(
+                "addSnackBar",
+                `房源添加失败: ${res.data.msg}`,
+                "error"
+              );
+            }
+          })
+          .catch(err =>
+            this.$store.commit("addSnackBar", `房源添加失败: ${err}`, "error")
+          );
+      }
     }
   }
 };
