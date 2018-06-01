@@ -20,8 +20,30 @@
                 ></v-select>
               </span>
               <v-spacer></v-spacer>
-              <v-btn depressed>编辑楼宇</v-btn>
-              <v-btn @click="$router.push({ name: 'house-new' })" depressed color="primary">添加房源</v-btn>
+              <v-btn depressed>编辑楼宇信息</v-btn>
+              <v-menu offset-y left :nudge-bottom="10">
+                <v-btn slot="activator" color="primary" depressed>管理房源</v-btn>
+                <v-list two-line>
+                  <v-list-tile @click="$router.push({ name: 'house-new' })">
+                    <v-list-tile-content>
+                      <v-list-tile-title>添加房源</v-list-tile-title>
+                      <v-list-tile-sub-title>添加单个房源</v-list-tile-sub-title>
+                    </v-list-tile-content>
+                  </v-list-tile>
+                  <v-list-tile disabled @click="1">
+                    <v-list-tile-content>
+                      <v-list-tile-title>批量上传房源</v-list-tile-title>
+                      <v-list-tile-sub-title>批量上传该楼宇下房源</v-list-tile-sub-title>
+                    </v-list-tile-content>
+                  </v-list-tile>
+                  <v-list-tile disabled @click="1">
+                    <v-list-tile-content>
+                      <v-list-tile-title>批量删除房源</v-list-tile-title>
+                      <v-list-tile-sub-title>批量删除该楼宇下房源</v-list-tile-sub-title>
+                    </v-list-tile-content>
+                  </v-list-tile>
+                </v-list>
+              </v-menu>
             </v-subheader>
           </v-flex>
         </v-layout>
