@@ -57,7 +57,7 @@
                   <v-btn icon slot="activator">
                     <v-icon>more_vert</v-icon>
                   </v-btn>
-                  <v-list two-line>
+                  <v-list two-line dense>
                     <v-list-tile disabled @click="1">
                       <v-list-tile-content>
                         <v-list-tile-title>列表菜单选项一</v-list-tile-title>
