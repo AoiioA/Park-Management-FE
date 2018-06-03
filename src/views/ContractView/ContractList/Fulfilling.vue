@@ -60,7 +60,7 @@
                   <td>{{ props.item.signingDate.slice(0, 10) }}</td>
                   <td>{{ props.item.startDate.slice(0, 10) }}</td>
                   <td>{{ props.item.endDate.slice(0, 10) }}</td>
-                  <td class="text-xs-center px-0">
+                  <td class="px-3">
                     <v-btn icon class="mx-0" :to="{ query: { detailType: $route.name, detailId: props.item.id } }">
                       <v-icon color="primary">visibility</v-icon>
                     </v-btn>
