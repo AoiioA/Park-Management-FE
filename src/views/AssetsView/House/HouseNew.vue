@@ -16,7 +16,7 @@
                   <v-subheader>建筑信息</v-subheader>
                   <v-layout row wrap>
                     <v-flex xs12 sm3>
-                      <v-menu v-model="menu.buildingMenu" :close-on-content-click="false" offset-y nudge-top="20" lazy>
+                      <v-menu v-model="menu.buildingMenu" :close-on-content-click="false" offset-y nudge-top="20">
                         <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="newHouse.buildingName" label="签约楼宇" :hint="newHouse.parkName" persistent-hint box required readonly></v-text-field>
                         <v-list style="max-height: 200px; overflow-y: auto;">
                           <v-list-tile v-if="!assetsInfo.length">
@@ -38,7 +38,7 @@
                     <v-flex xs12 sm3><v-text-field v-model.number="newHouse.floorNumber" mask="###" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="楼层" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newHouse.doorNumber" :rules="[$store.state.rules.required]" label="门牌号" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm3>
-                      <v-menu v-model="menu.decorationSituationMenu" lazy offset-y nudge-top="20">
+                      <v-menu v-model="menu.decorationSituationMenu" offset-y nudge-top="20">
                         <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="decorationInfo[newHouse.decorationSituation]" label="装修程度" hint="" persistent-hint box required readonly></v-text-field>
                         <v-list>
                           <v-list-tile v-for="(decoration, decorationIndex) in decorationInfo" :key="decorationIndex" @click="newHouse.decorationSituation=decorationIndex">
@@ -60,7 +60,7 @@
                   <v-subheader>财务信息</v-subheader>
                   <v-layout row wrap>
                     <v-flex xs12 sm3>
-                      <v-menu v-model="menu.houseTypeMenu" lazy offset-y nudge-top="20">
+                      <v-menu v-model="menu.houseTypeMenu" offset-y nudge-top="20">
                         <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="['整租'][newHouse.houseType]" label="房源类型" hint="" persistent-hint box required readonly></v-text-field>
                         <v-list style="max-height: 200px; overflow-y: auto;">
                           <v-list-tile v-for="(type, typeIndex) in ['整租']" :key="typeIndex" @click="newHouse.houseType=typeIndex">
@@ -71,7 +71,7 @@
                     </v-flex>
                     <v-flex xs12 sm3><v-text-field v-model.number="newHouse.price" :rules="[$store.state.rules.required, $store.state.rules.nonnegative, $store.state.rules.noZero]" label="起始定价" type="number" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm3>
-                      <v-menu v-model="menu.priceUnitMenu" lazy offset-y nudge-top="20">
+                      <v-menu v-model="menu.priceUnitMenu" offset-y nudge-top="20">
                         <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="['元/m²·天'][newHouse.priceUnit]" label="价格单位" hint="" persistent-hint box required readonly></v-text-field>
                         <v-list style="max-height: 200px; overflow-y: auto;">
                           <v-list-tile v-for="(unit, unitIndex) in ['元/m²·天']" :key="unitIndex" @click="newHouse.priceUnit=unitIndex">
@@ -391,7 +391,11 @@ export default {
         // 上传错误
         if (newFile.error && !oldFile.error) {
           // console.log("error", newFile.error, newFile, newFile.xhr.response);
-          this.$store.commit("addSnackBar", "图片上传失败", "error");
+          this.$store.commit(
+            "addSnackBar",
+            `图片上传失败: ${newFile.error}`,
+            "error"
+          );
         }
 
         // 上传成功

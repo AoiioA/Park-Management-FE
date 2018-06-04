@@ -122,9 +122,10 @@ export default {
             this.$router.push(this.viewToolBarTab[0].to);
           }
         })
-        .catch(() => {
+        .catch(err => {
           this.loading = false;
           this.error = true;
+          this.$store.commit("addSnackBar", `楼宇查询失败${err}`, "error");
         });
     },
     newBuildingClose(isCancel) {

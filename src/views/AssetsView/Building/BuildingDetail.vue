@@ -24,7 +24,7 @@
           </v-flex>
         </v-layout>
         <v-layout v-if="$route.query.viewType=='table'" align-start align-content-start justify-center wrap>
-          <v-flex xs12 md10>
+          <v-flex xs12 lg10>
             <v-card>
               <v-card-title class="py-2">
                 <v-text-field
@@ -35,25 +35,25 @@
                   v-model="search"
                 ></v-text-field>
                 <v-tooltip v-if="selected.length" bottom>
-                  <v-btn icon @click="log([selected])" slot="activator">
+                  <v-btn @click="batchDeleteHouse" slot="activator" icon class="mx-0">
                     <v-icon>delete_outline</v-icon>
                   </v-btn>
                   <span>批量删除</span>
                 </v-tooltip>
                 <v-tooltip v-if="selected.length" bottom>
-                  <v-btn icon @click="log([selected])" slot="activator">
+                  <v-btn @click="batchExportHouse" slot="activator" icon class="mx-0">
                     <v-icon>vertical_align_bottom</v-icon>
                   </v-btn>
                   <span>批量导出至Excel</span>
                 </v-tooltip>
                 <v-tooltip bottom>
-                  <v-btn icon @click="initialize" slot="activator">
+                  <v-btn @click="initialize" slot="activator" icon class="mx-0">
                     <v-icon>refresh</v-icon>
                   </v-btn>
                   <span>刷新数据</span>
                 </v-tooltip>
-                <v-menu offset-y left :nudge-bottom="10">
-                  <v-btn icon slot="activator">
+                <v-menu :close-on-content-click="false" offset-y left :nudge-bottom="10">
+                  <v-btn slot="activator" icon>
                     <v-icon>more_vert</v-icon>
                   </v-btn>
                   <v-list two-line dense>
@@ -63,24 +63,40 @@
                         <v-list-tile-sub-title>添加单个房源</v-list-tile-sub-title>
                       </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile @click="1">
-                      <v-list-tile-content>
-                        <v-list-tile-title>批量导入房源</v-list-tile-title>
-                        <v-list-tile-sub-title>通过Excel批量导入</v-list-tile-sub-title>
-                      </v-list-tile-content>
-                    </v-list-tile>
-                    <!-- <v-list-tile @click="1">
-                      <v-list-tile-content>
-                        <v-list-tile-title>批量导出房源</v-list-tile-title>
-                        <v-list-tile-sub-title>批量导出至Excel</v-list-tile-sub-title>
-                      </v-list-tile-content>
-                    </v-list-tile>
-                    <v-list-tile @click="1">
-                      <v-list-tile-content>
-                        <v-list-tile-title>批量删除房源</v-list-tile-title>
-                        <v-list-tile-sub-title>请谨慎进行删除操作</v-list-tile-sub-title>
-                      </v-list-tile-content>
-                    </v-list-tile> -->
+                    <v-menu offset-x left style="display:block">
+                      <v-list-tile slot="activator" @click="1">
+                        <v-list-tile-content>
+                          <v-list-tile-title>批量导入房源</v-list-tile-title>
+                          <v-list-tile-sub-title>通过Excel批量导入</v-list-tile-sub-title>
+                        </v-list-tile-content>
+                      </v-list-tile>
+                      <v-list dense>
+                        <v-list-tile @click="downloadExcel">
+                          <v-list-tile-title>下载Excel模板</v-list-tile-title>
+                        </v-list-tile>
+
+                        <file-upload
+                          ref="upload"
+                          v-model="newFileList"
+                          :data="{ buildingId: buildingInfo.buildingId }"
+                          :post-action="upload.postAction"
+                          :accept="upload.accept"
+                          :extensions="upload.extensions"
+                          :size="upload.size || 0"
+                          :multiple="upload.multiple"
+                          :thread="upload.thread < 1 ? 1 : (upload.thread > 5 ? 5 : upload.thread)"
+                          :directory="upload.directory"
+                          :drop-directory="upload.dropDirectory"
+                          @input-filter="inputFilter"
+                          @input-file="inputFile"
+                          style="display: block;"
+                        >
+                          <v-list-tile @click="1">
+                            <v-list-tile-title>上传Excel文件</v-list-tile-title>
+                          </v-list-tile>
+                        </file-upload>
+                      </v-list>
+                    </v-menu>
                   </v-list>
                 </v-menu>
               </v-card-title>
@@ -148,7 +164,12 @@
   </div>
 </template>
 <script>
+import FileUpload from "vue-upload-component";
+
 export default {
+  components: {
+    FileUpload
+  },
   data: () => ({
     networkLoading: false,
     networkError: false,
@@ -180,7 +201,19 @@ export default {
       { text: "房源状态", value: "resourceStatus" },
       { text: "操作", value: "houseId", sortable: false }
     ],
-    selected: []
+    selected: [],
+    upload: {
+      postAction: "http://122.115.50.65:8080/cms/houseInfo/excelImport",
+      accept: "",
+      extensions: /\.(xls?x)$/i,
+      size: 1024 * 1024 * 2,
+      minSize: 128 * 1024,
+      multiple: false,
+      thread: 1,
+      directory: false,
+      dropDirectory: false
+    },
+    newFileList: []
   }),
   watch: {
     $route: "initialize"
@@ -326,6 +359,9 @@ export default {
         ]
       };
     },
+    clickHouse(obj) {
+      if (obj.data && obj.data.to) this.$router.push(obj.data.to);
+    },
     getTableData(houseInfo) {
       let houseList = [];
       houseInfo.map(floor => {
@@ -342,11 +378,116 @@ export default {
       });
       return houseList;
     },
-    clickHouse(obj) {
-      if (obj.data && obj.data.to) this.$router.push(obj.data.to);
+    batchDeleteHouse() {
+      this.$http
+        .post("/cms/houseInfo/delete.json", {
+          ids: this.selected.map(item => item.houseId).toString()
+        })
+        .then(res => {
+          if (res.data.code != 500)
+            this.$store.commit("addSnackBar", "批量删除成功", "success");
+        })
+        .catch(err =>
+          this.$store.commit("addSnackBar", `批量删除失败${err}`, "error")
+        );
     },
-    log(arr) {
-      console.log(...arr);
+    batchExportHouse() {
+      this.$http
+        .post(
+          "/cms/houseInfo/excelExport",
+          { ids: this.selected.map(item => item.houseId).toString() },
+          { responseType: "blob" }
+        )
+        .then(res => {
+          if (res.data.code != 500) this.createDownloadEl(res);
+        })
+        .catch(err =>
+          this.$store.commit("addSnackBar", `批量导出失败${err}`, "error")
+        );
+    },
+    downloadExcel() {
+      this.$http
+        .post(
+          "/cms/houseInfo/downloadTemplate.do",
+          {},
+          { responseType: "blob" }
+        )
+        .then(res => {
+          if (res.data.code != 500) this.createDownloadEl(res);
+        })
+        .catch(err =>
+          this.$store.commit("addSnackBar", `Excel模板下载失败${err}`, "error")
+        );
+    },
+    createDownloadEl(res) {
+      const fileName = "批量上传房源.xlsx";
+      // const fileName = response.headers['content-disposition'].split('filename=')[1].split(';')[0] || "";
+      const blob = new Blob([res]);
+      // if ("download" in document.createElement("a")) {
+      const url = window.URL.createObjectURL(blob);
+      let link = document.createElement("a");
+      link.style.display = "none";
+      link.href = url;
+      link.setAttribute("download", fileName);
+
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blob);
+      // } else {
+      //   navigator.msSaveBlob(blob, fileName);
+      // }
+    },
+    inputFilter(newFile, oldFile, prevent) {
+      if (newFile && !oldFile) {
+        // 添加文件前
+        // 过滤系统文件 和隐藏文件
+        if (/(\/|^)(Thumbs\.db|desktop\.ini|\..+)$/.test(newFile.name)) {
+          return prevent();
+        }
+        // 过滤 php html js 文件
+        if (/\.(php5?|html?|jsx?)$/i.test(newFile.name)) {
+          return prevent();
+        }
+      }
+    },
+    inputFile(newFile, oldFile) {
+      if (newFile) {
+        // 上传错误
+        if (newFile.error && !oldFile.error) {
+          // console.log("error", newFile.error, newFile, newFile.xhr.response);
+          this.$store.commit(
+            "addSnackBar",
+            `Excel上传失败: ${newFile.error}`,
+            "error"
+          );
+        }
+
+        // 上传成功
+        if (newFile.success && !oldFile.success) {
+          let res = JSON.parse(newFile.xhr.response);
+          if (res.code == 0) {
+            this.saveFile.push(res.data);
+            this.$refs.upload.remove(newFile.id);
+          } else {
+            this.$store.commit(
+              "addSnackBar",
+              `Excel上传失败: ${res.msg}`,
+              "error"
+            );
+          }
+        }
+      }
+      // 自动上传
+      if (
+        Boolean(newFile) !== Boolean(oldFile) ||
+        oldFile.error !== newFile.error
+      ) {
+        if (!this.$refs.upload.active) {
+          this.$refs.upload.active = true;
+        }
+      }
     }
   }
 };
