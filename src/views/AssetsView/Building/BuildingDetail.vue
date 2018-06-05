@@ -7,7 +7,7 @@
             <v-subheader class="px-0">
               <span style="min-width: 104px" class="mx-2">
                 <v-select
-                  @change="val => $router.push({ query: { buildingNo: $route.query.buildingNo,viewType: val } })"
+                  @change="val => $router.push({ params: { buildingNo: $route.params.buildingNo, buildingDetailType: val } })"
                   :items="houseViewArr"
                   :value="houseView"
                   item-text="text"
@@ -23,7 +23,7 @@
             </v-subheader>
           </v-flex>
         </v-layout>
-        <v-layout v-if="$route.query.viewType=='table'" align-start align-content-start justify-center wrap>
+        <v-layout v-if="$route.params.buildingDetailType=='table'" align-start align-content-start justify-center wrap>
           <v-flex xs12 lg10>
             <v-card>
               <v-card-title class="py-2">
@@ -108,9 +108,10 @@
                 :items="getTableData(houseInfoArr)"
                 item-key="houseNo"
                 v-model="selected"
-                select-all
-                :no-data-text="`暂无数据`"
+                :loading="networkLoading"
+                :no-data-text="networkError?`网络出现异常 - 检查网络后刷新重试`:`暂无记录`"
                 :no-results-text="`没能找到“${ search }”的结果...`"
+                select-all
               >
                 <template slot="items" slot-scope="props">
                   <td>
@@ -126,7 +127,7 @@
                   <td>{{ props.item.houseType }}</td>
                   <td>{{ props.item.resourceStatus }}</td>
                   <td class="px-3">
-                    <v-btn icon class="mx-0" :to="{ path: '/home/house/house-detail', query: { houseNo: props.item.houseNo } }">
+                    <v-btn icon class="mx-0" :to="{ name: 'house-info-detail', params: { houseNo: props.item.houseNo } }">
                       <v-icon color="primary">visibility</v-icon>
                     </v-btn>
                   </td>
@@ -154,7 +155,7 @@
               style="height:240px;width:100%;"
             ></chart>
           </v-flex>
-          <v-flex slot="no-data" style="height: 246px; line-height: 246px;">
+          <v-flex slot="no-data" class="no-data">
             <v-progress-circular indeterminate color="primary" v-if="networkLoading"></v-progress-circular>
             <span v-else-if="networkError">网络出现异常 - 检查网络后刷新重试</span>
             <span v-else>暂无房源记录</span>
@@ -221,21 +222,23 @@ export default {
   },
   created() {
     this.$store.commit("changeToolBarTitle", "楼宇详情");
-    this.houseView = this.$route.query.viewType || this.houseViewArr[0].value;
+    this.houseView =
+      this.$route.params.buildingDetailType || this.houseViewArr[0].value;
     this.initialize();
   },
   methods: {
     initialize() {
       this.networkLoading = true;
+      this.networkError = null;
       this.buildingInfo = {};
       this.houseInfoArr = [];
       this.$http
         .all([
           this.$http.post("/cms/buildingInfo/list.json", {
-            buildingNo: this.$route.query.buildingNo
+            buildingNo: this.$route.params.buildingNo
           }),
           this.$http.post("/cms/houseInfo/listHouseInfoByFloor.json", {
-            buildingNo: this.$route.query.buildingNo
+            buildingNo: this.$route.params.buildingNo
           })
         ])
         .then(
@@ -284,8 +287,8 @@ export default {
           name: `${house.doorNumber}室`,
           value: [parseFloat(house.buildArea)],
           to: {
-            path: "/home/house/house-detail",
-            query: { houseNo: house.houseNo }
+            name: "house-info-detail",
+            params: { houseNo: house.houseNo }
           }
         });
       });
@@ -493,3 +496,10 @@ export default {
   }
 };
 </script>
+<style lang="stylus">
+.no-data {
+  height 300px;
+  line-height 300px;
+  text-align: center;
+}
+</style>

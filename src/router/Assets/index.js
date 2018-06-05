@@ -9,6 +9,8 @@ import House from "@/views/AssetsView/House/House.vue";
 import HouseNew from "@/views/AssetsView/House/HouseNew.vue";
 import HouseSearch from "@/views/AssetsView/House/HouseSearch.vue";
 import HouseDetail from "@/views/AssetsView/House/HouseDetail.vue";
+import HouseInfoDetail from "@/views/AssetsView/House/HouseDetail/HouseInfoDetail.vue";
+import HouseImageDetail from "@/views/AssetsView/House/HouseDetail/HouseImageDetail.vue";
 
 export default [
   {
@@ -31,7 +33,7 @@ export default [
     component: Building,
     children: [
       {
-        path: "building-detail",
+        path: "building-detail/:buildingNo/:buildingDetailType",
         name: "building-detail",
         component: BuildingDetail
       },
@@ -61,9 +63,24 @@ export default [
         component: HouseSearch
       },
       {
-        path: "house-detail",
-        name: "house-detail",
-        component: HouseDetail
+        path: "house-detail/:houseNo",
+        component: HouseDetail,
+        children: [
+          {
+            path: "",
+            redirect: { name: "house-info-detail" }
+          },
+          {
+            path: "info",
+            name: "house-info-detail",
+            component: HouseInfoDetail
+          },
+          {
+            path: "image",
+            name: "house-image-detail",
+            component: HouseImageDetail
+          }
+        ]
       }
     ]
   }

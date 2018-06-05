@@ -53,7 +53,7 @@
     </view-tool-bar>
     <v-progress-linear v-if="loading" :size="48" indeterminate class="my-0"></v-progress-linear>
     <v-alert v-else-if="error" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
-    <p v-else-if="viewToolBarTab.length==0" class="building-center">暂无楼宇记录 - <a @click.native="addSnackBar('假装添加楼宇成功~', 'success')">点击此处添加</a></p>
+    <div v-else-if="viewToolBarTab.length==0" class="no-data">暂无楼宇记录 - <a @click.native="addSnackBar('假装添加楼宇成功~', 'success')">点击此处添加</a></div>
     <router-view v-else></router-view>
   </div>
 </template>
@@ -110,7 +110,7 @@ export default {
             name: el.buildingName,
             to: {
               name: "building-detail",
-              query: { buildingNo: el.buildingNo }
+              params: { buildingNo: el.buildingNo, buildingDetailType: "area" }
             }
           }));
 
@@ -146,15 +146,11 @@ export default {
   }
 };
 </script>
-<style lang="stylus" scoped>
-.building {
-  position: relative;
 
-  .building-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translateX(-50%);
-  }
+<style lang="stylus" scoped>
+.no-data {
+  height 400px;
+  line-height 400px;
+  text-align: center;
 }
 </style>

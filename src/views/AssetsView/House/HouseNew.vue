@@ -7,19 +7,17 @@
         </v-btn>
       </span>
     </view-tool-bar>
-    <v-jumbotron color="grey lighten-4" class="house-new" height="auto">
+    <v-jumbotron color="grey lighten-4" height="auto">
       <v-container class="px-4 py-4">
         <v-layout align-start align-content-start justify-center wrap>
           <v-flex xs12 md10 lg8>
-            <v-stepper v-model="stepNum" vertical class="elevation-0 new-stepper">
+            <v-stepper v-model="stepNum" vertical class="elevation-0" style="background: #f5f5f5">
               <v-stepper-step :rules="[() => !!formValid]" :complete="stepNum>1" step="1">
                 提交房源信息
                 <!-- <small></small> -->
               </v-stepper-step>
               <v-stepper-content step="1">
-                <v-progress-circular indeterminate color="primary" v-if="networkLoading" class="center-box"></v-progress-circular>
-                <v-alert v-else-if="networkError" :value="true" type="error" class="center-box">网络出现异常 - 检查网络后刷新重试</v-alert>
-                <v-form v-else ref="houseForm" v-model="formValid" lazy-validation>
+                <v-form ref="houseForm" v-model="formValid" lazy-validation>
                   <v-container grid-list-md>
                     <v-subheader>建筑信息</v-subheader>
                     <v-layout row wrap>
@@ -485,19 +483,3 @@ export default {
   }
 };
 </script>
-<style lang="stylus" scoped>
-.house-new {
-  position: relative;
-
-  .center-box {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .new-stepper {
-    background: #f5f5f5;
-  }
-}
-</style>

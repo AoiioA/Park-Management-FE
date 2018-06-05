@@ -9,18 +9,19 @@
       </span>
     </view-tool-bar>
     <v-jumbotron color="blue-grey lighten-4" height="auto">
-      <v-container grid-list-xl>
+      <v-progress-linear v-if="networkLoading" :size="48" indeterminate class="my-0"></v-progress-linear>
+      <v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
+      <div v-else-if="houseArr.length==0" class="no-data">暂无房源记录 - <a>点击此处添加</a></div>
+      <v-container v-else grid-list-xl>
         <v-layout justify-center align-center column>
           <v-flex xs12 lg10>
             <v-subheader class="px-0">
-              <v-btn depressed color="primary" @click="linkToDetail(houseId)">search</v-btn>
+              <v-btn depressed color="primary" @click="initialize">search</v-btn>
             </v-subheader>
           </v-flex>
-          <v-flex xs12 lg10>
-            <v-progress-circular v-if="loading" :size="48" indeterminate class="my-0 house-center"></v-progress-circular>
-            <v-alert v-else-if="error" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
-            <p v-else-if="houseArr.length==0" class="house-center">暂无房源记录 - <a>点击此处添加</a></p>
-          </v-flex>
+        </v-layout>
+        <v-layout justify-center align-center column>
+          <v-flex xs12 lg10></v-flex>
         </v-layout>
       </v-container>
     </v-jumbotron>
@@ -35,18 +36,19 @@ export default {
     ViewToolBar
   },
   data: () => ({
-    loading: false,
-    error: null,
+    networkLoading: false,
+    networkError: null,
     houseArr: [],
     houseId: 1
   }),
   created() {
     this.$store.commit("changeToolBarTitle", "搜索房源");
-    this.initialize();
+    // this.initialize();
   },
   methods: {
     initialize() {
       this.networkLoading = true;
+      this.networkError = null;
       this.houseArr = [];
       this.$http
         .post("/cms/houseInfo/list.json", {
@@ -72,3 +74,11 @@ export default {
   }
 };
 </script>
+
+<style lang="stylus" scoped>
+.no-data {
+  height 400px;
+  line-height 400px;
+  text-align: center;
+}
+</style>
