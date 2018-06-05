@@ -4,7 +4,7 @@
       :isDrawer.sync="drawer"
       :isMini.sync="mini"
     ></nav-drawer>
-    <ToolBar @toggleDrawer="drawer = !drawer"></ToolBar>
+    <tool-bar @toggleDrawer="drawer = !drawer"></tool-bar>
     <v-content>
       <router-view></router-view>
     </v-content>
@@ -15,27 +15,14 @@
         </v-flex>
       </v-layout>
     </v-footer>
-    <v-container style="width:initial;position:fixed;right:0;bottom:0;z-index:3" grid-list-md>
-      <v-layout column reverse wrap align-end>
-        <v-flex
-          v-for="(snackItem, index) in $store.state.snackbar"
-          :key="index"
-          tag="v-snackbar"
-          v-model="snackItem.value"
-          :color="snackItem.color"
-          style="position:static;"
-        >
-          {{ snackItem.text }}<v-btn flat color="pink" @click.native="$store.commit('closeSnackBar', index)">OK</v-btn>
-        </v-flex>
-      </v-layout>
-    </v-container>
+    <snack-bar></snack-bar>
   </v-app>
 </template>
 
 <script>
-import Login from "@/views/User/Login.vue";
 import NavDrawer from "@/components/NavDrawer.vue";
 import ToolBar from "@/components/ToolBar.vue";
+import SnackBar from "@/components/SnackBar.vue";
 
 export default {
   name: "home",
@@ -44,9 +31,9 @@ export default {
     mini: false
   }),
   components: {
-    Login,
     NavDrawer,
-    ToolBar
+    ToolBar,
+    SnackBar
   }
 };
 </script>
