@@ -7,7 +7,7 @@
             <v-subheader class="px-0">
               <span style="min-width: 104px" class="mx-2">
                 <v-select
-                  @change="val => $router.push({ query: { viewType: val } })"
+                  @change="val => $router.push({ query: { buildingNo: $route.query.buildingNo,viewType: val } })"
                   :items="houseViewArr"
                   :value="houseView"
                   item-text="text"
@@ -71,7 +71,8 @@
                         </v-list-tile-content>
                       </v-list-tile>
                       <v-list dense>
-                        <v-list-tile @click="downloadExcel">
+                        <v-list-tile href="http://122.115.50.65:8080/cms/houseInfo/downloadTemplate.do">
+                        <!-- <v-list-tile @click="downloadExcel"> -->
                           <v-list-tile-title>下载Excel模板</v-list-tile-title>
                         </v-list-tile>
 
@@ -105,7 +106,7 @@
                 :search="search"
                 :headers="headers"
                 :items="getTableData(houseInfoArr)"
-                item-key="houseId"
+                item-key="houseNo"
                 v-model="selected"
                 select-all
                 :no-data-text="`暂无数据`"
@@ -125,7 +126,7 @@
                   <td>{{ props.item.houseType }}</td>
                   <td>{{ props.item.resourceStatus }}</td>
                   <td class="px-3">
-                    <v-btn icon class="mx-0" :to="{ path: '/home/house/house-detail', query: { houseId: props.item.houseId } }">
+                    <v-btn icon class="mx-0" :to="{ path: '/home/house/house-detail', query: { houseNo: props.item.houseNo } }">
                       <v-icon color="primary">visibility</v-icon>
                     </v-btn>
                   </td>
@@ -199,7 +200,7 @@ export default {
       { text: "建筑面积(m²)", value: "buildArea" },
       { text: "房源类型", value: "houseType" },
       { text: "房源状态", value: "resourceStatus" },
-      { text: "操作", value: "houseId", sortable: false }
+      { text: "操作", value: "houseNo", sortable: false }
     ],
     selected: [],
     upload: {
@@ -231,10 +232,10 @@ export default {
       this.$http
         .all([
           this.$http.post("/cms/buildingInfo/list.json", {
-            buildingId: this.$route.params.buildingId
+            buildingNo: this.$route.query.buildingNo
           }),
-          this.$http.post("/cms/houseInfo/listByFloor.json", {
-            buildingId: this.$route.params.buildingId
+          this.$http.post("/cms/houseInfo/listHouseInfoByFloor.json", {
+            buildingNo: this.$route.query.buildingNo
           })
         ])
         .then(
@@ -284,7 +285,7 @@ export default {
           value: [parseFloat(house.buildArea)],
           to: {
             path: "/home/house/house-detail",
-            query: { houseId: house.houseId }
+            query: { houseNo: house.houseNo }
           }
         });
       });
@@ -367,7 +368,7 @@ export default {
       houseInfo.map(floor => {
         floor.data.map(house =>
           houseList.push({
-            houseId: house.houseId,
+            houseNo: house.houseNo,
             floorNumber: `${floor.floorNo}层`,
             doorNumber: `${house.doorNumber}室`,
             buildArea: `${house.buildArea}`,
@@ -381,7 +382,7 @@ export default {
     batchDeleteHouse() {
       this.$http
         .post("/cms/houseInfo/delete.json", {
-          ids: this.selected.map(item => item.houseId).toString()
+          ids: this.selected.map(item => item.houseNo).toString()
         })
         .then(res => {
           if (res.data.code != 500)
@@ -395,7 +396,7 @@ export default {
       this.$http
         .post(
           "/cms/houseInfo/excelExport",
-          { ids: this.selected.map(item => item.houseId).toString() },
+          { ids: this.selected.map(item => item.houseNo).toString() },
           { responseType: "blob" }
         )
         .then(res => {

@@ -6,8 +6,8 @@ import BuildingDetail from "@/views/AssetsView/Building/BuildingDetail.vue";
 import BuildingAll from "@/views/AssetsView/Building/BuildingAll.vue";
 
 import House from "@/views/AssetsView/House/House.vue";
-import HouseSearch from "@/views/AssetsView/House/HouseSearch.vue";
 import HouseNew from "@/views/AssetsView/House/HouseNew.vue";
+import HouseSearch from "@/views/AssetsView/House/HouseSearch.vue";
 import HouseDetail from "@/views/AssetsView/House/HouseDetail.vue";
 
 export default [
@@ -31,7 +31,7 @@ export default [
     component: Building,
     children: [
       {
-        path: "building-detail/:buildingId",
+        path: "building-detail",
         name: "building-detail",
         component: BuildingDetail
       },

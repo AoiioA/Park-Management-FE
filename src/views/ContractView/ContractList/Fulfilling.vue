@@ -93,7 +93,7 @@
                     <v-flex xs6>
                       <v-list dense subheader style="height: 164px;overflow: auto;">
                         <v-subheader><h3>相关资产</h3></v-subheader>
-                        <v-list-tile v-for="(house, houseIndex) in props.item.houseInfo" :key="houseIndex" avatar ripple @click="$router.push({ path: '/home/house/house-detail', query: { detailId: house.houseId } })">
+                        <v-list-tile v-for="(house, houseIndex) in props.item.houseInfo" :key="houseIndex" avatar ripple>
                           <v-list-tile-content>
                             <v-list-tile-title>{{ `${house.parkName} - ${house.buildName}` }}</v-list-tile-title>
                             <v-list-tile-sub-title>{{`${house.floorNumber}层 ${house.doorNumber}室`}}</v-list-tile-sub-title>

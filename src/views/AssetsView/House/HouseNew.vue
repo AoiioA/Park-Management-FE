@@ -1,209 +1,220 @@
 <template>
-  <v-jumbotron color="grey lighten-4" class="house-new" height="auto">
-    <v-container class="px-4 py-4">
-      <v-layout align-start align-content-start justify-center wrap>
-        <v-flex xs12 md10 lg8>
-          <v-stepper v-model="stepNum" vertical class="elevation-0 new-stepper">
-            <v-stepper-step :rules="[() => !!formValid]" :complete="stepNum>1" step="1">
-              提交房源信息
-              <!-- <small></small> -->
-            </v-stepper-step>
-            <v-stepper-content step="1">
-              <v-progress-circular indeterminate color="primary" v-if="networkLoading" class="center-box"></v-progress-circular>
-              <v-alert v-else-if="networkError" :value="true" type="error" class="center-box">网络出现异常 - 检查网络后刷新重试</v-alert>
-              <v-form v-else ref="houseForm" v-model="formValid" lazy-validation>
-                <v-container grid-list-md>
-                  <v-subheader>建筑信息</v-subheader>
-                  <v-layout row wrap>
-                    <v-flex xs12 sm3>
-                      <v-menu v-model="menu.buildingMenu" :close-on-content-click="false" offset-y nudge-top="20">
-                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="newHouse.buildingName" label="签约楼宇" :hint="newHouse.parkName" persistent-hint box required readonly></v-text-field>
-                        <v-list style="max-height: 200px; overflow-y: auto;">
-                          <v-list-tile v-if="!assetsInfo.length">
-                            <v-list-tile-title>暂无房源可以添加</v-list-tile-title>
-                          </v-list-tile>
-                          <v-menu v-else v-for="(assetsPark, i) in assetsInfo" :key="i" offset-x style="display:block">
-                            <v-list-tile slot="activator" @click="1">
-                              <v-list-tile-title>{{ assetsPark.parkName }}</v-list-tile-title>
+<div class="fill-height">
+    <view-tool-bar>
+      <span slot="bar-menu">
+        <v-btn icon>
+          <v-icon>help</v-icon>
+        </v-btn>
+      </span>
+    </view-tool-bar>
+    <v-jumbotron color="grey lighten-4" class="house-new" height="auto">
+      <v-container class="px-4 py-4">
+        <v-layout align-start align-content-start justify-center wrap>
+          <v-flex xs12 md10 lg8>
+            <v-stepper v-model="stepNum" vertical class="elevation-0 new-stepper">
+              <v-stepper-step :rules="[() => !!formValid]" :complete="stepNum>1" step="1">
+                提交房源信息
+                <!-- <small></small> -->
+              </v-stepper-step>
+              <v-stepper-content step="1">
+                <v-progress-circular indeterminate color="primary" v-if="networkLoading" class="center-box"></v-progress-circular>
+                <v-alert v-else-if="networkError" :value="true" type="error" class="center-box">网络出现异常 - 检查网络后刷新重试</v-alert>
+                <v-form v-else ref="houseForm" v-model="formValid" lazy-validation>
+                  <v-container grid-list-md>
+                    <v-subheader>建筑信息</v-subheader>
+                    <v-layout row wrap>
+                      <v-flex xs12 sm3>
+                        <v-menu v-model="menu.buildingMenu" :close-on-content-click="false" offset-y nudge-top="20">
+                          <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="assetsOfNewHouse.buildingName" label="签约楼宇" :hint="assetsOfNewHouse.parkName" persistent-hint box required readonly></v-text-field>
+                          <v-list style="max-height: 200px; overflow-y: auto;">
+                            <v-list-tile v-if="!assetsInfo.length">
+                              <v-list-tile-title>暂无房源可以添加</v-list-tile-title>
                             </v-list-tile>
-                            <v-list style="max-height: 200px; overflow-y: auto;">
-                              <v-list-tile v-for="(assetsBuilding, j) in assetsPark.building" :key="j" @click="changeBuilding(assetsPark, assetsBuilding)">
-                                <v-list-tile-title>{{ assetsBuilding.buildingName }}</v-list-tile-title>
+                            <v-menu v-else v-for="(assetsPark, i) in assetsInfo" :key="i" offset-x style="display:block">
+                              <v-list-tile slot="activator" @click="1">
+                                <v-list-tile-title>{{ assetsPark.parkName }}</v-list-tile-title>
                               </v-list-tile>
-                            </v-list>
-                          </v-menu>
-                        </v-list>
-                      </v-menu>
-                    </v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.floorNumber" mask="###" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="楼层" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newHouse.doorNumber" :rules="[$store.state.rules.required]" label="门牌号" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3>
-                      <v-menu v-model="menu.decorationSituationMenu" offset-y nudge-top="20">
-                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="decorationInfo[newHouse.decorationSituation]" label="装修程度" hint="" persistent-hint box required readonly></v-text-field>
-                        <v-list>
-                          <v-list-tile v-for="(decoration, decorationIndex) in decorationInfo" :key="decorationIndex" @click="newHouse.decorationSituation=decorationIndex">
-                            <v-list-tile-title>{{ decoration }}</v-list-tile-title>
-                          </v-list-tile>
-                        </v-list>
-                      </v-menu>
-                    </v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.orientation" :rules="[$store.state.rules.required]" label="房源朝向" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.buildArea" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="建筑面积(m²)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.usageRate" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="使用率(%)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.accommodatingNumber" mask="####" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="容纳人数" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs6 sm3><v-switch :label="`${newHouse.isDecoration?'可':'不可'}自行装修`" v-model="newHouse.isDecoration" @change="newHouse.isDecoration=Number(newHouse.isDecoration)"></v-switch></v-flex>
-                    <v-flex xs6 sm3><v-switch :label="`${newHouse.isOfficeFurniture?'含':'不含'}办公家具`" v-model="newHouse.isOfficeFurniture" @change="newHouse.isOfficeFurniture=Number(newHouse.isOfficeFurniture)"></v-switch></v-flex>
-                    <v-flex xs6 sm3><v-switch :label="`${newHouse.isRegister?'可':'不可'}注册`" v-model="newHouse.isRegister" @change="newHouse.isRegister=Number(newHouse.isRegister)"></v-switch></v-flex>
-                    <v-flex xs6 sm3><v-switch :label="`${newHouse.isFireProcedure?'有':'无'}消防手续`" v-model="newHouse.isFireProcedure" @change="newHouse.isFireProcedure=Number(newHouse.isFireProcedure)"></v-switch></v-flex>
-                  </v-layout>
-                  <v-divider class="my-3"></v-divider>
-                  <v-subheader>财务信息</v-subheader>
+                              <v-list style="max-height: 200px; overflow-y: auto;">
+                                <v-list-tile v-for="(assetsBuilding, j) in assetsPark.building" :key="j" @click="changeBuilding(assetsPark, assetsBuilding)">
+                                  <v-list-tile-title>{{ assetsBuilding.buildingName }}</v-list-tile-title>
+                                </v-list-tile>
+                              </v-list>
+                            </v-menu>
+                          </v-list>
+                        </v-menu>
+                      </v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newHouse.floorNumber" mask="###" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="楼层" hint="" persistent-hint box required></v-text-field></v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model="newHouse.doorNumber" :rules="[$store.state.rules.required]" label="门牌号" hint="" persistent-hint box required></v-text-field></v-flex>
+                      <v-flex xs12 sm3>
+                        <v-menu v-model="menu.decorationSituationMenu" offset-y nudge-top="20">
+                          <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="decorationInfo[newHouse.decorationSituation]" label="装修程度" hint="" persistent-hint box required readonly></v-text-field>
+                          <v-list>
+                            <v-list-tile v-for="(decoration, decorationIndex) in decorationInfo" :key="decorationIndex" @click="newHouse.decorationSituation=decorationIndex">
+                              <v-list-tile-title>{{ decoration }}</v-list-tile-title>
+                            </v-list-tile>
+                          </v-list>
+                        </v-menu>
+                      </v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newHouse.orientation" :rules="[$store.state.rules.required]" label="房源朝向" hint="" persistent-hint box required></v-text-field></v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newHouse.buildArea" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="建筑面积(m²)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newHouse.usageRate" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="使用率(%)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newHouse.accommodatingNumber" mask="####" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="容纳人数" hint="" persistent-hint box required></v-text-field></v-flex>
+                      <v-flex xs6 sm3><v-switch :label="`${newHouse.isDecoration?'可':'不可'}自行装修`" v-model="newHouse.isDecoration" @change="newHouse.isDecoration=Number(newHouse.isDecoration)"></v-switch></v-flex>
+                      <v-flex xs6 sm3><v-switch :label="`${newHouse.isOfficeFurniture?'含':'不含'}办公家具`" v-model="newHouse.isOfficeFurniture" @change="newHouse.isOfficeFurniture=Number(newHouse.isOfficeFurniture)"></v-switch></v-flex>
+                      <v-flex xs6 sm3><v-switch :label="`${newHouse.isRegister?'可':'不可'}注册`" v-model="newHouse.isRegister" @change="newHouse.isRegister=Number(newHouse.isRegister)"></v-switch></v-flex>
+                      <v-flex xs6 sm3><v-switch :label="`${newHouse.isFireProcedure?'有':'无'}消防手续`" v-model="newHouse.isFireProcedure" @change="newHouse.isFireProcedure=Number(newHouse.isFireProcedure)"></v-switch></v-flex>
+                    </v-layout>
+                    <v-divider class="my-3"></v-divider>
+                    <v-subheader>财务信息</v-subheader>
+                    <v-layout row wrap>
+                      <v-flex xs12 sm3>
+                        <v-menu v-model="menu.houseTypeMenu" offset-y nudge-top="20">
+                          <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="['整租'][newHouse.houseType]" label="房源类型" hint="" persistent-hint box required readonly></v-text-field>
+                          <v-list style="max-height: 200px; overflow-y: auto;">
+                            <v-list-tile v-for="(type, typeIndex) in ['整租']" :key="typeIndex" @click="newHouse.houseType=typeIndex">
+                              <v-list-tile-title>{{ type }}</v-list-tile-title>
+                            </v-list-tile>
+                          </v-list>
+                        </v-menu>
+                      </v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newHouse.price" :rules="[$store.state.rules.required, $store.state.rules.nonnegative, $store.state.rules.noZero]" label="起始定价" type="number" hint="" persistent-hint box required></v-text-field></v-flex>
+                      <v-flex xs12 sm3>
+                        <v-menu v-model="menu.priceUnitMenu" offset-y nudge-top="20">
+                          <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="['元/m²·天'][newHouse.priceUnit]" label="价格单位" hint="" persistent-hint box required readonly></v-text-field>
+                          <v-list style="max-height: 200px; overflow-y: auto;">
+                            <v-list-tile v-for="(unit, unitIndex) in ['元/m²·天']" :key="unitIndex" @click="newHouse.priceUnit=unitIndex">
+                              <v-list-tile-title>{{ unit }}</v-list-tile-title>
+                            </v-list-tile>
+                          </v-list>
+                        </v-menu>
+                      </v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newHouse.propertyFee" :rules="[$store.state.rules.required, $store.state.rules.nonnegative, $store.state.rules.noZero]" label="物业费(元/天•m²)" type="number" hint="" persistent-hint box required></v-text-field></v-flex>
+                      <v-flex xs12><v-text-field v-model="newHouse.remark" label="备注" hint="" persistent-hint box></v-text-field></v-flex>
+                    </v-layout>
+                  </v-container>
+                  <v-btn :disabled="!formValid" @click.native="submitHouse()" color="primary" depressed>确认无误并提交</v-btn>
+                </v-form>
+              </v-stepper-content>
+              <v-stepper-step :complete="isSubmitHouse" step="2">上传房屋照片</v-stepper-step>
+              <v-stepper-content step="2">
+                <v-container grid-list-xs fluid class="mb-3">
                   <v-layout row wrap>
-                    <v-flex xs12 sm3>
-                      <v-menu v-model="menu.houseTypeMenu" offset-y nudge-top="20">
-                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="['整租'][newHouse.houseType]" label="房源类型" hint="" persistent-hint box required readonly></v-text-field>
-                        <v-list style="max-height: 200px; overflow-y: auto;">
-                          <v-list-tile v-for="(type, typeIndex) in ['整租']" :key="typeIndex" @click="newHouse.houseType=typeIndex">
-                            <v-list-tile-title>{{ type }}</v-list-tile-title>
-                          </v-list-tile>
-                        </v-list>
-                      </v-menu>
+                    <v-flex v-for="(file, fileIndex) in saveFile" :key="file.name" xs12 sm4 md3 xl2>
+                      <v-card flat>
+                        <v-card-media
+                          :src="`http://122.115.50.65/filesystem/${file.path}`"
+                          height="150px"
+                        >
+                          <v-container fill-height fluid>
+                            <v-layout column>
+                              <v-flex class="text-xs-right">
+                                <v-tooltip top>
+                                  <v-btn slot="activator" :loading="file.loading" @click="delFile(fileIndex)" small icon dark class="mx-0 my-0">
+                                    <v-icon>cloud_off</v-icon>
+                                  </v-btn>
+                                  <span>从云端移除</span>
+                                </v-tooltip>
+                              </v-flex>
+                            </v-layout>
+                          </v-container>
+                        </v-card-media>
+                      </v-card>
                     </v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.price" :rules="[$store.state.rules.required, $store.state.rules.nonnegative, $store.state.rules.noZero]" label="起始定价" type="number" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3>
-                      <v-menu v-model="menu.priceUnitMenu" offset-y nudge-top="20">
-                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="['元/m²·天'][newHouse.priceUnit]" label="价格单位" hint="" persistent-hint box required readonly></v-text-field>
-                        <v-list style="max-height: 200px; overflow-y: auto;">
-                          <v-list-tile v-for="(unit, unitIndex) in ['元/m²·天']" :key="unitIndex" @click="newHouse.priceUnit=unitIndex">
-                            <v-list-tile-title>{{ unit }}</v-list-tile-title>
-                          </v-list-tile>
-                        </v-list>
-                      </v-menu>
+                    <v-flex v-for="file in newFileList" :key="file.id" xs12 sm4 md3 xl2>
+                      <v-card flat>
+                        <v-card-media
+                          class="white--text"
+                          :src="file.thumb"
+                          height="150px"
+                        >
+                          <v-container fill-height fluid style="background: rgba(128,128,128,.5)">
+                            <v-layout column>
+                              <v-flex class="text-xs-right">
+                                <v-btn
+                                  slot="activator"
+                                  :disabled="upload.minSize>file.size||file.size>upload.size"
+                                  :loading="$refs.upload && $refs.upload.active"
+                                  @click.prevent="$refs.upload.active = true"
+                                  small icon dark
+                                  class="mx-0 my-0"
+                                ><v-icon>cloud_queue</v-icon></v-btn>
+                                <v-btn
+                                  slot="activator"
+                                  :disabled="$refs.upload && $refs.upload.active"
+                                  @click.prevent="$refs.upload.remove(file)"
+                                  small icon dark
+                                  class="mx-0 my-0"
+                                ><v-icon>close</v-icon></v-btn>
+                              </v-flex>
+                              <v-flex xs12></v-flex>
+                              <v-flex class="caption" style="white-space:normal; word-break:break-all;">
+                                {{file.name}}<br />{{file.size | formatSize}}
+                                <small v-if="file.size>upload.size" class="red--text">(过大)</small>
+                                <small v-if="upload.minSize>file.size" class="red--text">(过小)</small>
+                              </v-flex>
+                            </v-layout>
+                          </v-container>
+                        </v-card-media>
+                      </v-card>
                     </v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model.number="newHouse.propertyFee" :rules="[$store.state.rules.required, $store.state.rules.nonnegative, $store.state.rules.noZero]" label="物业费(元/天•m²)" type="number" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12><v-text-field v-model="newHouse.remark" label="备注" hint="" persistent-hint box></v-text-field></v-flex>
+                    <v-flex xs12 sm4 md3 xl2>
+                      <v-card flat>
+                        <file-upload
+                          ref="upload"
+                          v-model="newFileList"
+                          :data="{ type: 2, id: saveHouseNo }"
+                          :post-action="upload.postAction"
+                          :accept="upload.accept"
+                          :extensions="upload.extensions"
+                          :size="upload.size || 0"
+                          :multiple="upload.multiple"
+                          :thread="upload.thread < 1 ? 1 : (upload.thread > 5 ? 5 : upload.thread)"
+                          :directory="upload.directory"
+                          :drop-directory="upload.dropDirectory"
+                          @input-filter="inputFilter"
+                          @input-file="inputFile"
+                          style="display: block;"
+                        >
+                          <v-btn
+                            tag="v-container"
+                            color="primary"
+                            outline
+                            class="px-0 py-0 text-xs-center"
+                            style="height: 150px;cursor: pointer;"
+                          >
+                            <v-layout column justify-center v-if="!newFileList.length">
+                              <v-flex><v-icon>add</v-icon></v-flex>
+                              <v-flex>添加图片</v-flex>
+                            </v-layout>
+                            <v-layout column justify-center v-else>
+                              <v-flex><v-icon>refresh</v-icon></v-flex>
+                              <v-flex>更换待传图片</v-flex>
+                            </v-layout>
+                          </v-btn>
+                        </file-upload>
+                      </v-card>
+                    </v-flex>
                   </v-layout>
                 </v-container>
-                <v-btn :disabled="!formValid" @click.native="submitHouse()" color="primary" depressed>确认无误并提交</v-btn>
-              </v-form>
-            </v-stepper-content>
-            <v-stepper-step :complete="isSubmitHouse" step="2">上传房屋照片</v-stepper-step>
-            <v-stepper-content step="2">
-              <v-container grid-list-xs fluid class="mb-3">
-                <v-layout row wrap>
-                  <v-flex v-for="(file, fileIndex) in saveFile" :key="file.name" xs12 sm4 md3 xl2>
-                    <v-card flat>
-                      <v-card-media
-                        :src="`http://122.115.50.65/filesystem/${file.path}`"
-                        height="150px"
-                      >
-                        <v-container fill-height fluid>
-                          <v-layout column>
-                            <v-flex class="text-xs-right">
-                              <v-tooltip top>
-                                <v-btn slot="activator" :loading="file.loading" @click="delFile(fileIndex)" small icon dark class="mx-0 my-0">
-                                  <v-icon>cloud_off</v-icon>
-                                </v-btn>
-                                <span>从云端移除</span>
-                              </v-tooltip>
-                            </v-flex>
-                          </v-layout>
-                        </v-container>
-                      </v-card-media>
-                    </v-card>
-                  </v-flex>
-                  <v-flex v-for="file in newFileList" :key="file.id" xs12 sm4 md3 xl2>
-                    <v-card flat>
-                      <v-card-media
-                        class="white--text"
-                        :src="file.thumb"
-                        height="150px"
-                      >
-                        <v-container fill-height fluid style="background: rgba(128,128,128,.5)">
-                          <v-layout column>
-                            <v-flex class="text-xs-right">
-                              <v-btn
-                                slot="activator"
-                                :disabled="upload.minSize>file.size||file.size>upload.size"
-                                :loading="$refs.upload && $refs.upload.active"
-                                @click.prevent="$refs.upload.active = true"
-                                small icon dark
-                                class="mx-0 my-0"
-                              ><v-icon>cloud_queue</v-icon></v-btn>
-                              <v-btn
-                                slot="activator"
-                                :disabled="$refs.upload && $refs.upload.active"
-                                @click.prevent="$refs.upload.remove(file)"
-                                small icon dark
-                                class="mx-0 my-0"
-                              ><v-icon>close</v-icon></v-btn>
-                            </v-flex>
-                            <v-flex xs12></v-flex>
-                            <v-flex class="caption" style="white-space:normal; word-break:break-all;">
-                              {{file.name}}<br />{{file.size | formatSize}}
-                              <small v-if="file.size>upload.size" class="red--text">(过大)</small>
-                              <small v-if="upload.minSize>file.size" class="red--text">(过小)</small>
-                            </v-flex>
-                          </v-layout>
-                        </v-container>
-                      </v-card-media>
-                    </v-card>
-                  </v-flex>
-                  <v-flex xs12 sm4 md3 xl2>
-                    <v-card flat>
-                      <file-upload
-                        ref="upload"
-                        v-model="newFileList"
-                        :data="{ type: 2, id: saveHouse.houseId }"
-                        :post-action="upload.postAction"
-                        :accept="upload.accept"
-                        :extensions="upload.extensions"
-                        :size="upload.size || 0"
-                        :multiple="upload.multiple"
-                        :thread="upload.thread < 1 ? 1 : (upload.thread > 5 ? 5 : upload.thread)"
-                        :directory="upload.directory"
-                        :drop-directory="upload.dropDirectory"
-                        @input-filter="inputFilter"
-                        @input-file="inputFile"
-                        style="display: block;"
-                      >
-                        <v-btn
-                          tag="v-container"
-                          color="primary"
-                          outline
-                          class="px-0 py-0 text-xs-center"
-                          style="height: 150px;cursor: pointer;"
-                        >
-                          <v-layout column justify-center v-if="!newFileList.length">
-                            <v-flex><v-icon>add</v-icon></v-flex>
-                            <v-flex>添加图片</v-flex>
-                          </v-layout>
-                          <v-layout column justify-center v-else>
-                            <v-flex><v-icon>refresh</v-icon></v-flex>
-                            <v-flex>更换待传图片</v-flex>
-                          </v-layout>
-                        </v-btn>
-                      </file-upload>
-                    </v-card>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-              <v-btn @click="$router.go(-1)" color="primary" depressed>{{ newFileList.length?"上传完成":"跳过上传"}}</v-btn>
-            </v-stepper-content>
-          </v-stepper>
-        </v-flex>
-      </v-layout>
-    </v-container>
-  </v-jumbotron>
+                <v-btn @click="$router.go(-1)" color="primary" depressed>{{ newFileList.length?"上传完成":"跳过上传"}}</v-btn>
+              </v-stepper-content>
+            </v-stepper>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-jumbotron>
+  </div>
 </template>
 
 <script>
 import ImageCompressor from "image-compressor.js";
 import FileUpload from "vue-upload-component";
+import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
   components: {
-    FileUpload
+    FileUpload,
+    ViewToolBar
   },
   data: () => ({
     networkLoading: false,
@@ -221,31 +232,31 @@ export default {
     formValid: true,
     newHouse: {
       // 建筑信息
-      parkId: "",
-      parkName: "",
-      buildingId: "",
-      buildingName: "",
       floorNumber: "",
       doorNumber: "",
       orientation: "",
       buildArea: "",
       usageRate: "",
       accommodatingNumber: "",
-      decorationSituation: "",
+      decorationSituation: 0,
       isDecoration: 1,
       isOfficeFurniture: 1,
       isRegister: 1,
       isFireProcedure: 1,
       // 财务信息
-      houseType: "",
+      houseType: 0,
       price: "",
-      priceUnit: "",
+      priceUnit: 0,
       propertyFee: "",
       remark: ""
     },
-    saveHouse: {
-      houseId: 1
+    assetsOfNewHouse: {
+      parkId: "",
+      parkName: "",
+      buildingId: "",
+      buildingName: ""
     },
+    saveHouseNo: null,
     isSubmitHouse: false,
     upload: {
       postAction:
@@ -304,7 +315,7 @@ export default {
       // 将assetsFloorInfo置空
       this.assetsFloorInfo = [];
       // 改变表单中楼宇信息
-      Object.assign(this.newHouse, {
+      Object.assign(this.assetsOfNewHouse, {
         parkId: assetsPark.parkId,
         parkName: assetsPark.parkName,
         buildingId: assetsBuilding.buildingId,
@@ -405,6 +416,7 @@ export default {
           if (res.code == 0) {
             this.saveFile.push(res.data);
             this.$refs.upload.remove(newFile.id);
+            this.$store.commit("addSnackBar", "图片上传成功", "success");
           } else {
             this.$store.commit(
               "addSnackBar",
@@ -428,6 +440,7 @@ export default {
         .then(res => {
           if (res.data.code != 500) {
             this.saveFile.splice(index, 1);
+            this.$store.commit("addSnackBar", "图片删除成功", "success");
           } else {
             this.$store.commit(
               "addSnackBar",
@@ -444,15 +457,22 @@ export default {
       // console.log(this.newHouse);
       if (this.$refs.houseForm.validate()) {
         this.$http
-          .post("/cms/housePhotoInfo/add.json", this.newHouse)
+          .post(
+            "/cms/houseInfo/addHouseInfo.json",
+            Object.assign(
+              { buildingNo: this.assetsOfNewHouse.buildingId },
+              this.newHouse
+            )
+          )
           .then(res => {
-            if (res.data.code != 500) {
-              this.saveHouse = res.data.data ? res.data.data : { houseId: 1 };
+            try {
+              this.saveHouseNo = res.data.data.houseNo;
+              this.$store.commit("addSnackBar", "房源添加成功", "success");
               this.stepNum++;
-            } else {
+            } catch {
               this.$store.commit(
                 "addSnackBar",
-                `房源添加失败: ${res.data.msg}`,
+                "获取新建的房源信息失败",
                 "error"
               );
             }

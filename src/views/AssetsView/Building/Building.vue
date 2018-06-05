@@ -59,7 +59,6 @@
 </template>
 
 <script>
-import "@/mock/building-mock";
 import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
@@ -111,7 +110,7 @@ export default {
             name: el.buildingName,
             to: {
               name: "building-detail",
-              params: { buildingId: el.buildingId }
+              query: { buildingNo: el.buildingNo }
             }
           }));
 

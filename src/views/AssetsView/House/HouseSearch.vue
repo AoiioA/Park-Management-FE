@@ -1,5 +1,13 @@
 <template>
-  <div class="house-detail">
+  <div class="fill-height house-detail">
+    <view-tool-bar>
+      <span slot="bar-menu">
+        <v-btn :to="{ name: 'house-new' }" depressed color="primary">添加房源</v-btn>
+        <v-btn icon>
+          <v-icon>help</v-icon>
+        </v-btn>
+      </span>
+    </view-tool-bar>
     <v-jumbotron color="blue-grey lighten-4" height="auto">
       <v-container grid-list-xl>
         <v-layout justify-center align-center column>
@@ -20,7 +28,12 @@
 </template>
 
 <script>
+import ViewToolBar from "@/components/ViewToolBar.vue";
+
 export default {
+  components: {
+    ViewToolBar
+  },
   data: () => ({
     loading: false,
     error: null,
@@ -28,6 +41,7 @@ export default {
     houseId: 1
   }),
   created() {
+    this.$store.commit("changeToolBarTitle", "搜索房源");
     this.initialize();
   },
   methods: {
