@@ -50,16 +50,14 @@ export const house = Mock.mock(
   {
     code: 0,
     msg: "OK",
-    "data|1": [
-      {
-        "houseId|+1": 1,
-        "floorNumber|+1": [1, 2, 3, 4, 5, 6],
-        "doorNumber|+21": 101,
-        "buildArea|10-200.2": 1,
-        "price|5-50": 1,
-        "houseType|1": ["0", "1"],
-        "availableDate|1": Mock.mock("@now()")
-      }
-    ]
+    data: {
+      "houseId|+1": 1,
+      "floorNumber|+1": [1, 2, 3, 4, 5, 6],
+      "doorNumber|+21": 101,
+      "buildArea|10-200.2": 1,
+      "price|5-50": 1,
+      "houseType|1": ["0", "1"],
+      "availableDate|1": Mock.mock("@now()")
+    }
   }
 );

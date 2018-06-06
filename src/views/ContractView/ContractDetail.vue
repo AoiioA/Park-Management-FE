@@ -7,7 +7,7 @@
             <v-toolbar-side-icon @click="$router.push({})">
               <v-icon>close</v-icon>
             </v-toolbar-side-icon>
-            <v-toolbar-title>合同详情</v-toolbar-title>
+            <v-toolbar-title>{{ `${CTRTInfo.contractName?CTRTInfo.contractName:"合同详情"}` }}<br /><small>{{ CTRTInfoURL[$route.query.detailType].name }}</small></v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
         </v-flex>
@@ -146,7 +146,7 @@
                   <v-subheader>租赁资产</v-subheader>
                   <v-card>
                     <v-list dense style="height: 262px;overflow: auto;">
-                      <v-list-tile v-for="(house, houseIndex) in CTRTInfo.houseAndBuildingDtos" :key="houseIndex" avatar ripple @click="$router.push({ path: '/house/house-detail', query: { detailId: house.id } })">
+                      <v-list-tile v-for="(house, houseIndex) in CTRTInfo.houseAndBuildingDtos" :key="houseIndex" avatar ripple @click="$router.push({ name: 'house-info-detail', params: { houseNo: house.id } })">
                         <v-list-tile-content>
                           <v-list-tile-title>{{ `${house.parkName} - ${house.buildingName}` }}</v-list-tile-title>
                           <v-list-tile-sub-title>{{`${house.floorNumber}层 ${house.doorNumber}室`}}</v-list-tile-sub-title>
@@ -165,13 +165,13 @@
           <v-jumbotron height="auto" v-if="CTRTInfo.contractRentTotalDto">
             <v-container grid-list-lg fill-height>
               <v-layout align-start align-content-start justify-center wrap>
-                <!-- <v-flex xs12 md12 class="subheading grey--text text--darken-1">租金明细</v-flex> -->
                 <v-flex xs12 md12>
                   <v-subheader>租金缴纳明细</v-subheader>
                   <v-data-table
                     :headers="rentHeaders"
                     :items="CTRTInfo.contractRentTotalDto.contractRentDetailDtoList"
                     item-key="payDay"
+                    no-data-text="暂无租金明细"
                     class="elevation-1 mb-5"
                   >
                     <template slot="items" slot-scope="props">
@@ -179,7 +179,8 @@
                       <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
                       <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
                       <td v-if="props.item.payDay">{{ props.item.payDay.slice(0, 10) }}</td>
-                      <td>{{ props.item.total }}元</td>
+                      <td>{{ props.item.houseTotal }}元</td>
+                      <td>{{ props.item.propertyFees }}元</td>
                       <!-- </tr> -->
                     </template>
                     <!-- <template slot="expand" slot-scope="props">
@@ -187,6 +188,13 @@
                         <v-card-text>Peek-a-boo!</v-card-text>
                       </v-card>
                     </template> -->
+                    <template slot="footer" v-if="CTRTInfo.contractRentTotalDto.contractRentDetailDtoList">
+                      <td colspan="100%" class="text-xs-right">
+                        <span>租金总计 : {{ CTRTInfo.contractRentTotalDto.contractRentDetailDtoList.reduce((all, el, i) => (i == 1 ? all.houseTotal : all) + el.houseTotal).toFixed(2) }}元</span>
+                        &nbsp;
+                        <span>物业费总计 : {{ CTRTInfo.contractRentTotalDto.propertyFeeTotal }}元</span>
+                      </td>
+                    </template>
                   </v-data-table>
                 </v-flex>
               </v-layout>
@@ -200,7 +208,7 @@
               </v-btn>
               <span>展开操作</span>
             </v-tooltip>
-            <v-dialog v-if="$route.query.detailType=='fulfilling'" v-model="dialog.invalidatedDialog" persistent max-width="480">
+            <v-dialog v-if="['fulfilling'].indexOf($route.query.detailType)>=0" v-model="dialog.invalidatedDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>delete_sweep</v-icon>
@@ -230,7 +238,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-if="['fulfilling'].indexOf($route.query.detailType)" v-model="dialog.refundDialog" persistent max-width="480">
+            <v-dialog v-if="['fulfilling'].indexOf($route.query.detailType)>=0" v-model="dialog.refundDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>money_off</v-icon>
@@ -260,7 +268,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-if="['submitted'].indexOf($route.query.detailType)" v-model="dialog.examineDialog" persistent max-width="480">
+            <v-dialog v-if="['submitted'].indexOf($route.query.detailType)>=0" v-model="dialog.examineDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>how_to_reg</v-icon>
@@ -299,13 +307,13 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-tooltip left v-if="['editing'].indexOf($route.query.detailType)">
+            <v-tooltip left v-if="['editing'].indexOf($route.query.detailType)>=0">
               <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: 'editing', renewId: CTRTInfo.id } })">
                 <v-icon>edit</v-icon>
               </v-btn>
               <span>编辑</span>
             </v-tooltip>
-            <v-tooltip left v-if="['fulfilling'].indexOf($route.query.detailType)">
+            <v-tooltip left v-if="['fulfilling'].indexOf($route.query.detailType)>=0">
               <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: $route.query.detailType, renewId: CTRTInfo.id } })">
                 <v-icon>edit</v-icon>
               </v-btn>
@@ -352,8 +360,9 @@ export default {
     rentHeaders: [
       { text: "待缴起始日期", value: "fromDate", sortable: false },
       { text: "待缴结束日期", value: "endDate", sortable: false },
-      { text: "缴纳截至日期", value: "payDay", sortable: false },
-      { text: "待缴租金", value: "total", sortable: false }
+      { text: "应缴日期", value: "payDay", sortable: false },
+      { text: "应缴租金", value: "total", sortable: false },
+      { text: "物业费", value: "propertyFees", sortable: false }
     ],
     invalidatedInfo: "",
     refundInfo: "",
@@ -377,7 +386,7 @@ export default {
     ]
   }),
   created() {
-    this.$store.commit("changeToolBarTitle", "合同详情");
+    // this.$store.commit("changeToolBarTitle", "合同详情");
     this.initialize();
   },
   methods: {
@@ -418,7 +427,6 @@ export default {
           .then(res => {
             if (res.data.code == 0) {
               this.addSnackBar("合同已作废成功", "success");
-              this.closeInvalidated();
               this.$router.push({});
             } else {
               this.addSnackBar(`合同作废错误: ${res.data.meg}`, "error");
@@ -446,7 +454,6 @@ export default {
           .then(res => {
             if (res.data.code == 0) {
               this.addSnackBar("合同已退租成功", "success");
-              this.closeRefund();
               this.$router.push({});
             } else {
               this.addSnackBar(`合同退租错误: ${res.data.meg}`, "error");
@@ -475,7 +482,6 @@ export default {
           .then(res => {
             if (res.data.code == 0) {
               this.addSnackBar("合同已审核成功", "success");
-              this.closeExamine();
               this.$router.push({});
             } else {
               this.addSnackBar(`合同审核错误: ${res.data.meg}`, "error");

@@ -139,7 +139,17 @@
                   <v-layout row wrap>
                     <v-flex xs12 sm6><v-text-field v-model="newCTRT.contractNo" :rules="[$store.state.rules.required]" label="合同编号" hint="例:ABCD-YYYYMMDD-1234" persistent-hint box></v-text-field></v-flex>
                     <v-flex xs12 sm6><v-text-field v-model="newCTRT.contractName" :rules="[$store.state.rules.required]" label="合同名称" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm9><v-text-field v-model="newCTRT.address" :rules="[$store.state.rules.required]" label="合同签署地址" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm6><v-text-field v-model="newCTRT.address" :rules="[$store.state.rules.required]" label="合同签署地址" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3>
+                      <v-menu v-model="menu.purpose" lazy offset-y nudge-top="20">
+                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="newCTRTOther.purpose" label="租赁用途" hint="" persistent-hint box required readonly></v-text-field>
+                        <v-list style="max-height: 200px; overflow-y: auto;">
+                          <v-list-tile v-for="use in purposeInfo" :key="use" @click="newCTRTOther.purpose=use">
+                            <v-list-tile-title>{{ use }}</v-list-tile-title>
+                          </v-list-tile>
+                        </v-list>
+                      </v-menu>
+                    </v-flex>
                     <v-flex xs12 sm3>
                       <v-menu :close-on-content-click="false" v-model="menu.signingDate" offset-y lazy>
                         <v-text-field slot="activator" v-model="newCTRT.signingDate" :rules="[$store.state.rules.required]" label="签订日期" hint="仅可选择上个月后的日期" persistent-hint box required readonly></v-text-field>
@@ -160,16 +170,6 @@
                     </v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.beforeFree" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" :disabled="!newCTRT.startDate" label="记租开始前免租(天)" :hint="beforeFreeHint" persistent-hint type="number" box required></v-text-field></v-flex>
                     <v-flex xs12 sm3><v-text-field v-model="newCTRT.afterFree" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" :disabled="!newCTRT.endDate" label="记租结束后免租(天)" :hint="afterFreeHint" persistent-hint type="number" box required></v-text-field></v-flex>
-                    <v-flex xs12 sm4>
-                      <v-menu v-model="menu.purpose" lazy offset-y nudge-top="20">
-                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="newCTRTOther.purpose" label="租赁用途" hint="" persistent-hint box required readonly></v-text-field>
-                        <v-list style="max-height: 200px; overflow-y: auto;">
-                          <v-list-tile v-for="use in purposeInfo" :key="use" @click="newCTRTOther.purpose=use">
-                            <v-list-tile-title>{{ use }}</v-list-tile-title>
-                          </v-list-tile>
-                        </v-list>
-                      </v-menu>
-                    </v-flex>
                     <!-- <v-flex xs12 sm4><v-text-field v-model="newCTRT.rentDate" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="租金缴纳应提前(天)" hint="" persistent-hint type="number" box required></v-text-field></v-flex> -->
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.deposit" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="押金(元)" hint="合同生效后既缴纳<br />合同到期后返还" persistent-hint type="number" box required></v-text-field></v-flex>
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.liquidatedDamages" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="违约金(元)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
@@ -198,9 +198,10 @@
                         </v-list>
                       </v-menu>
                     </v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.propertyFee" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="物业费(元/天·m²)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
-                <v-btn @click.native="nextStep($refs.dateForm)" color="primary" depressed>继续核对信息</v-btn>
+                <v-btn @click.native="nextStep($refs.dateForm);getRentDetail()" color="primary" depressed>继续核对信息</v-btn>
                 <v-btn @click.native="stepNum--" flat>后退</v-btn>
               </v-form>
             </v-stepper-content>
@@ -209,23 +210,46 @@
               <small>未通过的申请将出现在作废合同列表中供重新填写</small>
             </v-stepper-step>
             <v-stepper-content step="4">
-              <!-- <v-data-table :items="rentDetailList" item-key="name" hide-actions hide-headers class="mb-4">
-                <template slot="items" slot-scope="props">
-                  <tr @click="props.expanded = !props.expanded">
-                    <td>{{ props.item.name }}</td>
-                    <td class="text-xs-right">{{ props.item.calories }}</td>
-                    <td class="text-xs-right">{{ props.item.fat }}</td>
-                    <td class="text-xs-right">{{ props.item.carbs }}</td>
-                    <td class="text-xs-right">{{ props.item.protein }}</td>
-                    <td class="text-xs-right">{{ props.item.iron }}</td>
-                  </tr>
-                </template>
-                <template slot="expand" slot-scope="props">
-                  <v-card flat>
-                    <v-card-text>Peek-a-boo!</v-card-text>
-                  </v-card>
-                </template>
-              </v-data-table> -->
+              <v-container grid-list-md>
+                <v-layout justify-center wrap>
+                  <v-flex xs12>
+                    <v-subheader>
+                      租金缴纳明细
+                      <v-spacer></v-spacer>
+                      <v-btn :disabled="!formValid.reduce((all, el) => all && el)" @click.native="getRentDetail()" small color="primary" depressed>生成租金明细</v-btn>
+                    </v-subheader>
+                    <v-data-table
+                      :headers="rentHeaders"
+                      :items="rentDetail.contractRentDetailDtoList"
+                      item-key="payDay"
+                      no-data-text="暂无租金明细"
+                      class="elevation-1 mb-4"
+                    >
+                      <template slot="items" slot-scope="props">
+                        <!-- <tr @click="props.expanded = !props.expanded"> -->
+                        <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
+                        <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
+                        <td v-if="props.item.payDay">{{ props.item.payDay.slice(0, 10) }}</td>
+                        <td>{{ props.item.houseTotal }}元</td>
+                        <td>{{ props.item.propertyFees }}元</td>
+                        <!-- </tr> -->
+                      </template>
+                      <!-- <template slot="expand" slot-scope="props">
+                        <v-card flat>
+                          <v-card-text>Peek-a-boo!</v-card-text>
+                        </v-card>
+                      </template> -->
+                      <template slot="footer" v-if="rentDetail.contractRentDetailDtoList">
+                        <td colspan="100%" class="text-xs-right">
+                          <span>租金总计 : {{ rentDetail.contractRentDetailDtoList.reduce((all, el, i) => (i == 1 ? all.houseTotal : all) + el.houseTotal).toFixed(2) }}元</span>
+                          &nbsp;
+                          <span>物业费总计 : {{ rentDetail.propertyFeeTotal }}元</span>
+                        </td>
+                      </template>
+                    </v-data-table>
+                  </v-flex>
+                </v-layout>
+              </v-container>
               <v-btn :disabled="!formValid.reduce((all, el) => all && el)" @click.native="submitContract(true)" color="primary" depressed>确认无误并提交</v-btn>
               <v-btn :disabled="!formValid.reduce((all, el) => all && el)" @click.native="submitContract(false)" flat>仅保存</v-btn>
               <v-btn @click.native="stepNum--" flat>后退</v-btn>
@@ -290,7 +314,8 @@ export default {
       // rentDate: 30,
       deposit: 0,
       month: 1,
-      liquidatedDamages: 0
+      liquidatedDamages: 0,
+      propertyFee: 0
     },
     newCTRTOther: {
       increaseType: 0,
@@ -311,35 +336,14 @@ export default {
       houseType: 1,
       availableDate: ""
     },
-    rentDetailList: [
-      {
-        value: false,
-        name: "Frozen Yogurt",
-        calories: 159,
-        fat: 6.0,
-        carbs: 24,
-        protein: 4.0,
-        iron: "1%"
-      },
-      {
-        value: false,
-        name: "Ice cream sandwich",
-        calories: 237,
-        fat: 9.0,
-        carbs: 37,
-        protein: 4.3,
-        iron: "1%"
-      },
-      {
-        value: false,
-        name: "Eclair",
-        calories: 262,
-        fat: 16.0,
-        carbs: 23,
-        protein: 6.0,
-        iron: "7%"
-      }
+    rentHeaders: [
+      { text: "待缴起始日期", value: "fromDate", sortable: false },
+      { text: "待缴结束日期", value: "endDate", sortable: false },
+      { text: "应缴日期", value: "payDay", sortable: false },
+      { text: "应缴租金", value: "total", sortable: false },
+      { text: "物业费", value: "propertyFees", sortable: false }
     ],
+    rentDetail: {},
     companyIndustryInfo: [
       "IT/通信/电子/互联网",
       "文化/传媒/娱乐/体育",
@@ -368,8 +372,9 @@ export default {
     },
     rules: {
       afterSigning: val =>
-        Date(this.getDay(this.newCTRT.startDate, -1 * val)) >
-          Date(this.newCTRT.signingDate) || "免租开始日期需晚于合同签订日期"
+        Date(this.getDay(this.newCTRT.startDate.slice(0, 10), -1 * val)) >=
+          Date(this.newCTRT.signingDate.slice(0, 10)) ||
+        "免租开始日期需晚于合同签订日期"
     }
   }),
   computed: {
@@ -550,10 +555,10 @@ export default {
         // 请求该楼宇下房屋信息
         this.$http
           .post("/cms/AssetsInfo/house.json", {
-            houseId: assetsHouse.houseId
+            id: assetsHouse.houseId
           })
           .then(res => {
-            let resData = res.data.data[0];
+            let resData = res.data.data;
             if (resData) {
               Object.assign(newAssetsData, {
                 buildArea: resData.buildArea,
@@ -582,9 +587,36 @@ export default {
         0
       )}-${_.padStart(time.getDate(), 2, 0)}`;
     },
-    nextStep(el) {
-      el.validate();
-      this.stepNum++;
+    getRentDetail() {
+      if (this.formValid.reduce((all, el) => all && el)) {
+        this.$http
+          .post("/cms/contract/contractRentDetail.json", {
+            afterFree: this.newCTRT.afterFree,
+            beforeFree: this.newCTRT.beforeFree,
+            contractHouseRentDtos: this.newAssets.map(item => ({
+              buildArea: item.buildArea,
+              rent: item.price,
+              increaseType: this.newCTRTOther.increaseType,
+              increaseRate: this.newCTRTOther.increaseRate / 100
+            })),
+            endDate: this.newCTRT.endDate,
+            month: this.newCTRT.month,
+            propertyFee: this.newCTRT.propertyFee,
+            signingDate: this.newCTRT.signingDate,
+            startDate: this.newCTRT.startDate
+          })
+          .then(res => {
+            if (res.data.code != 500) {
+              this.addSnackBar("租金明细生成成功", "success");
+              this.rentDetail = res.data.data;
+            }
+          })
+          .catch(err =>
+            this.addSnackBar(`租金明细生成出现错误 ${err}`, "error")
+          );
+      } else {
+        this.addSnackBar("合同信息填写有误 请检查后重试", "error");
+      }
     },
     submitContract(isSummit) {
       let CTRTData = Object.assign(
@@ -632,7 +664,13 @@ export default {
           .catch(() =>
             this.addSnackBar("新合同提交出现错误 请检查网络后重试", "error")
           );
+      } else {
+        this.addSnackBar("合同信息填写有误 请检查后重试", "error");
       }
+    },
+    nextStep(el) {
+      el.validate();
+      this.stepNum++;
     },
     addSnackBar(text, type) {
       this.$store.commit("addSnackBar", text, type);

@@ -88,7 +88,7 @@ export default {
         })
         .then(res => {
           this.networkLoading = false;
-          let resData = res.data.data;
+          let resData = res.data.length ? res.data : res.data.data;
           this.contractList = resData && resData.length ? resData : [];
         })
         .catch(() => {
