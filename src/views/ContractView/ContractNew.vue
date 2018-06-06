@@ -82,7 +82,7 @@
                     </v-flex>
                     <v-flex xs6 sm4 style="min-width: 200px;">
                       <v-menu v-model="assets.buildingMenu" :close-on-content-click="false" offset-y nudge-top="20" lazy>
-                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="assets.buildingName" label="签约楼宇" :hint="assets.parkName" persistent-hint box required readonly></v-text-field>
+                        <v-text-field slot="activator" @click="getPark()" :rules="[$store.state.rules.required]" :value="assets.buildingName" label="签约楼宇" :hint="assets.parkName" persistent-hint box required readonly></v-text-field>
                         <v-list style="max-height: 200px; overflow-y: auto;">
                           <v-list-tile v-if="!assetsInfo.length">
                             <v-list-tile-title>暂无房源可以添加</v-list-tile-title>
@@ -241,9 +241,9 @@
                       </template> -->
                       <template slot="footer" v-if="rentDetail.contractRentDetailDtoList">
                         <td colspan="100%" class="text-xs-right">
-                          <span>租金总计 : {{ rentDetail.contractRentDetailDtoList.reduce((all, el, i) => (i == 1 ? all.houseTotal : all) + el.houseTotal).toFixed(2) }}元</span>
+                          <span>租金总计 : {{ rentTotal }}元</span>
                           &nbsp;
-                          <span>物业费总计 : {{ rentDetail.propertyFeeTotal }}元</span>
+                          <span>物业费总计 : {{ rentDetail.propertyFeeTotal.toFixed(2) }}元</span>
                         </td>
                       </template>
                     </v-data-table>
@@ -280,6 +280,7 @@ export default {
     },
     stepNum: 1,
     formValid: [true, true, true, true],
+    oldAssetList: [],
     assetsInfo: [],
     assetsFloorInfo: [],
     newCTRT: {
@@ -399,17 +400,34 @@ export default {
           ? "记租结束后无免租"
           : `由 ${this.getDay(endD, 1)}开始<br/>至 ${afterD}到期`;
       else return "";
+    },
+    rentTotal() {
+      if (this.rentDetail.contractRentDetailDtoList) {
+        let total = 0;
+        this.rentDetail.contractRentDetailDtoList.map(
+          el => (total += parseFloat(el.houseTotal))
+        );
+        return total.toFixed(2);
+      } else {
+        return 0;
+      }
     }
   },
   created() {
     this.$store.commit("changeToolBarTitle", "添加合同");
-    this.getPark();
-    this.$route.query.newType == "new"
-      ? this.addNewAssets({})
-      : this.initialize();
+    this.initialize();
   },
   methods: {
     initialize() {
+      if (["new"].indexOf(this.$route.query.newType) >= 0) {
+        // 若为新建 则添加一条空房源信息
+        this.addNewAssets({});
+      } else {
+        // 若不为新建 则加载原合同信息
+        this.getCTRT();
+      }
+    },
+    getCTRT() {
       this.networkLoading = true;
       this.networkError = null;
       this.$http
@@ -421,7 +439,8 @@ export default {
         .then(res => {
           this.networkLoading = false;
           let resData = res.data.data;
-          let resDataAssets = resData.houseAndBuildingDtos;
+          // 保存原合同房源信息 保证只可续签原合同房源
+          this.oldAssetList = resData.houseAndBuildingDtos;
           // 改变newCTRT
           Object.assign(
             this.newCTRT,
@@ -438,12 +457,12 @@ export default {
           );
           // 改变newCTRTOther
           this.newCTRTOther = {
-            increaseType: resDataAssets[0].increaseType,
-            increaseRate: resDataAssets[0].increaseRate,
-            purpose: resDataAssets[0].purpose
+            increaseType: this.oldAssetList[0].increaseType,
+            increaseRate: this.oldAssetList[0].increaseRate,
+            purpose: this.oldAssetList[0].purpose
           };
           // 改变newAssets
-          resDataAssets.map(item => {
+          this.oldAssetList.map(item => {
             this.addNewAssets(item);
           });
         })
@@ -454,33 +473,48 @@ export default {
         });
     },
     getPark() {
-      this.$http
-        .post("/cms/AssetsInfo/park.json")
-        .then(res => {
-          let resData = res.data.data;
-          resData = resData && resData.length ? resData : [];
-          // 将List形式的数据转换为Tree形式并存入assetsInfo
-          let parkInfo = [];
-          resData.forEach(item => {
-            if (item.parkId === null) {
-              item.parkId = 0;
-              item.parkName = "无归属楼宇";
-            }
-            if (!parkInfo[item.parkId]) {
-              parkInfo[item.parkId] = {
-                parkId: item.parkId,
-                parkName: item.parkName,
-                building: []
-              };
-            }
-            parkInfo[item.parkId].building.push({
-              buildingId: item.buildingId,
-              buildingName: item.buildingName
-            });
-          });
-          this.assetsInfo = parkInfo.filter(el => el);
-        })
-        .catch(() => this.addSnackBar("楼宇信息查询失败", "error"));
+      // 若为新建或编辑新建 则获取全部闲置房屋
+      if (
+        ["new", "editing"].indexOf(this.$route.query.newType) >= 0 &&
+        !this.newCTRT.exContractNo
+      ) {
+        this.$http
+          .post("/cms/AssetsInfo/park.json")
+          .then(res => {
+            let resData = res.data.data;
+            resData = resData && resData.length ? resData : [];
+            // 转换数据结构为Tree并保存至assetsInfo
+            this.assetsInfo = this.translatePark(resData);
+          })
+          .catch(() => this.addSnackBar("楼宇信息查询失败", "error"));
+      } else {
+        // 若为续签或编辑续签 则仅获取原合同房屋
+        this.assetsInfo = this.translatePark(this.oldAssetList);
+      }
+    },
+    translatePark(list) {
+      // 将List形式的房源信息转换为Tree形式(按parkId划分building)并返回
+      let parkInfo = [];
+      list.forEach(item => {
+        // 将未绑定园区的房源分类
+        if (item.parkId === null) {
+          item.parkId = 0;
+          item.parkName = "无归属楼宇";
+        }
+        if (!parkInfo[item.parkId]) {
+          parkInfo[item.parkId] = {
+            parkId: item.parkId,
+            parkName: item.parkName,
+            building: []
+          };
+        }
+        parkInfo[item.parkId].building.push({
+          buildingId: item.buildingId,
+          buildingName: item.buildingName
+        });
+      });
+      // 返回去除空项的园区信息数组
+      return parkInfo.filter(el => el);
     },
     changeBuilding(assetsIndex, assetsPark, assetsBuilding) {
       // 关闭菜单
@@ -501,40 +535,62 @@ export default {
     getHouse(assetsBuildingId) {
       // 将assetsFloorInfo置空
       this.assetsFloorInfo = [];
-      // 请求楼宇下房屋列表
-      this.$http
-        .post("/cms/AssetsInfo/building.json", {
-          buildingId: assetsBuildingId
-        })
-        .then(res => {
-          let resData = res.data.data;
-          resData = resData && resData.length ? resData : [];
-          // 将List形式的数据转换为Tree形式并存入assetsFloorInfo
-          let floorInfo = [];
-          resData.forEach(resDataItem => {
-            if (!floorInfo[resDataItem.floorNumber]) {
-              floorInfo[resDataItem.floorNumber] = {
-                floorNumber: resDataItem.floorNumber,
-                house: []
-              };
-            }
-            floorInfo[resDataItem.floorNumber].house.push({
-              isAdded: (resDataItem => {
-                let isAdded = false;
-                this.newAssets.map(el => {
-                  if (resDataItem.houseId == el.houseId) {
-                    isAdded = true;
-                  }
-                });
-                return isAdded;
-              })(resDataItem),
-              houseId: resDataItem.houseId,
-              doorNumber: resDataItem.doorNumber
-            });
+      // 若为新建或编辑新建 则获取全部闲置房屋
+      if (
+        ["new", "editing"].indexOf(this.$route.query.newType) >= 0 &&
+        !this.newCTRT.exContractNo
+      ) {
+        // 请求楼宇下房源列表
+        this.$http
+          .post("/cms/AssetsInfo/building.json", {
+            buildingId: assetsBuildingId
+          })
+          .then(res => {
+            let resData = res.data.data;
+            resData = resData && resData.length ? resData : [];
+            // 转换数据结构为Tree并保存至assetsFloorInfo
+            this.assetsFloorInfo = this.translateBuilding(
+              resData,
+              assetsBuildingId
+            );
+          })
+          .catch(() => this.addSnackBar("楼宇所含房源信息查询失败", "error"));
+      } else {
+        // 若为续签或编辑续签 则仅获取原合同房屋
+        this.assetsFloorInfo = this.translateBuilding(
+          this.oldAssetList,
+          assetsBuildingId
+        );
+      }
+    },
+    translateBuilding(list, buildingId) {
+      // 将List形式的房源信息转换为Tree形式(按floorNo划分house)并返回
+      let floorInfo = [];
+      list.forEach(item => {
+        if (item.buildingId == buildingId) {
+          if (!floorInfo[item.floorNumber]) {
+            floorInfo[item.floorNumber] = {
+              floorNumber: item.floorNumber,
+              house: []
+            };
+          }
+          floorInfo[item.floorNumber].house.push({
+            isAdded: (item => {
+              let isAdded = false;
+              this.newAssets.map(el => {
+                if (item.houseId == el.houseId) {
+                  isAdded = true;
+                }
+              });
+              return isAdded;
+            })(item),
+            houseId: item.houseId,
+            doorNumber: item.doorNumber
           });
-          this.assetsFloorInfo = floorInfo.filter(el => el);
-        })
-        .catch(() => this.addSnackBar("楼宇所含房源信息查询失败", "error"));
+        }
+      });
+      // 返回去除空项的楼层信息数组
+      return floorInfo.filter(el => el);
     },
     changeHouse(assetsIndex, assetsFloor, assetsHouse) {
       let newAssetsData = this.newAssets[assetsIndex];
@@ -653,9 +709,9 @@ export default {
             if (res.data.code == 0) {
               if (!isSummit) {
                 this.addSnackBar("新合同已保存成功 可稍后编辑", "success");
-                if (isSummit) this.$router.push({});
               } else {
                 this.addSnackBar("新合同已提交成功 即将开始审核", "success");
+                this.$router.push({});
               }
             } else {
               this.addSnackBar(`合同提交错误: ${res.data.meg}`, "error");
