@@ -68,7 +68,7 @@
               </v-form>
             </v-stepper-content>
             <v-stepper-step :rules="[() => !!formValid[1]]" :complete="stepNum>2" step="2">
-              添加租赁房屋及租赁信息
+              添加租赁房源及租赁信息
               <small>不同种类的房源将分别按不同方式计费，请在第四部分核对总金额</small>
             </v-stepper-step>
             <v-stepper-content step="2">
@@ -102,7 +102,7 @@
                     </v-flex>
                     <v-flex xs6 sm4 style="min-width: 200px;">
                       <v-menu v-model="assets.houseMenu" :disabled="!assets.buildingName" :close-on-content-click="false" lazy offset-y nudge-top="20">
-                        <v-text-field slot="activator" @click="getHouse(assets.buildingId)" :disabled="!assets.buildingName" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.doorNumber}室 - ${assets.floorNumber}层` : ''" label="签约房源" :hint="assets.availableDate?`${assets.buildArea}M²&nbsp;最早${getDay(assets.availableDate, 0)}可租`:''" persistent-hint box required readonly></v-text-field>
+                        <v-text-field slot="activator" @click="getHouse(assets.buildingId)" :disabled="!assets.buildingName" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.doorNumber}室 - ${assets.floorNumber}层` : ''" label="签约房源" :hint="assets.houseId?`单间面积 ${assets.buildArea}M²`:''" persistent-hint box required readonly></v-text-field>
                         <v-list style="max-height: 200px; overflow-y: auto;">
                           <v-list-tile v-if="!assetsFloorInfo.length">
                             <v-list-tile-title>暂无房源可以添加</v-list-tile-title>
@@ -120,7 +120,7 @@
                         </v-list>
                       </v-menu>
                     </v-flex>
-                    <v-flex xs6 sm3 style="min-width: 150px;"><v-text-field v-model="assets.price" :disabled="!assets.houseId" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="每平日价(元)" :hint="assets.buildArea ? `首年约${parseInt(30 * assets.price * assets.buildArea)}元/30天` : ''" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <v-flex xs6 sm3 style="min-width: 150px;"><v-text-field v-model="assets.price" :disabled="!assets.houseId" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="每平日价(元)" :hint="assets.price ? `首年约${parseInt(30 * assets.price * assets.buildArea)}元/30天` : ''" persistent-hint type="number" box required></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
                 <v-btn @click="addNewAssets({})" flat color="primary">添加房源</v-btn>
@@ -152,14 +152,14 @@
                     </v-flex>
                     <v-flex xs12 sm3>
                       <v-menu :close-on-content-click="false" v-model="menu.signingDate" offset-y lazy>
-                        <v-text-field slot="activator" v-model="newCTRT.signingDate" :rules="[$store.state.rules.required]" label="签订日期" hint="仅可选择上个月后的日期" persistent-hint box required readonly></v-text-field>
-                        <v-date-picker v-model="newCTRT.signingDate" :min="getDay(new Date(), -30)" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.signingDate = false"></v-date-picker>
+                        <v-text-field slot="activator" v-model="newCTRT.signingDate" :rules="[$store.state.rules.required]" label="签订日期" hint="" persistent-hint box required readonly></v-text-field>
+                        <v-date-picker v-model="newCTRT.signingDate" :min="minSigningDate" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.signingDate = false"></v-date-picker>
                       </v-menu>
                     </v-flex>
                     <v-flex xs12 sm3>
                       <v-menu :close-on-content-click="false" v-model="menu.startDate" :disabled="!newCTRT.signingDate" offset-y lazy>
                         <v-text-field slot="activator" v-model="newCTRT.startDate" :rules="[$store.state.rules.required]" :disabled="!newCTRT.signingDate" label="记租开始日期" hint="" persistent-hint box required readonly></v-text-field>
-                        <v-date-picker v-model="newCTRT.startDate" :min="newCTRT.signingDate" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.startDate = false"></v-date-picker>
+                        <v-date-picker v-model="newCTRT.startDate" :min="minStartDate" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.startDate = false"></v-date-picker>
                       </v-menu>
                     </v-flex>
                     <v-flex xs12 sm3>
@@ -168,8 +168,8 @@
                         <v-date-picker v-model="newCTRT.endDate" :min="newCTRT.startDate" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.endDate = false"></v-date-picker>
                       </v-menu>
                     </v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.beforeFree" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" :disabled="!newCTRT.startDate" label="记租开始前免租(天)" :hint="beforeFreeHint" persistent-hint type="number" box required></v-text-field></v-flex>
-                    <v-flex xs12 sm3><v-text-field v-model="newCTRT.afterFree" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" :disabled="!newCTRT.endDate" label="记租结束后免租(天)" :hint="afterFreeHint" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model.number="newCTRT.beforeFree" mask="###" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" :disabled="!newCTRT.startDate" label="记租开始前免租(天)" :hint="beforeFreeHint" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm3><v-text-field v-model.number="newCTRT.afterFree" mask="###" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" :disabled="!newCTRT.endDate" label="记租结束后免租(天)" :hint="afterFreeHint" persistent-hint box required></v-text-field></v-flex>
                     <!-- <v-flex xs12 sm4><v-text-field v-model="newCTRT.rentDate" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="租金缴纳应提前(天)" hint="" persistent-hint type="number" box required></v-text-field></v-flex> -->
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.deposit" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="押金(元)" hint="合同生效后既缴纳<br />合同到期后返还" persistent-hint type="number" box required></v-text-field></v-flex>
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.liquidatedDamages" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="违约金(元)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
@@ -280,9 +280,10 @@ export default {
     },
     stepNum: 1,
     formValid: [true, true, true, true],
-    oldAssetList: [],
     assetsInfo: [],
     assetsFloorInfo: [],
+    exCTRT: {},
+    oldCTRT: {},
     newCTRT: {
       // 甲方
       signedPersonA: "",
@@ -372,34 +373,58 @@ export default {
       increaseType: false
     },
     rules: {
-      afterSigning: val =>
-        Date(this.getDay(this.newCTRT.startDate.slice(0, 10), -1 * val)) >=
-          Date(this.newCTRT.signingDate.slice(0, 10)) ||
-        "免租开始日期需晚于合同签订日期"
+      // afterSigning: val =>
+      //   Date(this.getDay(this.newCTRT.startDate.slice(0, 10), -1 * val)) >=
+      //     Date(this.newCTRT.signingDate.slice(0, 10)) ||
+      //   "免租开始日期需晚于合同签订日期"
     }
   }),
   computed: {
+    minSigningDate() {
+      // 续签的签订日期需晚于前合同的签订日期
+      if (this.$route.query.exId && this.exCTRT.signingDate) {
+        return this.getDay(this.exCTRT.signingDate, 1);
+      }
+      return "";
+    },
+    minStartDate() {
+      // 续签的记租日期需晚于前合同的结束日期
+      if (this.$route.query.exId && this.exCTRT.signingDate) {
+        return this.getDay(
+          new Date(
+            Math.max(
+              new Date(this.newCTRT.signingDate),
+              new Date(this.getDay(this.exCTRT.endDate, 1))
+            )
+          ),
+          0
+        );
+      }
+      return this.newCTRT.signingDate;
+    },
     beforeFreeHint() {
       let startD = this.newCTRT.startDate;
       let beforeFree = this.newCTRT.beforeFree;
       let beforeD = this.getDay(startD, -1 * beforeFree);
 
-      if (startD)
+      if (startD) {
         return beforeFree == 0
           ? "记租开始前无免租"
           : `由 ${beforeD}开始<br/>至 ${this.getDay(startD, -1)}到期`;
-      else return "";
+      }
+      return "";
     },
     afterFreeHint() {
       let endD = this.newCTRT.endDate;
       let afterFree = this.newCTRT.afterFree;
       let afterD = this.getDay(endD, afterFree);
 
-      if (endD)
+      if (endD) {
         return afterFree == 0
           ? "记租结束后无免租"
           : `由 ${this.getDay(endD, 1)}开始<br/>至 ${afterD}到期`;
-      else return "";
+      }
+      return "";
     },
     rentTotal() {
       if (this.rentDetail.contractRentDetailDtoList) {
@@ -408,9 +433,14 @@ export default {
           el => (total += parseFloat(el.houseTotal))
         );
         return total.toFixed(2);
-      } else {
-        return 0;
       }
+      return 0;
+    }
+  },
+  watch: {
+    "newCTRT.signingDate"() {
+      this.newCTRT.startDate = "";
+      this.newCTRT.endDate = "";
     }
   },
   created() {
@@ -430,50 +460,83 @@ export default {
     getCTRT() {
       this.networkLoading = true;
       this.networkError = null;
-      this.$http
-        .get(`/cms/${this.CTRTInfoURL[this.$route.query.newType].to}.json`, {
-          params: {
-            id: this.$route.query.renewId
-          }
-        })
-        .then(res => {
-          this.networkLoading = false;
-          let resData = res.data.data;
-          // 保存原合同房源信息 保证只可续签原合同房源
-          this.oldAssetList = resData.houseAndBuildingDtos;
-          // 改变newCTRT
-          Object.assign(
-            this.newCTRT,
-            _.omit(resData, [
-              "operationType",
-              "contractRentTotalDto",
-              "houseAndBuildingDtos",
-              "signingDate",
-              "startDate",
-              "endDate",
-              "partyB",
-              "createTime"
-            ])
-          );
-          // 改变newCTRTOther
-          this.newCTRTOther = {
-            increaseType: this.oldAssetList[0].increaseType,
-            increaseRate: this.oldAssetList[0].increaseRate,
-            purpose: this.oldAssetList[0].purpose
-          };
-          // 改变newAssets
-          this.oldAssetList.map(item => {
-            this.addNewAssets(item);
+      // 查询编辑的合同信息
+      if (this.$route.query.renewId) {
+        this.$http
+          .get(`/cms/${this.CTRTInfoURL[this.$route.query.newType].to}.json`, {
+            params: {
+              id: this.$route.query.renewId
+            }
+          })
+          .then(res => {
+            this.networkLoading = false;
+            this.oldCTRT = res.data.data;
+            if (this.$route.query.newType == "editing") {
+              this.copyCTRTInfo(this.oldCTRT);
+            }
+          })
+          .catch(err => {
+            this.networkLoading = false;
+            this.networkError = err;
+            this.addSnackBar("编辑合同详情查询失败 请检查网络后刷新", "error");
           });
-        })
-        .catch(err => {
-          this.networkLoading = false;
-          this.networkError = err;
-          this.addSnackBar("合同详情查询失败 请检查网络后刷新", "error");
-        });
+      }
+      // 查询续签的合同信息
+      if (this.$route.query.exId) {
+        this.$http
+          .get(`/cms/contract/view.json`, {
+            params: {
+              id: this.$route.query.exId
+            }
+          })
+          .then(res => {
+            this.networkLoading = false;
+            this.exCTRT = res.data.data;
+            if (this.$route.query.newType != "editing") {
+              this.copyCTRTInfo(this.exCTRT);
+            }
+          })
+          .catch(err => {
+            this.networkLoading = false;
+            this.networkError = err;
+            this.addSnackBar(
+              "续签原合同详情查询失败 请检查网络后刷新",
+              "error"
+            );
+          });
+      }
+    },
+    copyCTRTInfo(oldCTRT) {
+      // 改变newCTRT
+      Object.assign(
+        this.newCTRT,
+        _.omit(oldCTRT, [
+          "companyId",
+          "intermediatorId",
+          "contractState",
+          "operationType",
+          "contractRentTotalDto",
+          "houseAndBuildingDtos",
+          "signingDate",
+          "startDate",
+          "endDate",
+          "partyB",
+          "createTime"
+        ])
+      );
+      // 改变newCTRTOther
+      this.newCTRTOther = {
+        increaseType: oldCTRT.houseAndBuildingDtos[0].increaseType,
+        increaseRate: oldCTRT.houseAndBuildingDtos[0].increaseRate * 100,
+        purpose: oldCTRT.houseAndBuildingDtos[0].purpose
+      };
+      // 改变newAssets
+      oldCTRT.houseAndBuildingDtos.map(item => {
+        this.addNewAssets(item);
+      });
     },
     getPark() {
-      // 若为新建或编辑新建 则获取全部闲置房屋
+      // 若为新建或编辑新建 则获取全部闲置房源
       if (
         ["new", "editing"].indexOf(this.$route.query.newType) >= 0 &&
         !this.newCTRT.exContractNo
@@ -488,8 +551,8 @@ export default {
           })
           .catch(() => this.addSnackBar("楼宇信息查询失败", "error"));
       } else {
-        // 若为续签或编辑续签 则仅获取原合同房屋
-        this.assetsInfo = this.translatePark(this.oldAssetList);
+        // 若为续签或编辑续签 则仅获取原合同房源
+        this.assetsInfo = this.translatePark(this.exCTRT.houseAndBuildingDtos);
       }
     },
     translatePark(list) {
@@ -535,7 +598,7 @@ export default {
     getHouse(assetsBuildingId) {
       // 将assetsFloorInfo置空
       this.assetsFloorInfo = [];
-      // 若为新建或编辑新建 则获取全部闲置房屋
+      // 若为新建或编辑新建 则获取全部闲置房源
       if (
         ["new", "editing"].indexOf(this.$route.query.newType) >= 0 &&
         !this.newCTRT.exContractNo
@@ -556,9 +619,9 @@ export default {
           })
           .catch(() => this.addSnackBar("楼宇所含房源信息查询失败", "error"));
       } else {
-        // 若为续签或编辑续签 则仅获取原合同房屋
+        // 若为续签或编辑续签 则仅获取原合同房源
         this.assetsFloorInfo = this.translateBuilding(
-          this.oldAssetList,
+          this.exCTRT.houseAndBuildingDtos,
           assetsBuildingId
         );
       }
@@ -608,23 +671,37 @@ export default {
           houseType: 1,
           availableDate: ""
         });
-        // 请求该楼宇下房屋信息
-        this.$http
-          .post("/cms/AssetsInfo/house.json", {
-            id: assetsHouse.houseId
-          })
-          .then(res => {
-            let resData = res.data.data;
-            if (resData) {
-              Object.assign(newAssetsData, {
-                buildArea: resData.buildArea,
-                price: resData.price,
-                houseType: resData.houseType,
-                availableDate: resData.availableDate
-              });
-            }
-          })
-          .catch(() => this.addSnackBar("房源信息查询失败", "error"));
+        if (
+          ["new", "editing"].indexOf(this.$route.query.newType) >= 0 &&
+          !this.newCTRT.exContractNo
+        ) {
+          // 请求该楼宇下房源信息
+          this.$http
+            .post("/cms/AssetsInfo/house.json", {
+              houseId: assetsHouse.houseId
+            })
+            .then(res => {
+              let resData = res.data.data;
+              if (resData) {
+                Object.assign(newAssetsData, {
+                  buildArea: resData.buildArea,
+                  price: resData.price,
+                  availableDate: resData.availableDate
+                });
+              }
+            })
+            .catch(() => this.addSnackBar("房源信息查询失败", "error"));
+        } else {
+          // 若为续签或编辑续签 则仅获取原合同房源
+          let exHouse = this.exCTRT.houseAndBuildingDtos.find(
+            el => (el.houseId = assetsHouse.houseId)
+          );
+          Object.assign(newAssetsData, {
+            buildArea: exHouse.buildArea,
+            price: exHouse.rent,
+            availableDate: exHouse.availableDate
+          });
+        }
       }
     },
     addNewAssets(Obj) {
@@ -675,50 +752,40 @@ export default {
       }
     },
     submitContract(isSummit) {
-      let CTRTData = Object.assign(
-        {
-          contractState: isSummit ? "待审核" : "待提交",
-          contractHouseDtos: this.newAssets.map(item => ({
-            houseId: item.houseId,
-            rent: item.price,
-            increaseType: this.newCTRTOther.increaseType,
-            increaseRate: this.newCTRTOther.increaseRate / 100,
-            purpose: this.newCTRTOther.purpose,
-            type: "房屋"
-          }))
-        },
-        (() =>
-          this.$route.query.newType == "editing"
-            ? {
-                id: Number(this.$route.query.renewId),
-                exContractNo: this.newCTRT.exContractNo
-              }
-            : {
-                exContractNo: Number(this.$route.query.renewId) || null
-              })(),
-        this.newCTRT
-      );
-      let submitUrl =
-        this.$route.query.newType == "editing"
-          ? "modifyUnSubmit"
-          : "addContract";
+      let CTRTData = Object.assign({}, this.newCTRT, {
+        exContractNo: Number(this.$route.query.exId) || null,
+        contractState: isSummit ? "待审核" : "待提交",
+        contractHouseDtos: this.newAssets.map(item => ({
+          houseId: item.houseId,
+          rent: item.price,
+          increaseType: this.newCTRTOther.increaseType,
+          increaseRate: this.newCTRTOther.increaseRate / 100,
+          purpose: this.newCTRTOther.purpose,
+          type: "房屋"
+        }))
+      });
+      let submitUrl = "addContract";
+      if (this.$route.query.newType == "editing") {
+        Object.assign(CTRTData, { id: Number(this.$route.query.renewId) });
+        submitUrl = "modifyUnSubmit";
+      }
       if (this.formValid.reduce((all, el) => all && el)) {
         this.$http
           .post(`/cms/contractSub/${submitUrl}.json`, CTRTData)
           .then(res => {
             if (res.data.code == 0) {
               if (!isSummit) {
-                this.addSnackBar("新合同已保存成功 可稍后编辑", "success");
+                this.addSnackBar("合同已保存成功 可稍后编辑", "success");
               } else {
-                this.addSnackBar("新合同已提交成功 即将开始审核", "success");
-                this.$router.push({});
+                this.addSnackBar("合同已提交成功 即将开始审核", "success");
               }
+              this.$router.push({});
             } else {
               this.addSnackBar(`合同提交错误: ${res.data.meg}`, "error");
             }
           })
           .catch(() =>
-            this.addSnackBar("新合同提交出现错误 请检查网络后重试", "error")
+            this.addSnackBar("合同提交出现错误 请检查网络后重试", "error")
           );
       } else {
         this.addSnackBar("合同信息填写有误 请检查后重试", "error");

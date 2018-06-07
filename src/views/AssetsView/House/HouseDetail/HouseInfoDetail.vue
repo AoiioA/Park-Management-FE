@@ -57,8 +57,10 @@ export default {
       this.networkLoading = true;
       this.houseInfo = {};
       this.$http
-        .post("/cms/houseInfo/queryInfoByHouseNo.json", {
-          houseNo: this.$route.params.houseNo
+        .post("/cms/houseInfo/queryHouseInfoByHouseNo.json", {
+          params: {
+            houseNo: this.$route.params.houseNo
+          }
         })
         .then(res => {
           this.networkLoading = false;

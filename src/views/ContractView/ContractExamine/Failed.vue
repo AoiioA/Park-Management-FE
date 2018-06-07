@@ -84,7 +84,7 @@ export default {
       this.networkLoading = true;
       this.$http
         .post("/cms/contractSub/queryByState.json", {
-          contractState: "未通过"
+          contractState: "审核未通过"
         })
         .then(res => {
           this.networkLoading = false;

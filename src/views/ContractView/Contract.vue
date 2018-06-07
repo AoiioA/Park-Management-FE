@@ -26,11 +26,17 @@ export default {
     detailId() {
       return this.$route.query.detailId;
     },
+    // 操作类型
     newType() {
       return this.$route.query.newType;
     },
+    // 重新编辑合同的ID
     renewId() {
       return this.$route.query.renewId;
+    },
+    // 续签的原合同ID
+    exId() {
+      return this.$route.query.exId;
     }
   }
 };

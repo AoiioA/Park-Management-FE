@@ -18,27 +18,43 @@
             <v-container grid-list-lg fill-height>
               <v-layout wrap>
                 <!-- <v-flex xs12 md12 class="subheading grey--text text--darken-1">合同明细</v-flex> -->
-                <v-flex xs12 md4>
+                <v-flex xs12 md6>
                   <v-subheader>出租方</v-subheader>
                   <v-card>
                     <v-card-title><h4>{{ CTRTInfo.partyA }}</h4></v-card-title>
                     <v-divider></v-divider>
-                    <v-list dense style="height: 248px;overflow: auto;">
+                    <v-list dense style="height: 248px;">
                       <v-list-tile>
-                        <v-list-tile-content>签订人:</v-list-tile-content>
+                        <v-list-tile-content>出租方签订人:</v-list-tile-content>
                         <v-list-tile-content class="align-end">{{ CTRTInfo.signedPersonA }}</v-list-tile-content>
+                      </v-list-tile>
+                      <v-list-tile>
+                        <v-list-tile-content>经纪公司:</v-list-tile-content>
+                        <v-list-tile-content class="align-end">{{ CTRTInfo.agency || "无" }}</v-list-tile-content>
+                      </v-list-tile>
+                      <v-list-tile>
+                        <v-list-tile-content>经纪人姓名:</v-list-tile-content>
+                        <v-list-tile-content class="align-end">{{ CTRTInfo.intermediatorName || "无" }}</v-list-tile-content>
+                      </v-list-tile>
+                      <v-list-tile>
+                        <v-list-tile-content>经纪人身份证:</v-list-tile-content>
+                        <v-list-tile-content class="align-end">{{ CTRTInfo.idCode || "无" }}</v-list-tile-content>
+                      </v-list-tile>
+                      <v-list-tile>
+                        <v-list-tile-content>经纪人联系方式:</v-list-tile-content>
+                        <v-list-tile-content class="align-end">{{ CTRTInfo.intermediatorTel || "无" }}</v-list-tile-content>
                       </v-list-tile>
                     </v-list>
                   </v-card>
                 </v-flex>
-                <v-flex xs12 md4>
+                <v-flex xs12 md6>
                   <v-subheader>租赁方</v-subheader>
                   <v-card>
                     <v-card-title><h4>{{ CTRTInfo.companyName }}</h4></v-card-title>
                     <v-divider></v-divider>
-                    <v-list dense style="height: 248px;overflow: auto;">
+                    <v-list dense style="height: 248px;">
                       <v-list-tile>
-                        <v-list-tile-content>签订人:</v-list-tile-content>
+                        <v-list-tile-content>租赁方签订人:</v-list-tile-content>
                         <v-list-tile-content class="align-end">{{ CTRTInfo.signedPersonB }}</v-list-tile-content>
                       </v-list-tile>
                       <v-list-tile>
@@ -60,27 +76,6 @@
                       <v-list-tile>
                         <v-list-tile-content>通讯地址:</v-list-tile-content>
                         <v-list-tile-content class="align-end">{{ CTRTInfo.address }}</v-list-tile-content>
-                      </v-list-tile>
-                    </v-list>
-                  </v-card>
-                </v-flex>
-                <v-flex xs12 md4>
-                  <v-subheader>中介方</v-subheader>
-                  <v-card>
-                    <v-card-title><h4>{{ CTRTInfo.agency }}</h4></v-card-title>
-                    <v-divider></v-divider>
-                    <v-list dense style="height: 248px;overflow: auto;">
-                      <v-list-tile>
-                        <v-list-tile-content>姓名:</v-list-tile-content>
-                        <v-list-tile-content class="align-end">{{ CTRTInfo.intermediatorName }}</v-list-tile-content>
-                      </v-list-tile>
-                      <v-list-tile>
-                        <v-list-tile-content>身份证:</v-list-tile-content>
-                        <v-list-tile-content class="align-end">{{ CTRTInfo.idCode }}</v-list-tile-content>
-                      </v-list-tile>
-                      <v-list-tile>
-                        <v-list-tile-content>联系方式:</v-list-tile-content>
-                        <v-list-tile-content class="align-end">{{ CTRTInfo.intermediatorTel }}</v-list-tile-content>
                       </v-list-tile>
                     </v-list>
                   </v-card>
@@ -307,14 +302,14 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-tooltip left v-if="['editing'].indexOf($route.query.detailType)>=0">
-              <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: 'editing', renewId: CTRTInfo.id } })">
+            <v-tooltip left v-if="['editing', 'failed'].indexOf($route.query.detailType)>=0">
+              <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: 'editing', renewId: CTRTInfo.id, exId: CTRTInfo.exContractNo } })">
                 <v-icon>edit</v-icon>
               </v-btn>
               <span>编辑</span>
             </v-tooltip>
             <v-tooltip left v-if="['fulfilling'].indexOf($route.query.detailType)>=0">
-              <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: $route.query.detailType, renewId: CTRTInfo.id } })">
+              <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: $route.query.detailType, exId: CTRTInfo.id } })">
                 <v-icon>edit</v-icon>
               </v-btn>
               <span>续签</span>
