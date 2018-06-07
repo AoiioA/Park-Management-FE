@@ -125,7 +125,7 @@
                           :src="file.thumb"
                           height="150px"
                         >
-                          <v-container fill-height fluid style="background: rgba(128,128,128,.5)">
+                          <v-container fill-height fluid style="background: rgba(128,128,128,.3)">
                             <v-layout column>
                               <v-flex class="text-xs-right">
                                 <v-btn
@@ -194,7 +194,7 @@
                     </v-flex>
                   </v-layout>
                 </v-container>
-                <v-btn @click="$router.go(-1)" color="primary" depressed>{{ newFileList.length?"上传完成":"跳过上传"}}</v-btn>
+                <v-btn @click="$router.go(-1)" color="primary" depressed>{{ saveFile.length?"上传完成":"跳过上传"}}</v-btn>
               </v-stepper-content>
             </v-stepper>
           </v-flex>
