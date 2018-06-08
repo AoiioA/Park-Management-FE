@@ -6,7 +6,7 @@ Mock.setup({
 Mock.Random.now();
 
 export const building = Mock.mock(
-  "http://122.115.50.65/cms/buildingInfo/list.json",
+  "http://122.115.50.65/cms/buildingInfo/listBuildingInfo.json",
   "post",
   {
     code: 0,
@@ -42,7 +42,7 @@ export const houseByFloor = Mock.mock(
     "data|3-10": [
       {
         "floorNo|+1": 1,
-        "data|10-50": [
+        "room|10-50": [
           {
             "houseNo|+1": 1,
             buildingId: 1,
@@ -50,7 +50,7 @@ export const houseByFloor = Mock.mock(
             "doorNumber|+1": 101,
             "houseType|1": ["0", "1"],
             "buildArea|10-200.2": 1,
-            "resourceStatus|1": ["0", "1", "2", "3"]
+            "resourceStatus|1": ["0", "1", "2", "3", "4"]
           }
         ]
       }

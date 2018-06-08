@@ -1,31 +1,31 @@
 <template>
   <v-jumbotron height="auto" class="house-image">
     <v-container grid-list-lg>
-        <v-layout justify-center align-center>
-          <v-flex xs12 lg10>
-            <v-subheader class="px-0">
-              房源图片
-              <v-spacer></v-spacer>
-              <file-upload
-                ref="uploadEl"
-                v-model="newFileList"
-                :data="{ type: 2, id: $route.params.houseNo }"
-                :post-action="upload.postAction"
-                :accept="upload.accept"
-                :extensions="upload.extensions"
-                :size="upload.size || 0"
-                :multiple="upload.multiple"
-                :thread="upload.thread < 1 ? 1 : (upload.thread > 5 ? 5 : upload.thread)"
-                :directory="upload.directory"
-                :drop-directory="upload.dropDirectory"
-                @input-filter="inputFilter"
-                @input-file="inputFile"
-              >
-                <v-btn color="primary" depressed class="mx-0">添加图片</v-btn>
-              </file-upload>
-            </v-subheader>
-          </v-flex>
-        </v-layout>
+      <v-layout justify-center align-center>
+        <v-flex xs12 lg10>
+          <v-subheader class="px-0">
+            房源图片
+            <v-spacer></v-spacer>
+            <file-upload
+              ref="uploadEl"
+              v-model="newFileList"
+              :data="{ type: 2, id: $route.params.houseNo }"
+              :post-action="upload.postAction"
+              :accept="upload.accept"
+              :extensions="upload.extensions"
+              :size="upload.size || 0"
+              :multiple="upload.multiple"
+              :thread="upload.thread < 1 ? 1 : (upload.thread > 5 ? 5 : upload.thread)"
+              :directory="upload.directory"
+              :drop-directory="upload.dropDirectory"
+              @input-filter="inputFilter"
+              @input-file="inputFile"
+            >
+              <v-btn color="primary" depressed class="mx-0">添加图片</v-btn>
+            </file-upload>
+          </v-subheader>
+        </v-flex>
+      </v-layout>
       <v-data-iterator
         :items="houseImageList"
         :rows-per-page-items="rowsPerPageItems"

@@ -1,6 +1,6 @@
 <template>
   <div class="building-detail">
-    <v-jumbotron color="blue-grey lighten-4" height="auto">
+    <v-jumbotron color="blue-grey lighten-5" height="auto">
       <v-container grid-list-xl>
         <v-layout justify-center align-center>
           <v-flex xs12 lg10>
@@ -190,7 +190,13 @@ export default {
       }
     ],
     houseType: ["整租", "工位"],
-    houseStatus: ["空置房源", "预定房源", "出租房源", "维护房源"],
+    houseStatus: [
+      "空置房源",
+      "预定房源",
+      "租赁中房源",
+      "维护房源",
+      "租赁审核房源"
+    ],
     pagination: {
       rowsPerPage: 3
     },
@@ -234,7 +240,7 @@ export default {
       this.houseInfoArr = [];
       this.$http
         .all([
-          this.$http.post("/cms/buildingInfo/list.json", {
+          this.$http.post("/cms/buildingInfo/listBuildingInfo.json", {
             buildingNo: this.$route.params.buildingNo
           }),
           this.$http.post("/cms/houseInfo/listHouseInfoByFloor.json", {
@@ -277,7 +283,7 @@ export default {
         children: []
       }));
 
-      floor.item.data.forEach(house => {
+      floor.item.room.forEach(house => {
         floorData[house.resourceStatus].value[0] = (
           parseFloat(house.buildArea) +
           parseFloat(floorData[house.resourceStatus].value[0])
@@ -304,7 +310,23 @@ export default {
             fontWeight: "500"
           }
         },
-        tooltip: { formatter: a => `${a.name}: <br />面积：${a.value[0]}m²` },
+        tooltip: {
+          formatter: a => `
+            <div style="min-width: 120px;">
+              <div>${a.name}</div>
+              面积 : <h4 style="float: right">${a.value[0]}m²<h4>
+            </div>
+          `,
+          textStyle: {
+            color: "rgba(0,0,0,0.87)"
+          },
+          backgroundColor: "#ECEFF1",
+          padding: [8, 12],
+          extraCssText: `
+            border-radius: 3px;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+          `
+        },
         series: [
           {
             name: `全部房源`,
@@ -327,14 +349,14 @@ export default {
                 // color: ["#37A2DA", "#32C5E9", "#67E0E3", "#9fe6b8"],
                 // color: ["#37A2DA", "#32C5E9", "#7bd9a5", "#AAA"],
                 // color: ["#23B6C9", "#EBB206", "#AB60B8", "#AAA"],
-                color: ["#4FC3F7", "#1E88E5", "#5C6BC0", "#90A4AE"],
+                color: ["#29B6F6", "#1E88E5", "#5C6BC0", "#90A4AE", "#90A4AE"],
                 colorMappingBy: "value",
                 squareRatio: 0.000001,
                 visualDimension: 1,
                 itemStyle: {
                   normal: {
                     borderColor: "#CFD8DC",
-                    gapWidth: 8
+                    gapWidth: 0
                   }
                 }
               },
@@ -369,7 +391,7 @@ export default {
     getTableData(houseInfo) {
       let houseList = [];
       houseInfo.map(floor => {
-        floor.data.map(house =>
+        floor.room.map(house =>
           houseList.push({
             houseNo: house.houseNo,
             floorNumber: `${floor.floorNo}层`,
@@ -498,8 +520,8 @@ export default {
 </script>
 <style lang="stylus">
 .no-data {
-  height 300px;
-  line-height 300px;
+  height: 300px;
+  line-height: 300px;
   text-align: center;
 }
 </style>

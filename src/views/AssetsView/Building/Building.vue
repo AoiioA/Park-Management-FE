@@ -99,7 +99,7 @@ export default {
       this.loading = true;
       this.error = null;
       this.$http
-        .post("/cms/buildingInfo/list.json", { delFlag: 1 })
+        .post("/cms/buildingInfo/listBuildingInfo.json", {})
         .then(res => {
           this.loading = false;
 

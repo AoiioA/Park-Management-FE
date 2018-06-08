@@ -402,7 +402,11 @@ export default {
         .catch(err => {
           this.networkLoading = false;
           this.networkError = err;
-          this.addSnackBar("合同详情查询失败 请检查网络后刷新", "error");
+          this.$store.commit(
+            "addSnackBar",
+            "合同详情查询失败 请检查网络后刷新",
+            "error"
+          );
         });
     },
     closeInvalidated() {
@@ -421,14 +425,22 @@ export default {
           })
           .then(res => {
             if (res.data.code == 0) {
-              this.addSnackBar("合同已作废成功", "success");
+              this.$store.commit("addSnackBar", "合同已作废成功", "success");
               this.$router.push({});
             } else {
-              this.addSnackBar(`合同作废错误: ${res.data.meg}`, "error");
+              this.$store.commit(
+                "addSnackBar",
+                `合同作废错误: ${res.data.meg}`,
+                "error"
+              );
             }
           })
           .catch(() =>
-            this.addSnackBar("合同作废出现错误 请检查网络后重试", "error")
+            this.$store.commit(
+              "addSnackBar",
+              "合同作废出现错误 请检查网络后重试",
+              "error"
+            )
           );
       }
     },
@@ -448,14 +460,22 @@ export default {
           })
           .then(res => {
             if (res.data.code == 0) {
-              this.addSnackBar("合同已退租成功", "success");
+              this.$store.commit("addSnackBar", "合同已退租成功", "success");
               this.$router.push({});
             } else {
-              this.addSnackBar(`合同退租错误: ${res.data.meg}`, "error");
+              this.$store.commit(
+                "addSnackBar",
+                `合同退租错误: ${res.data.meg}`,
+                "error"
+              );
             }
           })
           .catch(() =>
-            this.addSnackBar("合同退租出现错误 请检查网络后重试", "error")
+            this.$store.commit(
+              "addSnackBar",
+              "合同退租出现错误 请检查网络后重试",
+              "error"
+            )
           );
       }
     },
@@ -476,19 +496,24 @@ export default {
           })
           .then(res => {
             if (res.data.code == 0) {
-              this.addSnackBar("合同已审核成功", "success");
+              this.$store.commit("addSnackBar", "合同已审核成功", "success");
               this.$router.push({});
             } else {
-              this.addSnackBar(`合同审核错误: ${res.data.meg}`, "error");
+              this.$store.commit(
+                "addSnackBar",
+                `合同审核错误: ${res.data.meg}`,
+                "error"
+              );
             }
           })
           .catch(() =>
-            this.addSnackBar("合同审核出现错误 请检查网络后重试", "error")
+            this.$store.commit(
+              "addSnackBar",
+              "合同审核出现错误 请检查网络后重试",
+              "error"
+            )
           );
       }
-    },
-    addSnackBar(text, type) {
-      this.$store.commit("addSnackBar", text, type);
     }
   }
 };
