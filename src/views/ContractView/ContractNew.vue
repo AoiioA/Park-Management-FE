@@ -102,7 +102,7 @@
                     </v-flex>
                     <v-flex xs6 sm4 style="min-width: 200px;">
                       <v-menu v-model="assets.houseMenu" :disabled="!assets.buildingName" :close-on-content-click="false" lazy offset-y nudge-top="20">
-                        <v-text-field slot="activator" @click="getHouse(assets.buildingId)" :disabled="!assets.buildingName" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.doorNumber}室 - ${assets.floorNumber}层` : ''" label="签约房源" :hint="assets.houseId?`单间面积 ${assets.buildArea}M²`:''" persistent-hint box required readonly></v-text-field>
+                        <v-text-field slot="activator" @click="getHouse(assets.buildingNo)" :disabled="!assets.buildingName" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.doorNumber}室 - ${assets.floorNumber}层` : ''" label="签约房源" :hint="assets.houseId?`单间面积 ${assets.buildArea}M²`:''" persistent-hint box required readonly></v-text-field>
                         <v-list style="max-height: 200px; overflow-y: auto;">
                           <v-list-tile v-if="!assetsFloorInfo.length">
                             <v-list-tile-title>暂无房源可以添加</v-list-tile-title>
@@ -326,11 +326,12 @@ export default {
     },
     newAssets: [],
     defaultAssets: {
-      parkId: "",
+      parkNo: "",
       parkName: "",
-      buildingId: "",
+      buildingNo: "",
       buildingName: "",
       houseId: "",
+      houseNo: "",
       floorNumber: "",
       doorNumber: "",
       buildArea: 0,
@@ -517,8 +518,13 @@ export default {
         purpose: oldCTRT.houseAndBuildingDtos[0].purpose
       };
       // 改变newAssets
-      oldCTRT.houseAndBuildingDtos.map(item => {
+      oldCTRT.houseAndBuildingDtos = oldCTRT.houseAndBuildingDtos.map(item => {
+        item.parkNo = item.parkId;
+        item.buildingNo = item.buildingId;
+        item.houseNo = item.houseId;
+        item.price = item.rent;
         this.addNewAssets(item);
+        return item;
       });
     },
     getPark() {
@@ -542,23 +548,23 @@ export default {
       }
     },
     translatePark(list) {
-      // 将List形式的房源信息转换为Tree形式(按parkId划分building)并返回
+      // 将List形式的房源信息转换为Tree形式(按parkNo划分building)并返回
       let parkInfo = [];
       list.forEach(item => {
         // 将未绑定园区的房源分类
-        if (item.parkId === null) {
-          item.parkId = 0;
+        if (item.parkNo === null) {
+          item.parkNo = 0;
           item.parkName = "无归属楼宇";
         }
-        if (!parkInfo[item.parkId]) {
-          parkInfo[item.parkId] = {
-            parkId: item.parkId,
+        if (!parkInfo[item.parkNo]) {
+          parkInfo[item.parkNo] = {
+            parkNo: item.parkNo,
             parkName: item.parkName,
             building: []
           };
         }
-        parkInfo[item.parkId].building.push({
-          buildingId: item.buildingId,
+        parkInfo[item.parkNo].building.push({
+          buildingNo: item.buildingNo,
           buildingName: item.buildingName
         });
       });
@@ -571,17 +577,17 @@ export default {
       // 将assetsFloorInfo置空
       this.assetsFloorInfo = [];
       // 若楼宇ID改变
-      if (this.newAssets[assetsIndex].buildingId != assetsBuilding.buildingId) {
+      if (this.newAssets[assetsIndex].buildingNo != assetsBuilding.buildingNo) {
         // 改变表单中楼宇信息
         Object.assign(this.newAssets[assetsIndex], this.defaultAssets, {
-          parkId: assetsPark.parkId,
+          parkNo: assetsPark.parkNo,
           parkName: assetsPark.parkName,
-          buildingId: assetsBuilding.buildingId,
+          buildingNo: assetsBuilding.buildingNo,
           buildingName: assetsBuilding.buildingName
         });
       }
     },
-    getHouse(assetsBuildingId) {
+    getHouse(assetsBuildingNo) {
       // 将assetsFloorInfo置空
       this.assetsFloorInfo = [];
       // 若为新建或编辑新建 则获取全部闲置房源
@@ -592,7 +598,7 @@ export default {
         // 请求楼宇下房源列表
         this.$http
           .post("/cms/AssetsInfo/building.json", {
-            buildingId: assetsBuildingId
+            buildingNo: assetsBuildingNo
           })
           .then(res => {
             let resData = res.data.data;
@@ -600,7 +606,7 @@ export default {
             // 转换数据结构为Tree并保存至assetsFloorInfo
             this.assetsFloorInfo = this.translateBuilding(
               resData,
-              assetsBuildingId
+              assetsBuildingNo
             );
           })
           .catch(() => this.addSnackBar("楼宇所含房源信息查询失败", "error"));
@@ -608,15 +614,15 @@ export default {
         // 若为续签或编辑续签 则仅获取原合同房源
         this.assetsFloorInfo = this.translateBuilding(
           this.exCTRT.houseAndBuildingDtos,
-          assetsBuildingId
+          assetsBuildingNo
         );
       }
     },
-    translateBuilding(list, buildingId) {
+    translateBuilding(list, buildingNo) {
       // 将List形式的房源信息转换为Tree形式(按floorNo划分house)并返回
       let floorInfo = [];
       list.forEach(item => {
-        if (item.buildingId == buildingId) {
+        if (item.buildingNo == buildingNo) {
           if (!floorInfo[item.floorNumber]) {
             floorInfo[item.floorNumber] = {
               floorNumber: item.floorNumber,
@@ -624,16 +630,16 @@ export default {
             };
           }
           floorInfo[item.floorNumber].house.push({
-            isAdded: (item => {
+            isAdded: (addItem => {
               let isAdded = false;
               this.newAssets.map(el => {
-                if (item.houseId == el.houseId) {
+                if (addItem.houseNo == el.houseNo) {
                   isAdded = true;
                 }
               });
               return isAdded;
             })(item),
-            houseId: item.houseId,
+            houseNo: item.houseNo,
             doorNumber: item.doorNumber
           });
         }
@@ -646,10 +652,10 @@ export default {
       // 关闭菜单
       newAssetsData.houseMenu = false;
       // 若房源ID改变
-      if (newAssetsData.houseId != assetsHouse.houseId) {
+      if (newAssetsData.houseNo != assetsHouse.houseNo) {
         // 将newAssets的房源信息置空并改变表单中楼宇信息
         Object.assign(newAssetsData, {
-          houseId: assetsHouse.houseId,
+          houseNo: assetsHouse.houseNo,
           floorNumber: assetsFloor.floorNumber,
           doorNumber: assetsHouse.doorNumber,
           buildArea: 0,
@@ -665,12 +671,13 @@ export default {
           // 请求该楼宇下房源信息
           this.$http
             .post("/cms/AssetsInfo/house.json", {
-              houseId: assetsHouse.houseId
+              houseNo: assetsHouse.houseNo
             })
             .then(res => {
               let resData = res.data.data;
               if (resData) {
                 Object.assign(newAssetsData, {
+                  houseId: resData.houseId,
                   buildArea: resData.buildArea,
                   price: resData.price,
                   availableDate: resData.availableDate
@@ -681,9 +688,11 @@ export default {
         } else {
           // 若为续签或编辑续签 则仅获取原合同房源
           let exHouse = this.exCTRT.houseAndBuildingDtos.find(
-            el => (el.houseId = assetsHouse.houseId)
+            item => item.houseNo == assetsHouse.houseNo
           );
           Object.assign(newAssetsData, {
+            houseId: exHouse.houseNo,
+            houseNo: exHouse.houseNo,
             buildArea: exHouse.buildArea,
             price: exHouse.rent,
             availableDate: exHouse.availableDate
