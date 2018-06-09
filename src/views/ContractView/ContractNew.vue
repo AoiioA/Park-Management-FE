@@ -230,8 +230,8 @@
                         <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
                         <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
                         <td v-if="props.item.payDay">{{ props.item.payDay.slice(0, 10) }}</td>
-                        <td>{{ props.item.houseTotal }}元</td>
-                        <td>{{ props.item.propertyFees }}元</td>
+                        <td>{{ props.item.houseTotal.toFixed(2) }}元</td>
+                        <td>{{ props.item.propertyFees.toFixed(2) }}元</td>
                         <!-- </tr> -->
                       </template>
                       <!-- <template slot="expand" slot-scope="props">
@@ -241,7 +241,7 @@
                       </template> -->
                       <template slot="footer" v-if="rentDetail.contractRentDetailDtoList">
                         <td colspan="100%" class="text-xs-right">
-                          <span>租金总计 : {{ rentTotal }}元</span>
+                          <span>租金总计 : {{ rentDetail.contractRentDetailDtoList.map(el=>el.houseTotal).reduce((all, el, i) => parseFloat(all) + parseFloat(el)).toFixed(2) }}元</span>
                           &nbsp;
                           <span>物业费总计 : {{ rentDetail.propertyFeeTotal.toFixed(2) }}元</span>
                         </td>
@@ -425,16 +425,6 @@ export default {
           : `由 ${this.getDay(endD, 1)}开始<br/>至 ${afterD}到期`;
       }
       return "";
-    },
-    rentTotal() {
-      if (this.rentDetail.contractRentDetailDtoList) {
-        let total = 0;
-        this.rentDetail.contractRentDetailDtoList.map(
-          el => (total += parseFloat(el.houseTotal))
-        );
-        return total.toFixed(2);
-      }
-      return 0;
     }
   },
   watch: {
@@ -471,7 +461,7 @@ export default {
           .then(res => {
             this.networkLoading = false;
             this.oldCTRT = res.data.data;
-            if (this.$route.query.newType == "editing") {
+            if (["editing", "failed"].indexOf(this.$route.query.newType) >= 0) {
               this.copyCTRTInfo(this.oldCTRT);
             }
           })
@@ -492,7 +482,7 @@ export default {
           .then(res => {
             this.networkLoading = false;
             this.exCTRT = res.data.data;
-            if (this.$route.query.newType != "editing") {
+            if (["editing", "failed"].indexOf(this.$route.query.newType) < 0) {
               this.copyCTRTInfo(this.exCTRT);
             }
           })
@@ -508,22 +498,18 @@ export default {
     },
     copyCTRTInfo(oldCTRT) {
       // 改变newCTRT
-      Object.assign(
-        this.newCTRT,
-        _.omit(oldCTRT, [
-          "companyId",
-          "intermediatorId",
-          "contractState",
-          "operationType",
-          "contractRentTotalDto",
-          "houseAndBuildingDtos",
-          "signingDate",
-          "startDate",
-          "endDate",
-          "partyB",
-          "createTime"
-        ])
-      );
+      let O_CTRT = _.omit(oldCTRT, [
+        "contractNo",
+        "contractState",
+        "signingDate",
+        "startDate",
+        "endDate"
+      ]);
+      for (let key in O_CTRT) {
+        if (this.newCTRT.hasOwnProperty(key)) {
+          this.newCTRT[key] = oldCTRT[key];
+        }
+      }
       // 改变newCTRTOther
       this.newCTRTOther = {
         increaseType: oldCTRT.houseAndBuildingDtos[0].increaseType,
@@ -538,7 +524,7 @@ export default {
     getPark() {
       // 若为新建或编辑新建 则获取全部闲置房源
       if (
-        ["new", "editing"].indexOf(this.$route.query.newType) >= 0 &&
+        ["new", "editing", "failed"].indexOf(this.$route.query.newType) >= 0 &&
         !this.newCTRT.exContractNo
       ) {
         this.$http
@@ -600,7 +586,7 @@ export default {
       this.assetsFloorInfo = [];
       // 若为新建或编辑新建 则获取全部闲置房源
       if (
-        ["new", "editing"].indexOf(this.$route.query.newType) >= 0 &&
+        ["new", "editing", "failed"].indexOf(this.$route.query.newType) >= 0 &&
         !this.newCTRT.exContractNo
       ) {
         // 请求楼宇下房源列表
@@ -672,7 +658,8 @@ export default {
           availableDate: ""
         });
         if (
-          ["new", "editing"].indexOf(this.$route.query.newType) >= 0 &&
+          ["new", "editing", "failed"].indexOf(this.$route.query.newType) >=
+            0 &&
           !this.newCTRT.exContractNo
         ) {
           // 请求该楼宇下房源信息
@@ -765,7 +752,7 @@ export default {
         }))
       });
       let submitUrl = "addContract";
-      if (this.$route.query.newType == "editing") {
+      if (["editing", "failed"].indexOf(this.$route.query.newType) >= 0) {
         Object.assign(CTRTData, { id: Number(this.$route.query.renewId) });
         submitUrl = "modifyUnSubmit";
       }

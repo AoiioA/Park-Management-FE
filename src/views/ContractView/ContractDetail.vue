@@ -148,7 +148,7 @@
                         </v-list-tile-content>
                         <v-list-tile-action>
                           <v-list-tile-action-text>总面积 : {{ house.buildArea }}m²</v-list-tile-action-text>
-                          <v-list-tile-action-text>月租金 : {{ house.rent }}元</v-list-tile-action-text>
+                          <v-list-tile-action-text>月租金 : {{ house.rent.toFixed(2) }}元</v-list-tile-action-text>
                         </v-list-tile-action>
                       </v-list-tile>
                     </v-list>
@@ -174,8 +174,8 @@
                       <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
                       <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
                       <td v-if="props.item.payDay">{{ props.item.payDay.slice(0, 10) }}</td>
-                      <td>{{ props.item.houseTotal }}元</td>
-                      <td>{{ props.item.propertyFees }}元</td>
+                      <td>{{ props.item.houseTotal.toFixed(2) }}元</td>
+                      <td>{{ props.item.propertyFees.toFixed(2) }}元</td>
                       <!-- </tr> -->
                     </template>
                     <!-- <template slot="expand" slot-scope="props">
@@ -183,11 +183,11 @@
                         <v-card-text>Peek-a-boo!</v-card-text>
                       </v-card>
                     </template> -->
-                    <template slot="footer" v-if="CTRTInfo.contractRentTotalDto.contractRentDetailDtoList">
+                    <template slot="footer">
                       <td colspan="100%" class="text-xs-right">
-                        <span>租金总计 : {{ CTRTInfo.contractRentTotalDto.contractRentDetailDtoList.reduce((all, el, i) => (i == 1 ? all.houseTotal : all) + el.houseTotal).toFixed(2) }}元</span>
+                        <span v-if="CTRTInfo.contractRentTotalDto.contractRentDetailDtoList">租金总计 : {{ CTRTInfo.contractRentTotalDto.contractRentDetailDtoList.map(el=>el.houseTotal).reduce((all, el, i) => parseFloat(all) + parseFloat(el)).toFixed(2) }}元</span>
                         &nbsp;
-                        <span>物业费总计 : {{ CTRTInfo.contractRentTotalDto.propertyFeeTotal }}元</span>
+                        <span>物业费总计 : {{ CTRTInfo.contractRentTotalDto.propertyFeeTotal.toFixed(2) }}元</span>
                       </td>
                     </template>
                   </v-data-table>
