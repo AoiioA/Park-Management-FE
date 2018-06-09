@@ -6,52 +6,133 @@
       <v-layout justify-center align-center>
         <v-flex xs12 lg10>
           <v-subheader class="px-0">
-            {{ `${houseInfo.floorNumber}层 - ${houseInfo.doorNumber}室` }}
-            <small v-if="houseInfo.parkName">{{ `${houseInfo.parkName} - ` }}</small>
-            <small>{{ houseInfo.buildingName }}</small>
+            <h3>
+              {{ `${houseInfo.floorNumber}层 - ${houseInfo.doorNumber}室` }}<br />
+              <small v-if="buildingInfo.parkId">{{ `${buildingInfo.parkName} - ` }}</small>
+              <small>{{ buildingInfo.buildingName }}</small>
+            </h3>
             <v-spacer></v-spacer>
-            <v-btn depressed color="primary">编辑房源信息</v-btn>
+            <v-btn depressed color="primary" class="mx-0">编辑房源信息</v-btn>
           </v-subheader>
         </v-flex>
       </v-layout>
-      <v-layout wrap>
-        <v-flex xs12 md6>
-          <!-- <v-subheader></v-subheader> -->
+      <v-layout justify-center wrap>
+        <v-flex xs12 lg10>
+          <v-layout wrap>
+            <v-flex xs6 sm3>
+              <v-card>
+                <v-container fluid>
+                  <div class="mb-1">房源状态</div>
+                  <p class="subheading text-xs-center">{{ houseInfo.resourceStatus==0?`已闲置${houseInfo.idleDays}天`:houseStatus[houseInfo.resourceStatus] }}</p>
+                </v-container>
+              </v-card>
+            </v-flex>
+            <v-flex xs6 sm3>
+              <v-card>
+                <v-container fluid>
+                  <div class="mb-1">建筑面积</div>
+                  <p class="subheading text-xs-center"><span class="title">{{ houseInfo.buildArea }}</span><span class="caption">m²</span></p>
+                </v-container>
+              </v-card>
+            </v-flex>
+            <v-flex xs6 sm3>
+              <v-card>
+                <v-container fluid>
+                  <div class="mb-1">租金单价</div>
+                  <p class="subheading text-xs-center"><span class="title">{{ houseInfo.price}}</span><span class="caption">{{`${["元/m²·天"][houseInfo.priceUnit]}` }}</span></p>
+                </v-container>
+              </v-card>
+            </v-flex>
+            <v-flex xs6 sm3>
+              <v-card>
+                <v-container fluid>
+                  <div class="mb-1">装修情况</div>
+                  <p class="subheading text-xs-center">{{ decorationInfo[houseInfo.decorationSituation] }}</p>
+                </v-container>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-flex>
+        <v-flex xs12 lg5>
+          <v-subheader>基础信息</v-subheader>
           <v-card>
-            <!-- <v-card-title><h4>{{ houseInfo.doorNumber }}</h4></v-card-title>
+            <!-- <v-card-title></v-card-title>
             <v-divider></v-divider> -->
-            <v-list dense style="height: 208px;overflow: auto;">
+            <v-list dense>
               <v-list-tile>
-                <v-list-tile-content>编号:</v-list-tile-content>
-                <v-list-tile-content class="align-end">{{ houseInfo.contractNo }}</v-list-tile-content>
+                <v-list-tile-content>建筑面积:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ houseInfo.buildArea }}m²</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
-                <v-list-tile-content>签署地址:</v-list-tile-content>
-                <v-list-tile-content class="align-end">{{ houseInfo.address }}</v-list-tile-content>
+                <v-list-tile-content>可容纳人数:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ houseInfo.accommodatingNumber }}人</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
-                <v-list-tile-content>记租前免租:</v-list-tile-content>
-                <v-list-tile-content class="align-end">{{ houseInfo.beforeFree }}天</v-list-tile-content>
+                <v-list-tile-content>房源朝向:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ houseInfo.orientation }}</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
-                <v-list-tile-content>记租后免租:</v-list-tile-content>
-                <v-list-tile-content class="align-end">{{ houseInfo.afterFree }}天</v-list-tile-content>
+                <v-list-tile-content>使用率:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ houseInfo.usageRate }}%</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
-                <v-list-tile-content>押金:</v-list-tile-content>
-                <v-list-tile-content class="align-end">{{ houseInfo.deposit }}元</v-list-tile-content>
+                <v-list-tile-content>装修情况:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ decorationInfo[houseInfo.decorationSituation] }}</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
-                <v-list-tile-content>违约金:</v-list-tile-content>
-                <v-list-tile-content class="align-end">{{ houseInfo.liquidatedDamages }}元</v-list-tile-content>
+                <v-list-tile-content>办公家具:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ `${houseInfo.isOfficeFurniture?'含':'不含'}办公家具` }}</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
-                <v-list-tile-content>租金缴纳间隔:</v-list-tile-content>
-                <v-list-tile-content class="align-end">每{{ houseInfo.month }}个月</v-list-tile-content>
+                <v-list-tile-content>消防手续:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ `${houseInfo.isFireProcedure?'已有':'暂无'}消防手续` }}</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
                 <v-list-tile-content>创建日期:</v-list-tile-content>
                 <v-list-tile-content v-if="houseInfo.createDate" class="align-end">{{ houseInfo.createDate.slice(0, 10) }}</v-list-tile-content>
+              </v-list-tile>
+              <!-- <v-layout>
+                <v-flex><v-checkbox :label="`${houseInfo.isDecoration?'可':'不可'}自行装修`" :input-value="Boolean(houseInfo.isDecoration)" value></v-checkbox></v-flex>
+                <v-flex><v-checkbox :label="`${houseInfo.isOfficeFurniture?'含':'不含'}办公家具`" :input-value="Boolean(houseInfo.isOfficeFurniture)" value></v-checkbox></v-flex>
+                <v-flex><v-checkbox :label="`${houseInfo.isRegister?'已':'暂无'}注册`" :input-value="Boolean(houseInfo.isRegister)" value></v-checkbox></v-flex>
+                <v-flex><v-checkbox :label="`${houseInfo.isFireProcedure?'已有':'暂无'}消防手续`" :input-value="Boolean(houseInfo.isFireProcedure)" value></v-checkbox></v-flex>
+              </v-layout> -->
+            </v-list>
+          </v-card>
+        </v-flex>
+        <v-flex xs12 lg5>
+          <v-subheader>租赁信息</v-subheader>
+          <v-card>
+            <!-- <v-card-title></v-card-title>
+            <v-divider></v-divider> -->
+            <v-list dense>
+              <v-list-tile>
+                <v-list-tile-content>房源类型:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ ["整租", "工位"][houseInfo.houseType] }}</v-list-tile-content>
+              </v-list-tile>
+              <v-list-tile>
+                <v-list-tile-content>房源租价:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ `${houseInfo.price}${["元/m²·天"][houseInfo.priceUnit]}` }}</v-list-tile-content>
+              </v-list-tile>
+              <v-list-tile>
+                <v-list-tile-content>物业费:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ houseInfo.propertyFee }}元/m²·天</v-list-tile-content>
+              </v-list-tile>
+              <v-list-tile>
+                <v-list-tile-content>房源状态:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ houseInfo.resourceStatus==0?`已闲置${houseInfo.idleDays}天`:houseStatus[houseInfo.resourceStatus] }}</v-list-tile-content>
+              </v-list-tile>
+              <v-list-tile>
+                <v-list-tile-content>自行装修:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ `${houseInfo.isDecoration?'可':'不可'}自行装修` }}</v-list-tile-content>
+              </v-list-tile>
+              <v-list-tile>
+                <v-list-tile-content>注册情况:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ `${houseInfo.isRegister?'已':'暂无'}注册` }}</v-list-tile-content>
+              </v-list-tile>
+              <v-list-tile>
+                <v-list-tile-content>备注:</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ houseInfo.remark }}</v-list-tile-content>
               </v-list-tile>
             </v-list>
           </v-card>
@@ -66,6 +147,7 @@ export default {
   data: () => ({
     networkLoading: false,
     networkError: null,
+    houseStatus: ["空置", "预定", "租赁中", "维护", "租赁审核"],
     decorationInfo: ["毛坯", "简装修", "中等装修", "豪华装修", "精装修"],
     houseInfo: {
       // 建筑信息
@@ -90,7 +172,8 @@ export default {
       priceUnit: "",
       propertyFee: "",
       remark: ""
-    }
+    },
+    buildingInfo: {}
   }),
   created() {
     this.initialize();
@@ -104,18 +187,40 @@ export default {
           houseNo: Number(this.$route.params.houseNo)
         })
         .then(res => {
-          this.networkLoading = false;
           let resData = res.data.data;
           this.houseInfo = resData;
-          this.$store.commit(
-            "changeToolBarTitle",
-            `${this.houseInfo.floorNumber}层 - ${this.houseInfo.doorNumber}室`
-          );
+          this.getAssets(this.houseInfo.buildingNo);
+          // this.$store.commit(
+          //   "changeToolBarTitle",
+          //   `${this.houseInfo.floorNumber}层 - ${this.houseInfo.doorNumber}室`
+          // );
         })
         .catch(err => {
           this.networkLoading = false;
           this.networkError = true;
           this.$store.commit("addSnackBar", `房源信息查询失败 ${err}`, "error");
+        });
+    },
+    getAssets(buildingNo) {
+      this.networkLoading = true;
+      this.buildingInfo = {};
+      this.$http
+        .post("/cms/AssetsInfo/park.json")
+        .then(res => {
+          this.networkLoading = false;
+          let resData = res.data.data;
+          this.buildingInfo = resData.find(
+            item => item.buildingNo == buildingNo
+          );
+        })
+        .catch(err => {
+          this.networkLoading = false;
+          this.networkError = true;
+          this.$store.commit(
+            "addSnackBar",
+            `房源所属楼宇查询失败 ${err}`,
+            "error"
+          );
         });
     }
   }

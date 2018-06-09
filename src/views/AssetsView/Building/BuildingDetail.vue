@@ -127,7 +127,7 @@
                   <td>{{ props.item.houseType }}</td>
                   <td>{{ props.item.resourceStatus }}</td>
                   <td class="px-3">
-                    <v-btn icon class="mx-0" :to="{ name: 'house-info-detail', params: { houseNo: props.item.houseNo } }">
+                    <v-btn icon class="mx-0" to="{ name: 'house-info-detail', params: { houseNo: props.item.houseNo } }">
                       <v-icon color="primary">visibility</v-icon>
                     </v-btn>
                   </td>
@@ -241,10 +241,10 @@ export default {
       this.$http
         .all([
           this.$http.post("/cms/buildingInfo/listBuildingInfo.json", {
-            buildingNo: this.$route.params.buildingNo
+            buildingNo: Number(this.$route.params.buildingNo)
           }),
           this.$http.post("/cms/houseInfo/listHouseInfoByFloor.json", {
-            buildingNo: this.$route.params.buildingNo
+            buildingNo: Number(this.$route.params.buildingNo)
           })
         ])
         .then(

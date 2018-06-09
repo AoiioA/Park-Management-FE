@@ -26,41 +26,45 @@
           </v-subheader>
         </v-flex>
       </v-layout>
-      <v-data-iterator
-        :items="houseImageList"
-        :rows-per-page-items="rowsPerPageItems"
-        :pagination.sync="pagination"
-        content-tag="v-layout"
-        row
-        wrap
-      >
-        <v-flex slot="item" slot-scope="props" xs12 sm4 md3 xl2>
-          <v-card flat>
-            <v-card-media
-              :src="`http://122.115.50.65/filesystem/housePhoto/${$route.params.houseNo}/${props.item.photoNewname}`"
-              height="200px"
-            >
-              <v-container fill-height fluid class="image-container">
-                <v-layout column>
-                  <v-flex class="text-xs-right">
-                    <v-tooltip top>
-                      <v-btn slot="activator" :loading="props.item.loading" @click="delFile(props.index)" icon dark class="mx-0 my-0">
-                        <v-icon>cloud_off</v-icon>
-                      </v-btn>
-                      <span>从云端移除</span>
-                    </v-tooltip>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-card-media>
-          </v-card>
+      <v-layout justify-center align-center>
+        <v-flex xs12 lg10>
+          <v-data-iterator
+            :items="houseImageList"
+            :rows-per-page-items="rowsPerPageItems"
+            :pagination.sync="pagination"
+            content-tag="v-layout"
+            row
+            wrap
+          >
+            <v-flex slot="item" slot-scope="props" xs12 sm4 md3 xl2>
+              <v-card flat>
+                <v-card-media
+                  :src="`http://122.115.50.65/filesystem/housePhoto/${$route.params.houseNo}/${props.item.photoNewname}`"
+                  height="200px"
+                >
+                  <v-container fill-height fluid class="image-container">
+                    <v-layout column>
+                      <v-flex class="text-xs-right">
+                        <v-tooltip top>
+                          <v-btn slot="activator" :loading="props.item.loading" @click="delFile(props.index)" icon dark class="mx-0 my-0">
+                            <v-icon>cloud_off</v-icon>
+                          </v-btn>
+                          <span>从云端移除</span>
+                        </v-tooltip>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-card-media>
+              </v-card>
+            </v-flex>
+            <v-flex slot="no-data" class="no-data">
+              <v-progress-circular indeterminate color="primary" v-if="networkLoading"></v-progress-circular>
+              <span v-else-if="networkError">网络出现异常 - 检查网络后刷新重试</span>
+              <span v-else>暂无图片 - <a @click.native="1">点击此处添加</a></span>
+            </v-flex>
+          </v-data-iterator>
         </v-flex>
-        <v-flex slot="no-data" class="no-data">
-          <v-progress-circular indeterminate color="primary" v-if="networkLoading"></v-progress-circular>
-          <span v-else-if="networkError">网络出现异常 - 检查网络后刷新重试</span>
-          <span v-else>暂无图片 - <a @click.native="1">点击此处添加</a></span>
-        </v-flex>
-      </v-data-iterator>
+      </v-layout>
     </v-container>
   </v-jumbotron>
 </template>

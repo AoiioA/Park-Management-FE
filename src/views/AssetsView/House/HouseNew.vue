@@ -59,8 +59,8 @@
                       <v-flex xs12 sm3><v-text-field v-model.number="newHouse.accommodatingNumber" mask="####" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="容纳人数" hint="" persistent-hint box required></v-text-field></v-flex>
                       <v-flex xs6 sm3><v-switch :label="`${newHouse.isDecoration?'可':'不可'}自行装修`" v-model="newHouse.isDecoration" @change="newHouse.isDecoration=Number(newHouse.isDecoration)"></v-switch></v-flex>
                       <v-flex xs6 sm3><v-switch :label="`${newHouse.isOfficeFurniture?'含':'不含'}办公家具`" v-model="newHouse.isOfficeFurniture" @change="newHouse.isOfficeFurniture=Number(newHouse.isOfficeFurniture)"></v-switch></v-flex>
-                      <v-flex xs6 sm3><v-switch :label="`${newHouse.isRegister?'可':'不可'}注册`" v-model="newHouse.isRegister" @change="newHouse.isRegister=Number(newHouse.isRegister)"></v-switch></v-flex>
-                      <v-flex xs6 sm3><v-switch :label="`${newHouse.isFireProcedure?'有':'无'}消防手续`" v-model="newHouse.isFireProcedure" @change="newHouse.isFireProcedure=Number(newHouse.isFireProcedure)"></v-switch></v-flex>
+                      <v-flex xs6 sm3><v-switch :label="`${newHouse.isRegister?'已':'暂无'}注册`" v-model="newHouse.isRegister" @change="newHouse.isRegister=Number(newHouse.isRegister)"></v-switch></v-flex>
+                      <v-flex xs6 sm3><v-switch :label="`${newHouse.isFireProcedure?'已有':'暂无'}消防手续`" v-model="newHouse.isFireProcedure" @change="newHouse.isFireProcedure=Number(newHouse.isFireProcedure)"></v-switch></v-flex>
                     </v-layout>
                     <v-divider class="my-3"></v-divider>
                     <v-subheader>财务信息</v-subheader>
@@ -249,9 +249,9 @@ export default {
       remark: ""
     },
     assetsOfNewHouse: {
-      parkId: "",
+      parkNo: "",
       parkName: "",
-      buildingId: "",
+      buildingNo: "",
       buildingName: ""
     },
     saveHouseNo: null,
@@ -285,19 +285,19 @@ export default {
           // 将List形式的数据转换为Tree形式并存入assetsInfo
           let parkInfo = [];
           resData.forEach(item => {
-            if (item.parkId === null) {
-              item.parkId = 0;
+            if (item.parkNo === null) {
+              item.parkNo = 0;
               item.parkName = "无归属楼宇";
             }
-            if (!parkInfo[item.parkId]) {
-              parkInfo[item.parkId] = {
-                parkId: item.parkId,
+            if (!parkInfo[item.parkNo]) {
+              parkInfo[item.parkNo] = {
+                parkNo: item.parkNo,
                 parkName: item.parkName,
                 building: []
               };
             }
-            parkInfo[item.parkId].building.push({
-              buildingId: item.buildingId,
+            parkInfo[item.parkNo].building.push({
+              buildingNo: item.buildingNo,
               buildingName: item.buildingName
             });
           });
@@ -314,9 +314,9 @@ export default {
       this.assetsFloorInfo = [];
       // 改变表单中楼宇信息
       Object.assign(this.assetsOfNewHouse, {
-        parkId: assetsPark.parkId,
+        parkNo: assetsPark.parkNo,
         parkName: assetsPark.parkName,
-        buildingId: assetsBuilding.buildingId,
+        buildingNo: assetsBuilding.buildingNo,
         buildingName: assetsBuilding.buildingName
       });
     },
@@ -458,7 +458,7 @@ export default {
           .post(
             "/cms/houseInfo/addHouseInfo.json",
             Object.assign(
-              { buildingNo: this.assetsOfNewHouse.buildingId },
+              { buildingNo: this.assetsOfNewHouse.buildingNo },
               this.newHouse
             )
           )
@@ -470,7 +470,7 @@ export default {
             } catch {
               this.$store.commit(
                 "addSnackBar",
-                "获取新建的房源信息失败",
+                `房源新建失败 ${res.data.msg}`,
                 "error"
               );
             }
