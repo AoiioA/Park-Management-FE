@@ -5,6 +5,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    devBaseUrl: "http://122.115.50.65",
     isLogin: false,
     rules: {
       required: val =>
@@ -20,6 +21,14 @@ export default new Vuex.Store({
     },
     snackbar: [],
     toolBarTitle: ""
+  },
+  getters: {
+    getBaseUrl: state => {
+      if (process.env.NODE_ENV == "development") {
+        return state.devBaseUrl;
+      }
+      return "";
+    }
   },
   mutations: {
     addSnackBar(state, text, type) {

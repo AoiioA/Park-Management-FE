@@ -1,6 +1,8 @@
 <template>
   <v-jumbotron height="auto" class="house-image">
-    <v-container grid-list-lg>
+    <v-progress-linear v-if="networkLoading" indeterminate class="my-0"></v-progress-linear>
+    <v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
+    <v-container grid-list-lg v-else>
       <v-layout justify-center align-center>
         <v-flex xs12 lg10>
           <v-subheader class="px-0">
@@ -8,9 +10,9 @@
             <v-spacer></v-spacer>
             <file-upload
               ref="uploadEl"
-              v-model="newFileList"
+              v-model="newImageList"
               :data="{ type: 2, id: $route.params.houseNo }"
-              :post-action="upload.postAction"
+              :post-action="`${$store.getters.getBaseUrl}${upload.postAction}`"
               :accept="upload.accept"
               :extensions="upload.extensions"
               :size="upload.size || 0"
@@ -21,32 +23,29 @@
               @input-filter="inputFilter"
               @input-file="inputFile"
             >
-              <v-btn color="primary" depressed class="mx-0">添加图片</v-btn>
+              <v-btn tag="span" color="primary" depressed class="mx-0" style="cursor: pointer;">
+                <span v-if="!newImageList.length">添加图片</span>
+                <span v-else>更换待传图片</span>
+              </v-btn>
             </file-upload>
           </v-subheader>
         </v-flex>
       </v-layout>
       <v-layout justify-center align-center>
         <v-flex xs12 lg10>
-          <v-data-iterator
-            :items="houseImageList"
-            :rows-per-page-items="rowsPerPageItems"
-            :pagination.sync="pagination"
-            content-tag="v-layout"
-            row
-            wrap
-          >
-            <v-flex slot="item" slot-scope="props" xs12 sm4 md3 xl2>
+          <v-layout wrap>
+            <v-flex v-if="!houseImageList.length" class="no-data">暂无房源图片</v-flex>
+            <v-flex v-for="(imageItem, imageIndex) in houseImageList" :key="imageItem.id" xs12 sm4 md3 xl2>
               <v-card flat>
                 <v-card-media
-                  :src="`http://122.115.50.65/filesystem/housePhoto/${$route.params.houseNo}/${props.item.photoNewname}`"
+                  :src="`${$store.getters.getBaseUrl}/filesystem/housePhoto/${$route.params.houseNo}/${imageItem.photoNewname}`"
                   height="200px"
                 >
                   <v-container fill-height fluid class="image-container">
                     <v-layout column>
                       <v-flex class="text-xs-right">
                         <v-tooltip top>
-                          <v-btn slot="activator" :loading="props.item.loading" @click="delFile(props.index)" icon dark class="mx-0 my-0">
+                          <v-btn slot="activator" :loading="imageItem.loading" @click="delFile(imageIndex)" icon dark class="mx-0 my-0">
                             <v-icon>cloud_off</v-icon>
                           </v-btn>
                           <span>从云端移除</span>
@@ -57,12 +56,44 @@
                 </v-card-media>
               </v-card>
             </v-flex>
-            <v-flex slot="no-data" class="no-data">
-              <v-progress-circular indeterminate color="primary" v-if="networkLoading"></v-progress-circular>
-              <span v-else-if="networkError">网络出现异常 - 检查网络后刷新重试</span>
-              <span v-else>暂无图片 - <a @click.native="1">点击此处添加</a></span>
+            <v-flex v-for="newImageItem in newImageList" :key="newImageItem.id" xs12 sm4 md3 xl2>
+              <v-card flat>
+                <v-card-media
+                  class="white--text"
+                  :src="newImageItem.thumb"
+                  height="200px"
+                >
+                  <v-container fill-height fluid style="background: rgba(128,128,128,.3)">
+                    <v-layout column>
+                      <v-flex class="text-xs-right">
+                        <v-btn
+                          slot="activator"
+                          :disabled="upload.minSize>newImageItem.size||newImageItem.size>upload.size"
+                          :loading="$refs.uploadEl && $refs.uploadEl.active"
+                          @click.prevent="$refs.uploadEl.active = true"
+                          small icon dark
+                          class="mx-0 my-0"
+                        ><v-icon>cloud_queue</v-icon></v-btn>
+                        <v-btn
+                          slot="activator"
+                          :disabled="$refs.uploadEl && $refs.uploadEl.active"
+                          @click.prevent="$refs.uploadEl.remove(newImageItem)"
+                          small icon dark
+                          class="mx-0 my-0"
+                        ><v-icon>close</v-icon></v-btn>
+                      </v-flex>
+                      <v-flex xs12></v-flex>
+                      <v-flex class="caption" style="white-space:normal; word-break:break-all;">
+                        {{newImageItem.name}}<br />{{newImageItem.size | formatSize}}
+                        <small v-if="newImageItem.size>upload.size" class="red--text">(过大)</small>
+                        <small v-if="upload.minSize>newImageItem.size" class="red--text">(过小)</small>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-card-media>
+              </v-card>
             </v-flex>
-          </v-data-iterator>
+          </v-layout>
         </v-flex>
       </v-layout>
     </v-container>
@@ -84,11 +115,10 @@ export default {
     pagination: {
       rowsPerPage: 4
     },
-    newFileList: [],
+    newImageList: [],
     houseImageList: [],
     upload: {
-      postAction:
-        "http://122.115.50.65/cms/housePhotoInfo/uploadTypePhoto.json",
+      postAction: "/cms/housePhotoInfo/uploadTypePhoto.json",
       accept: "image/png,image/gif,image/jpeg,image/webp",
       extensions: /\.(gif|jpe?g|png|webp)$/i,
       size: 1024 * 1024 * 2,
@@ -110,6 +140,7 @@ export default {
   methods: {
     initialize() {
       this.networkLoading = true;
+      this.networkError = null;
       this.houseImageList = [];
       this.$http
         .post("/cms/housePhotoInfo/findFileName.json", {
@@ -219,8 +250,10 @@ export default {
           // console.log("success", newFile.success, newFile.xhr);
           let res = JSON.parse(newFile.xhr.response);
           if (res.code == 0) {
-            this.houseImageList.push(res.data);
             this.$refs.uploadEl.remove(newFile.id);
+            // res.data.photoNewname = res.data.name;
+            // this.houseImageList.push(res.data);
+            this.initialize();
             this.$store.commit("addSnackBar", "图片上传成功", "success");
           } else {
             this.$store.commit(
@@ -244,7 +277,8 @@ export default {
         })
         .then(res => {
           if (res.data.code != 500) {
-            this.houseImageList.splice(index, 1);
+            // this.houseImageList.splice(index, 1);
+            this.initialize();
             this.$store.commit("addSnackBar", "图片删除成功", "success");
           } else {
             this.$store.commit(

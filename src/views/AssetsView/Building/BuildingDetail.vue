@@ -71,7 +71,7 @@
                         </v-list-tile-content>
                       </v-list-tile>
                       <v-list dense>
-                        <v-list-tile href="http://122.115.50.65:8080/cms/houseInfo/downloadTemplate.do">
+                        <v-list-tile :href="`${$store.getters.getBaseUrl}/cms/houseInfo/downloadTemplate.do`">
                         <!-- <v-list-tile @click="downloadExcel"> -->
                           <v-list-tile-title>下载Excel模板</v-list-tile-title>
                         </v-list-tile>
@@ -80,7 +80,7 @@
                           ref="upload"
                           v-model="newFileList"
                           :data="{ buildingId: buildingInfo.buildingId }"
-                          :post-action="upload.postAction"
+                          :post-action="`${$store.getters.getBaseUrl}${upload.postAction}`"
                           :accept="upload.accept"
                           :extensions="upload.extensions"
                           :size="upload.size || 0"
@@ -211,7 +211,7 @@ export default {
     ],
     selected: [],
     upload: {
-      postAction: "http://122.115.50.65:8080/cms/houseInfo/excelImport",
+      postAction: "/cms/houseInfo/excelImport",
       accept: "",
       extensions: /\.(xls?x)$/i,
       size: 1024 * 1024 * 2,
@@ -273,7 +273,7 @@ export default {
         .catch(err => {
           this.networkLoading = false;
           this.networkError = true;
-          this.$store.commit("addSnackBar", `楼宇查询失败${err}`, "error");
+          this.$store.commit("addSnackBar", `楼宇查询失败 ${err}`, "error");
         });
     },
     getOption(floor) {

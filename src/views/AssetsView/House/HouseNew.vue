@@ -1,5 +1,5 @@
 <template>
-<div class="fill-height">
+<div class="fill-height house-new">
     <view-tool-bar>
       <span slot="bar-menu">
         <v-btn icon>
@@ -13,17 +13,19 @@
           <v-flex xs12 md10 lg8>
             <v-stepper v-model="stepNum" vertical class="elevation-0" style="background: #f5f5f5">
               <v-stepper-step :rules="[() => !!formValid]" :complete="stepNum>1" step="1">
-                提交房源信息
-                <!-- <small></small> -->
+                编辑房源信息
+                <small v-if="editHouse.resourceStatus===0">{{ `&nbsp;${assetsOfNewHouse.parkName} ${assetsOfNewHouse.buildingName} ${editHouse.floorNumber}层 ${editHouse.doorNumber}室` }}</small>
               </v-stepper-step>
               <v-stepper-content step="1">
                 <v-form ref="houseForm" v-model="formValid" lazy-validation>
-                  <v-container grid-list-md>
+                  <div class="no-data" v-if="networkLoading.info"><v-progress-circular indeterminate color="primary" class="my-0"></v-progress-circular></div>
+                  <v-alert v-else-if="networkError.info" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
+                  <v-container v-else grid-list-md>
                     <v-subheader>建筑信息</v-subheader>
                     <v-layout row wrap>
                       <v-flex xs12 sm3>
-                        <v-menu v-model="menu.buildingMenu" :close-on-content-click="false" offset-y nudge-top="20">
-                          <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="assetsOfNewHouse.buildingName" label="签约楼宇" :hint="assetsOfNewHouse.parkName" persistent-hint box required readonly></v-text-field>
+                        <v-menu v-model="menu.buildingMenu" :disabled="editHouse.resourceStatus===0" :close-on-content-click="false" offset-y nudge-top="20">
+                          <v-text-field slot="activator" :disabled="editHouse.resourceStatus===0" :rules="[$store.state.rules.required]" :value="assetsOfNewHouse.buildingName" label="签约楼宇" :hint="assetsOfNewHouse.parkName" persistent-hint box required readonly></v-text-field>
                           <v-list style="max-height: 200px; overflow-y: auto;">
                             <v-list-tile v-if="!assetsInfo.length">
                               <v-list-tile-title>暂无房源可以添加</v-list-tile-title>
@@ -93,21 +95,26 @@
                   <v-btn :disabled="!formValid" @click.native="submitHouse()" color="primary" depressed>确认无误并提交</v-btn>
                 </v-form>
               </v-stepper-content>
-              <v-stepper-step :complete="isSubmitHouse" step="2">上传房屋照片</v-stepper-step>
+              <v-stepper-step :complete="isSubmitHouse" step="2">
+                上传房屋照片
+                <small v-if="stepNum==2">{{ `&nbsp;${assetsOfNewHouse.parkName} ${assetsOfNewHouse.buildingName} ${editHouse.floorNumber}层 ${editHouse.doorNumber}室` }}</small>
+              </v-stepper-step>
               <v-stepper-content step="2">
-                <v-container grid-list-xs fluid class="mb-3">
+                <div class="no-data" v-if="networkLoading.image"><v-progress-circular indeterminate color="primary" class="my-0"></v-progress-circular></div>
+                <v-alert v-else-if="networkError.image" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
+                <v-container v-else grid-list-xs fluid class="mb-3">
                   <v-layout row wrap>
-                    <v-flex v-for="(file, fileIndex) in saveFile" :key="file.name" xs12 sm4 md3 xl2>
+                    <v-flex v-for="(imageItem, imageIndex) in houseImageList" :key="imageItem.name" xs12 sm4 md3 xl2>
                       <v-card flat>
                         <v-card-media
-                          :src="`http://122.115.50.65/filesystem/${file.path}`"
+                          :src="`${$store.getters.getBaseUrl}/filesystem/housePhoto/${editHouse.houseNo}/${imageItem.photoNewname}`"
                           height="150px"
                         >
-                          <v-container fill-height fluid>
+                          <v-container fill-height fluid class="image-container">
                             <v-layout column>
                               <v-flex class="text-xs-right">
                                 <v-tooltip top>
-                                  <v-btn slot="activator" :loading="file.loading" @click="delFile(fileIndex)" small icon dark class="mx-0 my-0">
+                                  <v-btn slot="activator" :loading="imageItem.loading" @click="delFile(imageIndex)" small icon dark class="mx-0 my-0">
                                     <v-icon>cloud_off</v-icon>
                                   </v-btn>
                                   <span>从云端移除</span>
@@ -118,7 +125,7 @@
                         </v-card-media>
                       </v-card>
                     </v-flex>
-                    <v-flex v-for="file in newFileList" :key="file.id" xs12 sm4 md3 xl2>
+                    <v-flex v-for="file in newImageList" :key="file.id" xs12 sm4 md3 xl2>
                       <v-card flat>
                         <v-card-media
                           class="white--text"
@@ -159,9 +166,9 @@
                       <v-card flat>
                         <file-upload
                           ref="upload"
-                          v-model="newFileList"
-                          :data="{ type: 2, id: saveHouseNo }"
-                          :post-action="upload.postAction"
+                          v-model="newImageList"
+                          :data="{ type: 2, id: editHouse.houseNo }"
+                          :post-action="`${$store.getters.getBaseUrl}${upload.postAction}`"
                           :accept="upload.accept"
                           :extensions="upload.extensions"
                           :size="upload.size || 0"
@@ -180,7 +187,7 @@
                             class="px-0 py-0 text-xs-center"
                             style="height: 150px;cursor: pointer;"
                           >
-                            <v-layout column justify-center v-if="!newFileList.length">
+                            <v-layout column justify-center v-if="!newImageList.length">
                               <v-flex><v-icon>add</v-icon></v-flex>
                               <v-flex>添加图片</v-flex>
                             </v-layout>
@@ -194,7 +201,7 @@
                     </v-flex>
                   </v-layout>
                 </v-container>
-                <v-btn @click="$router.go(-1)" color="primary" depressed>{{ saveFile.length?"上传完成":"跳过上传"}}</v-btn>
+                <v-btn :to="{ 'name': 'house-info-detail', 'params': { 'houseNo': editHouse.houseNo } }" color="primary" depressed>{{ houseImageList.length?"上传完成":"跳过上传"}}</v-btn>
               </v-stepper-content>
             </v-stepper>
           </v-flex>
@@ -215,8 +222,14 @@ export default {
     ViewToolBar
   },
   data: () => ({
-    networkLoading: false,
-    networkError: null,
+    networkLoading: {
+      info: false,
+      image: false
+    },
+    networkError: {
+      info: null,
+      image: null
+    },
     menu: {
       buildingMenu: false,
       orientation: false,
@@ -226,8 +239,8 @@ export default {
     },
     decorationInfo: ["毛坯", "简装修", "中等装修", "豪华装修", "精装修"],
     stepNum: 1,
-    assetsInfo: [],
     formValid: true,
+    editHouse: {},
     newHouse: {
       // 建筑信息
       floorNumber: "",
@@ -254,11 +267,10 @@ export default {
       buildingNo: "",
       buildingName: ""
     },
-    saveHouseNo: null,
+    assetsInfo: [],
     isSubmitHouse: false,
     upload: {
-      postAction:
-        "http://122.115.50.65/cms/housePhotoInfo/uploadTypePhoto.json",
+      postAction: "/cms/housePhotoInfo/uploadTypePhoto.json",
       accept: "image/png,image/gif,image/jpeg,image/webp",
       extensions: /\.(gif|jpe?g|png|webp)$/i,
       size: 1024 * 1024 * 2,
@@ -268,50 +280,112 @@ export default {
       directory: false,
       dropDirectory: false
     },
-    newFileList: [],
-    saveFile: []
+    newImageList: [],
+    houseImageList: []
   }),
   created() {
     this.$store.commit("changeToolBarTitle", "添加房源");
-    this.getPark();
+    this.initialize();
   },
   methods: {
-    getPark() {
+    initialize() {
+      if (this.$route.query.editHouseNo) {
+        this.getHouse();
+      } else {
+        this.getAssets();
+      }
+    },
+    getAssets() {
       this.$http
         .post("/cms/AssetsInfo/park.json")
         .then(res => {
           let resData = res.data.data;
           resData = resData && resData.length ? resData : [];
-          // 将List形式的数据转换为Tree形式并存入assetsInfo
-          let parkInfo = [];
-          resData.forEach(item => {
-            if (item.parkNo === null) {
-              item.parkNo = 0;
-              item.parkName = "无归属楼宇";
-            }
-            if (!parkInfo[item.parkNo]) {
-              parkInfo[item.parkNo] = {
-                parkNo: item.parkNo,
-                parkName: item.parkName,
-                building: []
-              };
-            }
-            parkInfo[item.parkNo].building.push({
-              buildingNo: item.buildingNo,
-              buildingName: item.buildingName
-            });
-          });
-          this.assetsInfo = parkInfo.filter(el => el);
+          this.assetsInfo = this.translateAssets(resData);
         })
         .catch(() =>
           this.$store.commit("addSnackBar", "楼宇信息查询失败", "error")
         );
     },
+    getHouse() {
+      this.networkLoading.info = true;
+      this.networkError.info = null;
+      this.editHouse = {};
+      this.buildingInfo = {};
+      this.$http
+        .all([
+          this.$http.post("/cms/houseInfo/queryHouseInfoByHouseNo.json", {
+            houseNo: Number(this.$route.query.editHouseNo)
+          }),
+          this.$http.post("/cms/AssetsInfo/park.json")
+        ])
+        .then(
+          this.$http.spread((houseRes, buildingRes) => {
+            this.networkLoading.info = false;
+            if (houseRes.data.code == 500) {
+              this.$store.commit(
+                "addSnackBar",
+                `房源信息查询失败 ${houseRes.data.msg}`,
+                "error"
+              );
+            } else if (buildingRes.data.code == 500) {
+              this.$store.commit(
+                "addSnackBar",
+                `房源所属楼宇查询失败 ${buildingRes.data.msg}`,
+                "error"
+              );
+            } else {
+              this.editHouse = houseRes.data.data;
+              if (this.editHouse.resourceStatus === 0) {
+                this.$store.commit("changeToolBarTitle", "修改房源");
+                for (let key in this.editHouse) {
+                  if (this.newHouse.hasOwnProperty(key)) {
+                    this.newHouse[key] = this.editHouse[key];
+                  }
+                }
+                Object.assign(
+                  this.assetsOfNewHouse,
+                  buildingRes.data.data.find(
+                    item => item.buildingNo == this.editHouse.buildingNo
+                  )
+                );
+              } else {
+                this.getAssets();
+              }
+            }
+          })
+        )
+        .catch(err => {
+          this.networkLoading.info = false;
+          this.networkError.info = true;
+          this.$store.commit("addSnackBar", `房源查询失败 ${err}`, "error");
+        });
+    },
+    translateAssets(assetsData) {
+      // 将List形式的数据转换为Tree形式并存入assetsInfo
+      let parkInfo = [];
+      assetsData.forEach(item => {
+        if (item.parkNo === null) {
+          item.parkNo = 0;
+          item.parkName = "无归属楼宇";
+        }
+        if (!parkInfo[item.parkNo]) {
+          parkInfo[item.parkNo] = {
+            parkNo: item.parkNo,
+            parkName: item.parkName,
+            building: []
+          };
+        }
+        parkInfo[item.parkNo].building.push({
+          buildingNo: item.buildingNo,
+          buildingName: item.buildingName
+        });
+      });
+      return parkInfo.filter(el => el);
+    },
     changeBuilding(assetsPark, assetsBuilding) {
       // 关闭菜单
       this.menu.buildingMenu = false;
-      // 将assetsFloorInfo置空
-      this.assetsFloorInfo = [];
       // 改变表单中楼宇信息
       Object.assign(this.assetsOfNewHouse, {
         parkNo: assetsPark.parkNo,
@@ -319,6 +393,68 @@ export default {
         buildingNo: assetsBuilding.buildingNo,
         buildingName: assetsBuilding.buildingName
       });
+    },
+    submitHouse() {
+      // console.log(this.newHouse);
+      if (this.$refs.houseForm.validate()) {
+        let submitUrl = "/cms/houseInfo/addHouseInfo.json";
+        let submitData = Object.assign(
+          { buildingNo: this.assetsOfNewHouse.buildingNo },
+          this.newHouse
+        );
+        if (this.editHouse.resourceStatus === 0) {
+          submitUrl = "/cms/houseInfo/updateHouseInfoByHouseNo.json";
+          submitData = Object.assign(
+            {
+              houseId: this.editHouse.houseId,
+              houseNo: this.editHouse.houseNo
+            },
+            submitData
+          );
+        }
+        this.$http
+          .post(submitUrl, submitData)
+          .then(res => {
+            if (res.data.code != 500) {
+              if (this.editHouse.resourceStatus !== 0) {
+                Object.assign(this.editHouse, this.newHouse);
+                this.editHouse.houseNo = res.data.data.houseNo;
+              }
+              this.$store.commit("addSnackBar", "房源添加成功", "success");
+              this.stepNum++;
+              this.getHouseImage();
+            } else {
+              this.$store.commit(
+                "addSnackBar",
+                `房源添加失败 ${res.data.msg}`,
+                "error"
+              );
+            }
+          })
+          .catch(err =>
+            this.$store.commit("addSnackBar", `房源添加失败: ${err}`, "error")
+          );
+      }
+    },
+    getHouseImage() {
+      this.networkLoading.image = true;
+      this.networkError.image = null;
+      this.houseImageList = [];
+      this.$http
+        .post("/cms/housePhotoInfo/findFileName.json", {
+          id: this.editHouse.houseNo,
+          type: 2
+        })
+        .then(res => {
+          this.networkLoading.image = false;
+          let resData = res.data.data;
+          this.houseImageList = resData;
+        })
+        .catch(err => {
+          this.networkLoading.image = false;
+          this.networkError.image = true;
+          this.$store.commit("addSnackBar", `房源图片查询失败 ${err}`, "error");
+        });
     },
     inputFilter(newFile, oldFile, prevent) {
       if (newFile && !oldFile) {
@@ -412,8 +548,10 @@ export default {
           // console.log("success", newFile.success, newFile.xhr);
           let res = JSON.parse(newFile.xhr.response);
           if (res.code == 0) {
-            this.saveFile.push(res.data);
             this.$refs.upload.remove(newFile.id);
+            // res.data.photoNewname = res.data.name;
+            // this.houseImageList.push(res.data);
+            this.getHouseImage();
             this.$store.commit("addSnackBar", "图片上传成功", "success");
           } else {
             this.$store.commit(
@@ -432,12 +570,13 @@ export default {
     delFile(index) {
       this.$http
         .post("/cms/housePhotoInfo/deleteAttachment.json", {
-          name: this.saveFile[index].name,
+          name: this.houseImageList[index].photoNewname,
           type: 2
         })
         .then(res => {
           if (res.data.code != 500) {
-            this.saveFile.splice(index, 1);
+            // this.houseImageList.splice(index, 1);
+            this.getHouseImage();
             this.$store.commit("addSnackBar", "图片删除成功", "success");
           } else {
             this.$store.commit(
@@ -450,36 +589,22 @@ export default {
         .catch(err =>
           this.$store.commit("addSnackBar", `图片删除失败: ${err}`, "error")
         );
-    },
-    submitHouse() {
-      // console.log(this.newHouse);
-      if (this.$refs.houseForm.validate()) {
-        this.$http
-          .post(
-            "/cms/houseInfo/addHouseInfo.json",
-            Object.assign(
-              { buildingNo: this.assetsOfNewHouse.buildingNo },
-              this.newHouse
-            )
-          )
-          .then(res => {
-            try {
-              this.saveHouseNo = res.data.data.houseNo;
-              this.$store.commit("addSnackBar", "房源添加成功", "success");
-              this.stepNum++;
-            } catch {
-              this.$store.commit(
-                "addSnackBar",
-                `房源新建失败 ${res.data.msg}`,
-                "error"
-              );
-            }
-          })
-          .catch(err =>
-            this.$store.commit("addSnackBar", `房源添加失败: ${err}`, "error")
-          );
-      }
     }
   }
 };
 </script>
+
+<style lang="stylus" scoped>
+.no-data
+  height 400px
+  line-height 400px
+  text-align center
+
+.house-new
+  .image-container
+    opacity 0
+    background rgba(128, 128, 128, 0.3)
+    transition 0.3s ease
+    &:hover
+      opacity 1
+</style>

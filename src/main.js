@@ -17,7 +17,11 @@ import "echarts/lib/chart/treemap";
 import "echarts/lib/component/tooltip";
 import "echarts/lib/component/title";
 
-axios.defaults.baseURL = "http://122.115.50.65";
+// axios.defaults.baseURL = process.env.BASE_URL;
+if (process.env.NODE_ENV == "development") {
+  axios.defaults.baseURL = "http://122.115.50.65";
+}
+
 Vue.use(VueAxios, axios);
 Vue.use(Vuetify);
 

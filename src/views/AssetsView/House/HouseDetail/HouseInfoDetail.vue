@@ -12,7 +12,17 @@
               <small>{{ buildingInfo.buildingName }}</small>
             </h3>
             <v-spacer></v-spacer>
-            <v-btn depressed color="primary" class="mx-0">编辑房源信息</v-btn>
+            <v-tooltip bottom>
+              <v-btn
+                slot="activator"
+                :disabled="houseInfo.resourceStatus!==0"
+                :to="{ 'name': 'house-new', 'query': { 'editHouseNo': $route.params.houseNo } }"
+                depressed
+                color="primary"
+                class="mx-0"
+              >编辑房源信息</v-btn>
+              <span>空置状态才可编辑</span>
+            </v-tooltip>
           </v-subheader>
         </v-flex>
       </v-layout>
@@ -181,46 +191,44 @@ export default {
   methods: {
     initialize() {
       this.networkLoading = true;
+      this.networkError = null;
       this.houseInfo = {};
-      this.$http
-        .post("/cms/houseInfo/queryHouseInfoByHouseNo.json", {
-          houseNo: Number(this.$route.params.houseNo)
-        })
-        .then(res => {
-          let resData = res.data.data;
-          this.houseInfo = resData;
-          this.getAssets(this.houseInfo.buildingNo);
-          // this.$store.commit(
-          //   "changeToolBarTitle",
-          //   `${this.houseInfo.floorNumber}层 - ${this.houseInfo.doorNumber}室`
-          // );
-        })
-        .catch(err => {
-          this.networkLoading = false;
-          this.networkError = true;
-          this.$store.commit("addSnackBar", `房源信息查询失败 ${err}`, "error");
-        });
-    },
-    getAssets(buildingNo) {
-      this.networkLoading = true;
       this.buildingInfo = {};
       this.$http
-        .post("/cms/AssetsInfo/park.json")
-        .then(res => {
-          this.networkLoading = false;
-          let resData = res.data.data;
-          this.buildingInfo = resData.find(
-            item => item.buildingNo == buildingNo
-          );
-        })
+        .all([
+          this.$http.post("/cms/houseInfo/queryHouseInfoByHouseNo.json", {
+            houseNo: Number(this.$route.params.houseNo)
+          }),
+          this.$http.post("/cms/AssetsInfo/park.json")
+        ])
+        .then(
+          this.$http.spread((houseRes, buildingRes) => {
+            this.networkLoading = false;
+            if (houseRes.data.code == 500) {
+              this.$store.commit(
+                "addSnackBar",
+                `房源信息查询失败 ${houseRes.data.msg}`,
+                "error"
+              );
+            } else if (buildingRes.data.code == 500) {
+              this.$store.commit(
+                "addSnackBar",
+                `房源所属楼宇查询失败 ${buildingRes.data.msg}`,
+                "error"
+              );
+            } else {
+              this.networkLoading = false;
+              this.houseInfo = houseRes.data.data;
+              this.buildingInfo = buildingRes.data.data.find(
+                item => item.buildingNo == this.houseInfo.buildingNo
+              );
+            }
+          })
+        )
         .catch(err => {
           this.networkLoading = false;
           this.networkError = true;
-          this.$store.commit(
-            "addSnackBar",
-            `房源所属楼宇查询失败 ${err}`,
-            "error"
-          );
+          this.$store.commit("addSnackBar", `房源查询失败 ${err}`, "error");
         });
     }
   }
