@@ -1,5 +1,10 @@
+import Point from "@/views/AssetsView/Point/Point.vue";
+import PointList from "@/views/AssetsView/Point/PointList.vue";
+import PointDetail from "@/views/AssetsView/Point/PointDetail.vue";
+
 import Park from "@/views/AssetsView/Park/Park.vue";
 import ParkList from "@/views/AssetsView/Park/ParkList.vue";
+import ParkDetail from "@/views/AssetsView/Park/ParkDetail.vue";
 
 import Building from "@/views/AssetsView/Building/Building.vue";
 import BuildingDetail from "@/views/AssetsView/Building/BuildingDetail.vue";
@@ -14,6 +19,26 @@ import HouseImageDetail from "@/views/AssetsView/House/HouseDetail/HouseImageDet
 
 export default [
   {
+    path: "point",
+    component: Point,
+    children: [
+      {
+        path: "",
+        redirect: { name: "point-list" }
+      },
+      {
+        path: "point-list",
+        name: "point-list",
+        component: PointList
+      },
+      {
+        path: "point-detail/:pointNo",
+        name: "point-detail",
+        component: PointDetail
+      }
+    ]
+  },
+  {
     path: "park",
     component: Park,
     children: [
@@ -25,6 +50,11 @@ export default [
         path: "park-list",
         name: "park-list",
         component: ParkList
+      },
+      {
+        path: "park-detail/:parkNo",
+        name: "park-detail",
+        component: ParkDetail
       }
     ]
   },

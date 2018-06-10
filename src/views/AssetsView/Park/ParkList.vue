@@ -1,18 +1,63 @@
 <template>
-  <div class="park-list" v-resize="onResize">
-    <v-jumbotron color="blue-grey lighten-4" height="auto">
-      <v-container grid-list-xl fill-height>
-        <v-layout align-start align-content-start wrap>
-          <v-flex xs12 sm4 md3 xl2 offset-xl1>
+	<v-jumbotron height="auto">
+		<v-progress-linear v-if="networkLoading" indeterminate class="my-0"></v-progress-linear>
+		<v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
+		<v-container v-else grid-list-lg>
+		<v-layout justify-center align-center>
+			<v-flex xs12 lg10>
+				<v-subheader class="px-0">
+					您的全部园区项目
+					<v-spacer></v-spacer>
+					<v-dialog v-model="menu.newPark" max-width="500px" persistent>
+						<!-- <v-btn slot="activator" color="primary" small depressed>添加园区</v-btn> -->
+						<v-form ref="newParkForm" v-model="newParkValid" lazy-validation>
+							<v-card>
+								<v-card-title>
+									<span class="headline">新园区即将添加</span>
+								</v-card-title>
+								<v-card-text>
+									<v-container grid-list-xs>
+										<v-layout wrap>
+											<v-flex xs12><v-text-field v-model="editedPark.parkName" :rules="[$store.state.rules.required]" label="园区名称" hint="如 : 望京园区" persistent-hint required></v-text-field></v-flex>
+                      <!-- <v-flex xs4><v-select v-model="editedPark.province" :items="select.provinceArr" item-text="parkName" item-value="parkId" :rules="[$store.state.rules.required]" label="省" autocomplete required></v-select></v-flex>
+											<v-flex xs4><v-select v-model="editedPark.city" :items="select.cityArr" item-text="parkName" item-value="parkId" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
+											<v-flex xs4><v-select v-model="editedPark.district" :items="select.districtArr" item-text="parkName" item-value="parkId" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex> -->
+											<v-flex xs4><v-text-field v-model="editedPark.province" :rules="[$store.state.rules.required]" label="省" required></v-text-field></v-flex>
+											<v-flex xs4><v-text-field v-model="editedPark.city" :rules="[$store.state.rules.required]" label="市" required></v-text-field></v-flex>
+											<v-flex xs4><v-text-field v-model="editedPark.district" :rules="[$store.state.rules.required]" label="区县" required></v-text-field></v-flex>
+											<v-flex xs12><v-text-field v-model="editedPark.address" :rules="[$store.state.rules.required]" label="详细地址" required></v-text-field></v-flex>
+											<v-flex xs3><v-text-field v-model="editedPark.floorArea" :rules="[$store.state.rules.nonnegative]" label="占地面积(m²)" type="number"></v-text-field></v-flex>
+											<v-flex xs3><v-text-field v-model="editedPark.constructionArea" :rules="[$store.state.rules.nonnegative]" label="建筑面积(m²)" type="number"></v-text-field></v-flex>
+											<v-flex xs3><v-text-field v-model="editedPark.greeningRate" :rules="[$store.state.rules.nonnegative]" label="绿化率(%)" type="number"></v-text-field></v-flex>
+											<v-flex xs3><v-text-field v-model="editedPark.volumeRate" :rules="[$store.state.rules.nonnegative]" label="容积率(%)" type="number"></v-text-field></v-flex>
+											<v-flex xs12><v-text-field v-model="editedPark.environment" label="环境描述"></v-text-field></v-flex>
+										</v-layout>
+									</v-container>
+									<small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
+								</v-card-text>
+								<v-card-actions>
+									<v-spacer></v-spacer>
+									<v-btn depressed @click="newParkClose(true)">取消操作</v-btn>
+									<v-btn :disabled="!newParkValid" @click="newParkSave" depressed color="primary">确认添加</v-btn>
+								</v-card-actions>
+							</v-card>
+						</v-form>
+					</v-dialog>
+				</v-subheader>
+			</v-flex>
+		</v-layout>
+		<v-layout justify-center wrap>
+			<v-flex xs12 lg10>
+				<v-layout wrap>
+          <v-flex xs12 sm4 md3 xl2>
             <v-card>
               <v-btn
+                @click="menu.newPark=true"
                 tag="v-container"
                 flat
-                block
                 color="primary"
                 class="px-0 py-0 text-xs-center"
-                @click="1"
-                style="height: 168px;cursor: pointer;"
+                style="height: 146px;cursor: pointer;"
               >
                 <v-layout column justify-center>
                   <span><v-icon size="48">add</v-icon></span>
@@ -21,126 +66,141 @@
               </v-btn>
               <v-divider></v-divider>
               <v-btn
+                @click="1"
                 tag="v-container"
                 flat
-                block
                 color="primary"
                 class="px-0"
                 style="height: 53px;cursor: pointer;"
-                @click="1"
               >
                 <v-icon>link</v-icon>
                 了解更多
               </v-btn>
             </v-card>
           </v-flex>
-          <v-flex xs12 sm8 md9 xl8>
-            <v-data-iterator
-              content-tag="v-layout"
-              :column="$vuetify.breakpoint.xs"
-              no-wrap
-              :items="parkInfoList"
-              :rows-per-page-items="['']"
-              :pagination.sync="pagination"
-            >
-              <v-flex
-                slot="item"
-                slot-scope="props"
-                xs12
-                sm6
-                md4
-                xl3
-              >
-                <v-card>
-                  <v-card-title><h4>{{ props.item.parkName }}</h4></v-card-title>
-                  <v-divider></v-divider>
-                  <v-list dense>
-                    <v-list-tile>
-                      <v-list-tile-content>面积(m²):</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ props.item.acreage }}</v-list-tile-content>
-                    </v-list-tile>
-                    <v-list-tile>
-                      <v-list-tile-content>建筑数量:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ props.item.buildingNumber }}</v-list-tile-content>
-                    </v-list-tile>
-                    <v-list-tile>
-                      <v-list-tile-content>地址:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ `${props.item.city} ${props.item.district}` }}</v-list-tile-content>
-                    </v-list-tile>
-                    <v-list-tile>
-                      <v-list-tile-content>环境描述:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ props.item.environment }}</v-list-tile-content>
-                    </v-list-tile>
-                  </v-list>
-                </v-card>
-              </v-flex>
-              <v-flex slot="no-data" style="height: 246px; line-height: 246px;">
-                <v-progress-circular indeterminate color="primary" v-if="networkLoading"></v-progress-circular>
-                <div v-else-if="networkError">网络出现异常 - 检查网络后刷新重试</div>
-                <div v-else>暂无园区记录 - 点击左侧添加</div>
-              </v-flex>
-            </v-data-iterator>
-          </v-flex>
-        </v-layout>
-      </v-container>
-    </v-jumbotron>
-  </div>
+					<v-flex v-if="parkList.length==0" class="no-data">暂无园区记录 - <a @click.native="addSnackBar('假装添加园区成功~', 'success')">点击此处添加</a></v-flex>
+					<v-flex v-for="parkItem in parkList" :key="parkItem.parkNo" xs12 sm4 md3 xl2>
+						<v-card height="200px" :to="{ 'name': 'park-list' }" ripple>
+							<v-container fill-height fluid class="pb-1">
+								<v-layout column>
+									<v-flex class="title"><span>{{ parkItem.parkName }}</span></v-flex>
+									<v-flex xs12></v-flex>
+									<v-flex class="body-1 grey--text">
+										<div class="mb-1">
+											<v-icon small>location_on</v-icon>&nbsp;
+											{{ `${parkItem.province} ${parkItem.city} ${parkItem.district}` }}
+										</div>
+										<div>
+											<v-icon small>access_time</v-icon>&nbsp;
+											创建于 {{ parkItem.createDate.slice(0, 10) }}
+										</div>
+									</v-flex>
+								</v-layout>
+							</v-container>
+						</v-card>
+					</v-flex>
+				</v-layout>
+			</v-flex>
+		</v-layout>
+		</v-container>
+	</v-jumbotron>
 </template>
+
 <script>
 export default {
   data: () => ({
     networkLoading: false,
-    networkError: false,
-    parkInfoList: [],
-    newParkInfo: {
-      parkName: { text: "园区名称", value: "" },
-      acreage: { text: "面积(m²)", value: "" },
-      buildingNumber: { text: "建筑数量", value: "" },
-      fullAddress: { text: "地址", value: "" },
-      environment: { text: "环境描述", value: "" }
+    networkError: null,
+    menu: {
+      newPark: false
     },
-    pagination: {
-      rowsPerPage: 3
+    newParkValid: true,
+    editedPark: {
+      parkName: "",
+      province: "",
+      city: "",
+      district: "",
+      address: "",
+      floorArea: "",
+      constructionArea: "",
+      greeningRate: "",
+      volumeRate: "",
+      environment: ""
     },
-    pageSize: ["xs", "sm", "md", "lg", "xl"]
+    defaultPark: {
+      parkName: "",
+      province: "",
+      city: "",
+      district: "",
+      address: "",
+      floorArea: "",
+      constructionArea: "",
+      greeningRate: "",
+      volumeRate: "",
+      environment: ""
+    },
+    parkList: []
   }),
-  mounted() {
+  created() {
+    this.$store.commit("changeToolBarTitle", "园区概览");
     this.initialize();
   },
   methods: {
-    onResize() {
-      // 判断页面宽度，调整显示个数
-      let num = 1 + this.pageSize.indexOf(this.$vuetify.breakpoint.name);
-      if (num <= 1) {
-        // 不存在或为xs时，显示5个
-        this.pagination.rowsPerPage = 5;
-      } else if (num > 3) {
-        // 出现侧边栏时，数量减一
-        this.pagination.rowsPerPage = num - 1;
-      } else {
-        this.pagination.rowsPerPage = num;
-      }
-    },
     initialize() {
       this.networkLoading = true;
+      this.networkError = null;
       this.$http
-        .post("/cms/parkInfo/list.json")
+        .post("/cms/parkInfo/listParkInfo.json", {})
         .then(res => {
-          let resData = res.data.data;
-          this.parkInfoList = resData && resData.length ? resData : [];
-          // this.parkInfoList.map(el => {
-          //   return Object.assign(el, {
-          //     fullAddress: `${el.province} ${el.city} ${el.district} ${el.address}`
-          //   });
-          // });
           this.networkLoading = false;
+          let resData = res.data.data;
+          this.parkList = resData && resData.length ? resData : [];
         })
-        .catch(() => {
+        .catch(err => {
           this.networkLoading = false;
           this.networkError = true;
+          this.$store.commit("addSnackBar", `园区查询失败${err}`, "error");
         });
+    },
+    newParkClose(isCancel) {
+      if (!isCancel || confirm("取消后内容将不会保存")) {
+        this.editedPark = Object.assign({}, this.defaultPark);
+        this.$refs.newParkForm.reset();
+        this.menu.newPark = false;
+      }
+    },
+    newParkSave() {
+      if (this.$refs.newParkForm.validate()) {
+        this.$http
+          .post("/cms/parkInfo/addParkInfo.json", this.editedPark)
+          .then(res => {
+            if (res.data.code != 500) {
+              this.newParkClose(false);
+              this.$store.commit("addSnackBar", "添加园区成功", "success");
+              this.initialize();
+            } else {
+              this.$store.commit(
+                "addSnackBar",
+                `园区添加失败 ${res.data.msg}`,
+                "success"
+              );
+            }
+          })
+          .catch(err => {
+            this.networkLoading = false;
+            this.networkError = true;
+            this.$store.commit("addSnackBar", `园区添加失败${err}`, "error");
+          });
+      }
     }
   }
 };
 </script>
-<style lang="stylus" scoped></style>
+
+<style lang="stylus" scoped>
+.no-data {
+	height: 400px;
+	line-height: 400px;
+	text-align: center;
+}
+</style>

@@ -104,6 +104,7 @@ export default {
           action: "business",
           title: "资产管理",
           child: [
+            { action: "business", title: "网点管理", url: "/home/point" },
             { action: "business", title: "园区管理", url: "/home/park" },
             { action: "business", title: "楼宇管理", url: "/home/building" },
             { action: "business", title: "房源管理", url: "/home/house" }

@@ -1,5 +1,5 @@
 <template>
-  <div class="fill-height park">
+  <div class="fill-height point">
     <view-tool-bar :barTab="viewToolBarTab">
       <span slot="bar-menu">
         <v-btn icon>
@@ -7,7 +7,7 @@
         </v-btn>
       </span>
     </view-tool-bar>
-    <router-view></router-view>
+    <router-view />
   </div>
 </template>
 
@@ -15,15 +15,15 @@
 import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
+  components: {
+    ViewToolBar
+  },
   data: () => ({
-    // viewToolBarTab: [{ name: "园区概览", to: "park-list" }]
+    // viewToolBarTab: [{ name: "全部网点", to: "point-list" }]
     viewToolBarTab: []
   }),
   created() {
-    this.$store.commit("changeToolBarTitle", "园区概览");
-  },
-  components: {
-    ViewToolBar
+    this.$store.commit("changeToolBarTitle", "网点概览");
   }
 };
 </script>

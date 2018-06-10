@@ -1,0 +1,242 @@
+<template>
+	<v-jumbotron height="auto">
+		<v-progress-linear v-if="networkLoading" indeterminate class="my-0"></v-progress-linear>
+		<v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
+		<v-container v-else grid-list-lg>
+		<v-layout justify-center align-center>
+			<v-flex xs12 lg10>
+				<v-subheader class="px-0">
+					您的全部网点项目
+					<v-spacer></v-spacer>
+					<v-dialog v-model="menu.newPoint" max-width="500px" persistent>
+						<!-- <v-btn slot="activator" color="primary" small depressed>添加网点</v-btn> -->
+						<v-form ref="newPointForm" v-model="newPointValid" lazy-validation>
+							<v-card>
+								<v-card-title>
+									<span class="headline">新网点即将添加</span>
+								</v-card-title>
+								<v-card-text>
+									<v-container grid-list-xs>
+										<v-layout wrap>
+											<v-flex xs12><v-text-field v-model="editedPoint.pointName" :rules="[$store.state.rules.required]" label="网点名称" hint="如 : 望京网点" persistent-hint required></v-text-field></v-flex>
+											<!-- <v-flex xs4><v-select v-model="editedPoint.province" :items="select.provinceArr" item-text="parkName" item-value="parkId" :rules="[$store.state.rules.required]" label="省" autocomplete required></v-select></v-flex>
+											<v-flex xs4><v-select v-model="editedPoint.city" :items="select.cityArr" item-text="parkName" item-value="parkId" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
+											<v-flex xs4><v-select v-model="editedPoint.district" :items="select.districtArr" item-text="parkName" item-value="parkId" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex> -->
+											<v-flex xs4><v-text-field v-model="editedPoint.province" :rules="[$store.state.rules.required]" label="省" autocomplete required></v-text-field></v-flex>
+											<v-flex xs4><v-text-field v-model="editedPoint.city" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-text-field></v-flex>
+											<v-flex xs4><v-text-field v-model="editedPoint.district" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-text-field></v-flex>
+											<v-flex xs12><v-select :disabled="!select.parkArr.length" v-model="editedPoint.parkNos" :items="select.parkArr" item-text="parkName" item-value="parkNo" label="所含园区" no-data-text="暂无可添加的园区" hint="园区及楼宇可稍后重新选择或修改" persistent-hint multiple autocomplete></v-select></v-flex>
+											<v-flex xs12><v-select :disabled="!select.buildingArr.length" v-model="editedPoint.buildingNos" :items="select.buildingArr" item-text="buildingName" item-value="buildingNo" label="所含楼宇" no-data-text="暂无可添加的楼宇" hint="仅可选择未划分园区的楼宇" persistent-hint multiple autocomplete></v-select></v-flex>
+										</v-layout>
+									</v-container>
+									<small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
+								</v-card-text>
+								<v-card-actions>
+									<v-spacer></v-spacer>
+									<v-btn depressed @click="newPointClose(true)">取消操作</v-btn>
+									<v-btn :disabled="!newPointValid" @click="newPointSave" depressed color="primary">确认添加</v-btn>
+								</v-card-actions>
+							</v-card>
+						</v-form>
+					</v-dialog>
+				</v-subheader>
+			</v-flex>
+		</v-layout>
+		<v-layout justify-center wrap>
+			<v-flex xs12 lg10>
+				<v-layout wrap>
+          <v-flex xs12 sm4 md3 xl2>
+            <v-card>
+              <v-btn
+                @click="menu.newPoint=true"
+                tag="v-container"
+                flat
+                color="primary"
+                class="px-0 py-0 text-xs-center"
+                style="height: 146px;cursor: pointer;"
+              >
+                <v-layout column justify-center>
+                  <span><v-icon size="48">add</v-icon></span>
+                  <span>添加网点</span>
+                </v-layout>
+              </v-btn>
+              <v-divider></v-divider>
+              <v-btn
+                @click="1"
+                tag="v-container"
+                flat
+                color="primary"
+                class="px-0"
+                style="height: 53px;cursor: pointer;"
+              >
+                <v-icon>link</v-icon>
+                了解更多
+              </v-btn>
+            </v-card>
+          </v-flex>
+					<v-flex v-if="pointList.length==0" class="no-data">暂无网点记录 - <a @click.native="addSnackBar('假装添加网点成功~', 'success')">点击此处添加</a></v-flex>
+					<v-flex v-for="pointItem in pointList" :key="pointItem.pointNo" xs12 sm4 md3 xl2>
+						<v-card height="200px" :to="{ 'name': 'park-list' }" ripple>
+							<v-container fill-height fluid class="pb-1">
+								<v-layout column>
+									<v-flex class="title"><span>{{ pointItem.pointName }}</span></v-flex>
+									<v-flex xs12></v-flex>
+									<v-flex class="body-1 grey--text">
+										<div class="mb-1">
+											<v-icon small>business</v-icon>&nbsp;
+											{{ `${pointItem.parkNos.split(',').length} 块园区 ${pointItem.buildingNos.split(',').length} 栋楼宇` }}
+										</div>
+										<div class="mb-1">
+											<v-icon small>location_on</v-icon>&nbsp;
+											{{ `${pointItem.province} ${pointItem.city} ${pointItem.district}` }}
+										</div>
+										<div>
+											<v-icon small>access_time</v-icon>&nbsp;
+											创建于 {{ pointItem.createDate.slice(0, 10) }}
+										</div>
+									</v-flex>
+								</v-layout>
+							</v-container>
+						</v-card>
+					</v-flex>
+				</v-layout>
+			</v-flex>
+		</v-layout>
+		</v-container>
+	</v-jumbotron>
+</template>
+
+<script>
+export default {
+  data: () => ({
+    networkLoading: false,
+    networkError: null,
+    menu: {
+      newPoint: false
+    },
+    newPointValid: true,
+    editedPoint: {
+      pointName: "",
+      province: "",
+      city: "",
+      district: "",
+      parkNos: [],
+      buildingNos: []
+    },
+    defaultPoint: {
+      pointName: "",
+      province: "",
+      city: "",
+      district: "",
+      parkNos: [],
+      buildingNos: []
+    },
+    select: {
+      provinceArr: [],
+      cityArr: [],
+      district: [],
+      parkArr: [],
+      buildingArr: []
+    },
+    pointList: []
+  }),
+  created() {
+    this.$store.commit("changeToolBarTitle", "网点概览");
+    this.initialize();
+    this.getAssets();
+  },
+  methods: {
+    initialize() {
+      this.networkLoading = true;
+      this.networkError = null;
+      this.$http
+        .post("/cms/pointInfo/listPointInfo.json", {})
+        .then(res => {
+          this.networkLoading = false;
+          let resData = res.data.data;
+          this.pointList = resData && resData.length ? resData : [];
+        })
+        .catch(err => {
+          this.networkLoading = false;
+          this.networkError = true;
+          this.$store.commit("addSnackBar", `网点查询失败${err}`, "error");
+        });
+    },
+    getAssets() {
+      this.$http
+        .post("/cms/AssetsInfo/park.json")
+        .then(res => {
+          let resData = res.data.data;
+          resData = resData && resData.length ? resData : [];
+
+          let parkInfo = [];
+          resData.map(item => {
+            if (item.parkNo === null) {
+              this.select.buildingArr.push({
+                buildingNo: item.buildingNo,
+                buildingName: item.buildingName
+              });
+            } else {
+              if (!parkInfo[item.parkNo]) {
+                parkInfo[item.parkNo] = {
+                  parkNo: item.parkNo,
+                  parkName: item.parkName
+                };
+              }
+            }
+          });
+          this.select.parkArr = parkInfo.filter(el => el);
+        })
+        .catch(err =>
+          this.$store.commit("addSnackBar", `楼宇信息查询失败 ${err}`, "error")
+        );
+    },
+    newPointClose(isCancel) {
+      if (!isCancel || confirm("取消后内容将不会保存")) {
+        this.editedPoint = Object.assign({}, this.defaultPoint);
+        this.$refs.newPointForm.reset();
+        this.menu.newPoint = false;
+      }
+    },
+    newPointSave() {
+      if (this.$refs.newPointForm.validate()) {
+        this.$http
+          .post("/cms/pointInfo/addPointInfo.json", {
+            pointName: this.editedPoint.pointName,
+            province: this.editedPoint.province,
+            city: this.editedPoint.city,
+            district: this.editedPoint.district,
+            parkNos: String(this.editedPoint.parkNos),
+            buildingNos: String(this.editedPoint.buildingNos)
+          })
+          .then(res => {
+            if (res.data.code != 500) {
+              this.newPointClose(false);
+              this.$store.commit("addSnackBar", "添加网点成功", "success");
+              this.initialize();
+            } else {
+              this.$store.commit(
+                "addSnackBar",
+                `网点添加失败 ${res.data.msg}`,
+                "success"
+              );
+            }
+          })
+          .catch(err => {
+            this.networkLoading = false;
+            this.networkError = true;
+            this.$store.commit("addSnackBar", `网点添加失败${err}`, "error");
+          });
+      }
+    }
+  }
+};
+</script>
+
+<style lang="stylus" scoped>
+.no-data {
+	height: 400px;
+	line-height: 400px;
+	text-align: center;
+}
+</style>

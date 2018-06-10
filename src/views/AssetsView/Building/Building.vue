@@ -53,7 +53,7 @@
     </view-tool-bar>
     <v-progress-linear v-if="loading" :size="48" indeterminate class="my-0"></v-progress-linear>
     <v-alert v-else-if="error" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
-    <div v-else-if="viewToolBarTab.length==0" class="no-data">暂无楼宇记录 - <a @click.native="addSnackBar('假装添加楼宇成功~', 'success')">点击此处添加</a></div>
+    <div v-else-if="viewToolBarTab.length==0" class="no-data">暂无楼宇记录 - <a @click.native="$store.commit('addSnackBar', '假装添加楼宇成功~', 'success')">点击此处添加</a></div>
     <router-view v-else></router-view>
   </div>
 </template>
@@ -137,7 +137,7 @@ export default {
     newBuildingSave() {
       if (this.$refs.newBuildingForm.validate()) {
         this.newBuildingClose(false);
-        this.addSnackBar("假装添加楼宇成功~", "success");
+        this.$store.commit("addSnackBar", "假装添加楼宇成功~", "success");
       }
     },
     addSnackBar(text, type) {
