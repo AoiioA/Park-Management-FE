@@ -148,7 +148,7 @@
                         </v-list-tile-content>
                         <v-list-tile-action>
                           <v-list-tile-action-text>总面积 : {{ house.buildArea }}m²</v-list-tile-action-text>
-                          <v-list-tile-action-text>月租金 : {{ house.rent.toFixed(2) }}元</v-list-tile-action-text>
+                          <v-list-tile-action-text>租金 : {{ house.rent.toFixed(2) }}元/m²·天</v-list-tile-action-text>
                         </v-list-tile-action>
                       </v-list-tile>
                     </v-list>

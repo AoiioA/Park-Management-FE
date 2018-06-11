@@ -153,13 +153,13 @@
                     <v-flex xs12 sm3>
                       <v-menu :close-on-content-click="false" v-model="menu.signingDate" offset-y lazy>
                         <v-text-field slot="activator" v-model="newCTRT.signingDate" :rules="[$store.state.rules.required]" label="签订日期" hint="" persistent-hint box required readonly></v-text-field>
-                        <v-date-picker v-model="newCTRT.signingDate" :min="minSigningDate" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.signingDate = false"></v-date-picker>
+                        <v-date-picker v-model="newCTRT.signingDate" :min="minSigningDate" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.signingDate = false;newCTRT.startDate='';newCTRT.endDate=''"></v-date-picker>
                       </v-menu>
                     </v-flex>
                     <v-flex xs12 sm3>
                       <v-menu :close-on-content-click="false" v-model="menu.startDate" :disabled="!newCTRT.signingDate" offset-y lazy>
                         <v-text-field slot="activator" v-model="newCTRT.startDate" :rules="[$store.state.rules.required]" :disabled="!newCTRT.signingDate" label="记租开始日期" hint="" persistent-hint box required readonly></v-text-field>
-                        <v-date-picker v-model="newCTRT.startDate" :min="minStartDate" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.startDate = false"></v-date-picker>
+                        <v-date-picker v-model="newCTRT.startDate" :min="minStartDate" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.startDate = false;newCTRT.endDate=''"></v-date-picker>
                       </v-menu>
                     </v-flex>
                     <v-flex xs12 sm3>
@@ -198,7 +198,7 @@
                         </v-list>
                       </v-menu>
                     </v-flex>
-                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.propertyFee" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="物业费(元/天·m²)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.propertyFee" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="物业费(元/m²·天)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
                 <v-btn @click.native="nextStep($refs.dateForm);getRentDetail()" color="primary" depressed>继续核对信息</v-btn>
@@ -428,12 +428,6 @@ export default {
       return "";
     }
   },
-  watch: {
-    "newCTRT.signingDate"() {
-      this.newCTRT.startDate = "";
-      this.newCTRT.endDate = "";
-    }
-  },
   created() {
     this.$store.commit("changeToolBarTitle", "添加合同");
     this.initialize();
@@ -499,16 +493,23 @@ export default {
     },
     copyCTRTInfo(oldCTRT) {
       // 改变newCTRT
-      let O_CTRT = _.omit(oldCTRT, [
-        "contractNo",
-        "contractState",
-        "signingDate",
-        "startDate",
-        "endDate"
-      ]);
-      for (let key in O_CTRT) {
+      let uselessKeys = []; // 续签时不需要的字段
+      if (["new", "editing", "failed"].indexOf(this.$route.query.newType) < 0) {
+        uselessKeys = [
+          "contractNo",
+          "contractState",
+          "signingDate",
+          "startDate",
+          "endDate"
+        ];
+      }
+      for (let key in _.omit(oldCTRT, uselessKeys)) {
         if (this.newCTRT.hasOwnProperty(key)) {
-          this.newCTRT[key] = oldCTRT[key];
+          if (["signingDate", "startDate", "endDate"].indexOf(key) >= 0) {
+            this.newCTRT[key] = oldCTRT[key].slice(0, 10);
+          } else {
+            this.newCTRT[key] = oldCTRT[key];
+          }
         }
       }
       // 改变newCTRTOther
