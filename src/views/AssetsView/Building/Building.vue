@@ -2,7 +2,7 @@
   <div class="fill-height building">
     <view-tool-bar :barTab="viewToolBarTab">
       <span slot="bar-menu">
-        <v-dialog v-model="newBuildingDialog" max-width="300px" persistent>
+        <v-dialog v-model="newBuildingDialog" max-width="500px" persistent>
           <v-btn flat slot="activator">添加楼宇</v-btn>
           <v-form ref="newBuildingForm" v-model="newBuildingValid" lazy-validation>
             <v-card>
@@ -12,28 +12,16 @@
               <v-card-text>
                 <v-container grid-list-xs>
                   <v-layout wrap>
-                    <v-flex xs12>
-                      <v-text-field
-                        v-model="editedBuilding.buildingName"
-                        :rules="[$store.state.rules.required]"
-                        label="楼宇名称"
-                        hint="如 : 望京SOHO"
-                        persistent-hint
-                        required
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-select
-                        v-model="editedBuilding.parkId"
-                        :items="parkArr"
-                        item-text="parkName"
-                        item-value="parkId"
-                        label="所属园区"
-                        hint="您可以在稍后选择或修改"
-                        persistent-hint
-                        autocomplete
-                      ></v-select>
-                    </v-flex>
+                    <v-flex xs4><v-text-field v-model="editedBuilding.buildingName" :rules="[$store.state.rules.required]" label="楼宇名称" hint="如 : 望京SOHO A座" persistent-hint required></v-text-field></v-flex>
+        						<v-flex xs4><v-text-field v-model="editedBuilding.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number"></v-text-field></v-flex>
+                    <v-flex xs4><v-select v-model="editedBuilding.parkNo" :items="parkArr" item-text="parkName" item-value="parkNo" label="所属园区" hint="您可以在稍后选择或修改" persistent-hint autocomplete></v-select></v-flex>
+                    <!-- <v-flex xs4><v-select v-model="editedBuilding.province" :items="select.provinceArr" item-text="parkName" item-value="parkId" :rules="[$store.state.rules.required]" label="省" autocomplete required></v-select></v-flex>
+                    <v-flex xs4><v-select v-model="editedBuilding.city" :items="select.cityArr" item-text="parkName" item-value="parkId" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
+                    <v-flex xs4><v-select v-model="editedBuilding.district" :items="select.districtArr" item-text="parkName" item-value="parkId" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex> -->
+                    <v-flex xs4><v-text-field v-model="editedBuilding.province" :rules="[$store.state.rules.required]" label="省" required></v-text-field></v-flex>
+                    <v-flex xs4><v-text-field v-model="editedBuilding.city" :rules="[$store.state.rules.required]" label="市" required></v-text-field></v-flex>
+                    <v-flex xs4><v-text-field v-model="editedBuilding.district" :rules="[$store.state.rules.required]" label="区县" required></v-text-field></v-flex>
+                    <v-flex xs12><v-text-field v-model="editedBuilding.address" :rules="[$store.state.rules.required]" label="详细地址" required></v-text-field></v-flex>
                   </v-layout>
                 </v-container>
                 <small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
@@ -73,11 +61,21 @@ export default {
     newBuildingValid: true,
     editedBuilding: {
       buildingName: "",
-      park: ""
+      parkNo: "",
+      constructionArea: "",
+      province: "",
+      city: "",
+      district: "",
+      address: ""
     },
     defaultBuilding: {
       buildingName: "",
-      parkId: ""
+      parkNo: "",
+      constructionArea: "",
+      province: "",
+      city: "",
+      district: "",
+      address: ""
     },
     parkArr: [
       { parkName: "Reading", parkId: "Read" },
@@ -127,6 +125,7 @@ export default {
           this.$store.commit("addSnackBar", `楼宇查询失败${err}`, "error");
         });
     },
+    getAssets() {},
     newBuildingClose(isCancel) {
       if (!isCancel || confirm("取消后内容将不会保存")) {
         this.editedBuilding = Object.assign({}, this.defaultBuilding);

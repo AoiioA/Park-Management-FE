@@ -124,8 +124,10 @@
                   <td>{{ props.item.floorNumber }}</td>
                   <td>{{ props.item.doorNumber }}</td>
                   <td>{{ props.item.buildArea }}</td>
-                  <td>{{ props.item.houseType }}</td>
+                  <td>{{ props.item.decorationSituation }}</td>
+                  <!-- <td>{{ props.item.houseType }}</td> -->
                   <td>{{ props.item.resourceStatus }}</td>
+                  <td>{{ props.item.idleDays }}</td>
                   <td class="px-3">
                     <v-btn icon class="mx-0" to="{ name: 'house-info-detail', params: { houseNo: props.item.houseNo } }">
                       <v-icon color="primary">visibility</v-icon>
@@ -190,13 +192,14 @@ export default {
       }
     ],
     houseType: ["整租", "工位"],
-    houseStatus: [
+    resourceStatus: [
       "空置房源",
-      "预定房源",
       "租赁中房源",
+      "预定房源",
       "维护房源",
       "租赁审核房源"
     ],
+    decorationSituation: ["毛坯", "简装修", "中等装修", "豪华装修", "精装修"],
     pagination: {
       rowsPerPage: 3
     },
@@ -204,9 +207,11 @@ export default {
     headers: [
       { text: "楼层", value: "floorNumber" },
       { text: "门牌号", value: "doorNumber" },
-      { text: "建筑面积(m²)", value: "buildArea" },
-      { text: "房源类型", value: "houseType" },
+      { text: "建筑面积", value: "buildArea" },
+      { text: "装修情况", value: "decorationSituation" },
+      // { text: "房源类型", value: "houseType" },
       { text: "房源状态", value: "resourceStatus" },
+      { text: "空置天数", value: "idleDays" },
       { text: "操作", value: "houseNo", sortable: false }
     ],
     selected: [],
@@ -277,7 +282,7 @@ export default {
         });
     },
     getOption(floor) {
-      let floorData = this.houseStatus.map((status, i) => ({
+      let floorData = this.resourceStatus.map((status, i) => ({
         name: status,
         value: [0, i],
         children: []
@@ -396,9 +401,13 @@ export default {
             houseNo: house.houseNo,
             floorNumber: `${floor.floorNo}层`,
             doorNumber: `${house.doorNumber}室`,
-            buildArea: `${house.buildArea}`,
+            buildArea: `${house.buildArea}m²`,
+            decorationSituation: this.decorationSituation[
+              house.decorationSituation
+            ],
             houseType: this.houseType[house.houseType],
-            resourceStatus: this.houseStatus[house.resourceStatus]
+            resourceStatus: this.resourceStatus[house.resourceStatus],
+            idleDays: `${house.idleDays}天`
           })
         );
       });

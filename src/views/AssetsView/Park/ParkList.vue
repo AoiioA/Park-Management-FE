@@ -26,8 +26,8 @@
 											<v-flex xs4><v-text-field v-model="editedPark.city" :rules="[$store.state.rules.required]" label="市" required></v-text-field></v-flex>
 											<v-flex xs4><v-text-field v-model="editedPark.district" :rules="[$store.state.rules.required]" label="区县" required></v-text-field></v-flex>
 											<v-flex xs12><v-text-field v-model="editedPark.address" :rules="[$store.state.rules.required]" label="详细地址" required></v-text-field></v-flex>
-											<v-flex xs3><v-text-field v-model="editedPark.floorArea" :rules="[$store.state.rules.nonnegative]" label="占地面积(m²)" type="number"></v-text-field></v-flex>
-											<v-flex xs3><v-text-field v-model="editedPark.constructionArea" :rules="[$store.state.rules.nonnegative]" label="建筑面积(m²)" type="number"></v-text-field></v-flex>
+											<v-flex xs3><v-text-field v-model="editedPark.floorArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="占地面积(m²)" type="number"></v-text-field></v-flex>
+											<v-flex xs3><v-text-field v-model="editedPark.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number"></v-text-field></v-flex>
 											<v-flex xs3><v-text-field v-model="editedPark.greeningRate" :rules="[$store.state.rules.nonnegative]" label="绿化率(%)" type="number"></v-text-field></v-flex>
 											<v-flex xs3><v-text-field v-model="editedPark.volumeRate" :rules="[$store.state.rules.nonnegative]" label="容积率(%)" type="number"></v-text-field></v-flex>
 											<v-flex xs12><v-text-field v-model="editedPark.environment" label="环境描述"></v-text-field></v-flex>

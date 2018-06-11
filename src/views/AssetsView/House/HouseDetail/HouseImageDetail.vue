@@ -34,7 +34,7 @@
       <v-layout justify-center align-center>
         <v-flex xs12 lg10>
           <v-layout wrap>
-            <v-flex v-if="!houseImageList.length" class="no-data">暂无房源图片</v-flex>
+            <v-flex v-if="!houseImageList.length&&!newImageList.length" class="no-data">暂无房源图片</v-flex>
             <v-flex v-for="(imageItem, imageIndex) in houseImageList" :key="imageItem.id" xs12 sm4 md3 xl2>
               <v-card flat>
                 <v-card-media

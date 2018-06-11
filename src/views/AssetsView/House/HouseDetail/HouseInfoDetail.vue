@@ -65,7 +65,7 @@
         </v-flex>
         <v-flex xs12 lg5>
           <v-subheader>基础信息</v-subheader>
-          <v-card>
+          <v-card height="328px">
             <!-- <v-card-title></v-card-title>
             <v-divider></v-divider> -->
             <v-list dense>
@@ -112,7 +112,7 @@
         </v-flex>
         <v-flex xs12 lg5>
           <v-subheader>租赁信息</v-subheader>
-          <v-card>
+          <v-card height="328px">
             <!-- <v-card-title></v-card-title>
             <v-divider></v-divider> -->
             <v-list dense>
@@ -157,7 +157,7 @@ export default {
   data: () => ({
     networkLoading: false,
     networkError: null,
-    houseStatus: ["空置", "预定", "租赁中", "维护", "租赁审核"],
+    houseStatus: ["空置", "租赁中", "预定", "维护", "租赁审核"],
     decorationInfo: ["毛坯", "简装修", "中等装修", "豪华装修", "精装修"],
     houseInfo: {
       // 建筑信息
