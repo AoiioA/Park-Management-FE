@@ -7,11 +7,11 @@
         </v-btn>
       </span>
     </view-tool-bar>
-    <v-jumbotron color="grey lighten-4" height="auto">
+    <v-jumbotron color="blue-grey lighten-5" height="auto">
       <v-container class="px-4 py-4">
         <v-layout align-start align-content-start justify-center wrap>
           <v-flex xs12 md10 lg8>
-            <v-stepper v-model="stepNum" vertical class="elevation-0" style="background: #f5f5f5">
+            <v-stepper v-model="stepNum" vertical class="elevation-0" style="background: #eceff1">
               <v-stepper-step :rules="[() => !!formValid]" :complete="stepNum>1" step="1">
                 编辑房源信息
                 <small v-if="editHouse.resourceStatus===0">{{ `&nbsp;${assetsOfNewHouse.parkName} ${assetsOfNewHouse.buildingName} ${editHouse.floorNumber}层 ${editHouse.doorNumber}室` }}</small>

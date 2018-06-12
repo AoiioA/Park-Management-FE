@@ -19,12 +19,9 @@
 									<v-container grid-list-xs>
 										<v-layout wrap>
 											<v-flex xs12><v-text-field v-model="editedPark.parkName" :rules="[$store.state.rules.required]" label="园区名称" hint="如 : 望京园区" persistent-hint required></v-text-field></v-flex>
-                      <!-- <v-flex xs4><v-select v-model="editedPark.province" :items="select.provinceArr" item-text="parkName" item-value="parkId" :rules="[$store.state.rules.required]" label="省" autocomplete required></v-select></v-flex>
-											<v-flex xs4><v-select v-model="editedPark.city" :items="select.cityArr" item-text="parkName" item-value="parkId" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
-											<v-flex xs4><v-select v-model="editedPark.district" :items="select.districtArr" item-text="parkName" item-value="parkId" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex> -->
-											<v-flex xs4><v-text-field v-model="editedPark.province" :rules="[$store.state.rules.required]" label="省" required></v-text-field></v-flex>
-											<v-flex xs4><v-text-field v-model="editedPark.city" :rules="[$store.state.rules.required]" label="市" required></v-text-field></v-flex>
-											<v-flex xs4><v-text-field v-model="editedPark.district" :rules="[$store.state.rules.required]" label="区县" required></v-text-field></v-flex>
+                      <v-flex xs4><v-select @change="getCity" v-model="editedPark.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" hint="创建后省市区县不可修改" persistent-hint autocomplete required></v-select></v-flex>
+                      <v-flex xs4><v-select :disabled="!editedPark.province" @change="getDistrict" v-model="editedPark.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
+                      <v-flex xs4><v-select :disabled="!editedPark.city" v-model="editedPark.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex>
 											<v-flex xs12><v-text-field v-model="editedPark.address" :rules="[$store.state.rules.required]" label="详细地址" required></v-text-field></v-flex>
 											<v-flex xs3><v-text-field v-model="editedPark.floorArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="占地面积(m²)" type="number"></v-text-field></v-flex>
 											<v-flex xs3><v-text-field v-model="editedPark.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number"></v-text-field></v-flex>
@@ -52,7 +49,7 @@
           <v-flex xs12 sm4 md3 xl2>
             <v-card>
               <v-btn
-                @click="menu.newPark=true"
+                @click="menu.newPark=true;getProvince();"
                 tag="v-container"
                 flat
                 color="primary"
@@ -80,7 +77,7 @@
           </v-flex>
 					<v-flex v-if="parkList.length==0" class="no-data">暂无园区记录 - <a @click.native="addSnackBar('假装添加园区成功~', 'success')">点击此处添加</a></v-flex>
 					<v-flex v-for="parkItem in parkList" :key="parkItem.parkNo" xs12 sm4 md3 xl2>
-						<v-card height="200px" :to="{ 'name': 'park-list' }" ripple>
+						<v-card height="200px" :to="{ name: 'park-detail', params: { parkNo: parkItem.parkNo }, query: { parkId: parkItem.parkId } }" ripple>
 							<v-container fill-height fluid class="pb-1">
 								<v-layout column>
 									<v-flex class="title"><span>{{ parkItem.parkName }}</span></v-flex>
@@ -88,7 +85,7 @@
 									<v-flex class="body-1 grey--text">
 										<div class="mb-1">
 											<v-icon small>location_on</v-icon>&nbsp;
-											{{ `${parkItem.province} ${parkItem.city} ${parkItem.district}` }}
+											{{ `${parkItem.city} ${parkItem.district}` }}
 										</div>
 										<div>
 											<v-icon small>access_time</v-icon>&nbsp;
@@ -113,6 +110,11 @@ export default {
     networkError: null,
     menu: {
       newPark: false
+    },
+    select: {
+      provinceInfoArr: [],
+      cityInfoArr: [],
+      districtInfoArr: []
     },
     newParkValid: true,
     editedPark: {
@@ -161,6 +163,68 @@ export default {
           this.networkError = true;
           this.$store.commit("addSnackBar", `园区查询失败${err}`, "error");
         });
+    },
+    getProvince() {
+      this.select.provinceInfoArr = [];
+      this.$http
+        .get("/cms/administrativeDivision/province.json", {})
+        .then(res => {
+          let resData = res.data.data;
+          this.select.provinceInfoArr =
+            resData && resData.length ? resData : [];
+        })
+        .catch(err =>
+          this.$store.commit("addSnackBar", `省级信息查询失败 ${err}`, "error")
+        );
+    },
+    getCity(province) {
+      if (province) {
+        this.select.cityInfoArr = [];
+        this.$http
+          .get("/cms/administrativeDivision/city.json", {
+            params: {
+              province: province
+            }
+          })
+          .then(res => {
+            let resData = res.data.data;
+            this.editedPark.city = "";
+            this.editedPark.district = "";
+            this.select.cityInfoArr = resData && resData.length ? resData : [];
+          })
+          .catch(err =>
+            this.$store.commit(
+              "addSnackBar",
+              `市级信息查询失败 ${err}`,
+              "error"
+            )
+          );
+      }
+    },
+    getDistrict(city) {
+      if (city) {
+        this.select.districtInfoArr = [];
+        this.$http
+          .get("/cms/administrativeDivision/county.json", {
+            params: {
+              province: this.editedPark.province,
+              city: city
+            }
+          })
+          .then(res => {
+            let resData = res.data.data;
+            this.editedPark.district = "";
+            this.select.districtInfoArr =
+              resData && resData.length ? resData : [];
+          })
+          .catch(err =>
+            this.$store.commit(
+              "addSnackBar",
+              `区县信息查询失败 ${err}`,
+              "error"
+            )
+          );
+      }
     },
     newParkClose(isCancel) {
       if (!isCancel || confirm("取消后内容将不会保存")) {

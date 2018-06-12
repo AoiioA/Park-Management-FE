@@ -816,7 +816,7 @@ export default {
   width: 100%;
   max-width: 100%;
   min-height: 100%;
-  background: #f5f5f5;
+  background: #eceff1;
   z-index: 1;
 
   .center-box {
@@ -828,7 +828,7 @@ export default {
 
   .new-stepper {
     max-width: 800px;
-    background: #f5f5f5;
+    background: #eceff1;
   }
 }
 </style>

@@ -19,10 +19,16 @@
                 :to="{ 'name': 'house-new', 'query': { 'editHouseNo': $route.params.houseNo } }"
                 depressed
                 color="primary"
-                class="mx-0"
-              >编辑房源信息</v-btn>
+              >编辑房源</v-btn>
               <span>空置状态才可编辑</span>
             </v-tooltip>
+            <v-btn
+              :disabled="houseInfo.resourceStatus!==0"
+              @click="delHouse"
+              depressed
+              color="error"
+              class="mx-0"
+            >删除房源</v-btn>
           </v-subheader>
         </v-flex>
       </v-layout>
@@ -138,7 +144,7 @@
               </v-list-tile>
               <v-list-tile>
                 <v-list-tile-content>注册情况:</v-list-tile-content>
-                <v-list-tile-content class="align-end">{{ `${houseInfo.isRegister?'已':'暂无'}注册` }}</v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ `${houseInfo.isRegister?'可':'不可'}注册` }}</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
                 <v-list-tile-content>备注:</v-list-tile-content>
@@ -204,13 +210,15 @@ export default {
         .then(
           this.$http.spread((houseRes, buildingRes) => {
             this.networkLoading = false;
-            if (houseRes.data.code == 500) {
+            if (houseRes.data.code == 500 || !houseRes.data.data) {
+              this.networkError = true;
               this.$store.commit(
                 "addSnackBar",
                 `房源信息查询失败 ${houseRes.data.msg}`,
                 "error"
               );
-            } else if (buildingRes.data.code == 500) {
+            } else if (buildingRes.data.code == 500 || !buildingRes.data.data) {
+              this.networkError = true;
               this.$store.commit(
                 "addSnackBar",
                 `房源所属楼宇查询失败 ${buildingRes.data.msg}`,
@@ -230,6 +238,23 @@ export default {
           this.networkError = true;
           this.$store.commit("addSnackBar", `房源查询失败 ${err}`, "error");
         });
+    },
+    delHouse() {
+      this.$http
+        .post(
+          `/cms/houseInfo/batchDelHouseInfoByHouseNo.json?houseNos=${
+            this.houseInfo.houseNo
+          }`
+        )
+        .then(res => {
+          if (res.data.code != 500) {
+            this.$store.commit("addSnackBar", "房源删除成功", "success");
+            this.$router.go(-1);
+          }
+        })
+        .catch(err =>
+          this.$store.commit("addSnackBar", `房源删除失败${err}`, "error")
+        );
     }
   }
 };

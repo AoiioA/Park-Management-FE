@@ -38,7 +38,6 @@ export default new Router({
     {
       path: "/home",
       component: Home,
-      props: { viewToolBarTitle: "园区管理" },
       children: [
         {
           path: "",

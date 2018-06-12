@@ -1,9 +1,9 @@
 <template>
   <div class="building-detail">
-    <v-jumbotron color="blue-grey lighten-5" height="auto">
+    <v-jumbotron height="auto">
       <v-container grid-list-xl>
         <v-layout justify-center align-center>
-          <v-flex xs12 lg10>
+          <v-flex xs12 xl10>
             <v-subheader class="px-0">
               <span style="min-width: 104px" class="mx-2">
                 <v-select
@@ -19,12 +19,45 @@
                 ></v-select>
               </span>
               <v-spacer></v-spacer>
-              <v-btn depressed color="primary">编辑楼宇信息</v-btn>
+              <v-dialog :disabled="buildingInfo.delFlag === 0" v-model="newBuildingDialog" max-width="500px" persistent>
+                <v-btn slot="activator" :disabled="buildingInfo.delFlag === 0" @click="getPark();getProvince();" depressed color="primary">编辑楼宇</v-btn>
+                <v-form ref="editBuildingForm" v-model="newBuildingValid" lazy-validation>
+                  <v-card>
+                    <v-card-title>
+                      <span class="headline">修改楼宇信息</span>
+                      <v-spacer></v-spacer>
+                      <v-btn flat @click="delBuilding" color="error">删除楼宇</v-btn>
+                    </v-card-title>
+                    <v-card-text>
+                      <v-container grid-list-xs>
+                        <v-layout wrap>
+                          <v-flex xs4><v-select v-model="editedBuilding.parkNo" :items="select.parkInfoArr" item-text="parkName" item-value="parkNo" label="所属园区" :hint="editedBuilding.parkNo!==0?`楼宇将继承省市区县信息`:''" persistent-hint autocomplete required></v-select></v-flex>
+                          <v-flex xs4><v-text-field v-model="editedBuilding.buildingName" :rules="[$store.state.rules.required]" label="楼宇名称" :hint="editedBuilding.buildingName?`全称为 : ${fullBuildingName}`:''" persistent-hint required></v-text-field></v-flex>
+                          <v-flex xs4><v-text-field v-model="editedBuilding.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number" required></v-text-field></v-flex>
+                          <v-flex xs4><v-select v-if="editedBuilding.parkNo==0" @change="getCity" v-model="editedBuilding.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" autocomplete required></v-select></v-flex>
+                          <v-flex xs4><v-select v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.province" @change="getDistrict" v-model="editedBuilding.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
+                          <v-flex xs4><v-select v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.city" v-model="editedBuilding.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex>
+                          <!-- <v-flex xs4><v-text-field v-if="editedBuilding.parkNo==0" v-model="editedBuilding.province" :rules="[$store.state.rules.required]" label="省" required></v-text-field></v-flex>
+                          <v-flex xs4><v-text-field v-if="editedBuilding.parkNo==0" v-model="editedBuilding.city" :rules="[$store.state.rules.required]" label="市" required></v-text-field></v-flex>
+                          <v-flex xs4><v-text-field v-if="editedBuilding.parkNo==0" v-model="editedBuilding.district" :rules="[$store.state.rules.required]" label="区县" required></v-text-field></v-flex> -->
+                          <v-flex xs12><v-text-field v-model="editedBuilding.address" :rules="[$store.state.rules.required]" label="详细地址" required></v-text-field></v-flex>
+                        </v-layout>
+                      </v-container>
+                      <small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn depressed @click="newBuildingClose(true)">取消操作</v-btn>
+                      <v-btn :disabled="!newBuildingValid" @click="newBuildingSave" depressed color="primary">确认修改</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-form>
+              </v-dialog>
             </v-subheader>
           </v-flex>
         </v-layout>
         <v-layout v-if="$route.params.buildingDetailType=='table'" align-start align-content-start justify-center wrap>
-          <v-flex xs12 lg10>
+          <v-flex xs12 xl10>
             <v-card>
               <v-card-title class="py-2">
                 <v-text-field
@@ -129,7 +162,7 @@
                   <td>{{ props.item.resourceStatus }}</td>
                   <td>{{ props.item.idleDays }}</td>
                   <td class="px-3">
-                    <v-btn icon class="mx-0" to="{ name: 'house-info-detail', params: { houseNo: props.item.houseNo } }">
+                    <v-btn icon class="mx-0" :to="{ name: 'house-info-detail', params: { houseNo: props.item.houseNo } }">
                       <v-icon color="primary">visibility</v-icon>
                     </v-btn>
                   </td>
@@ -148,7 +181,7 @@
           wrap
           justify-center
         >
-          <v-flex slot="item" slot-scope="props" xs12 lg10>
+          <v-flex slot="item" slot-scope="props" xs12 xl10>
             <chart
               :options="getOption(props)"
               @click="clickHouse"
@@ -177,9 +210,36 @@ export default {
   data: () => ({
     networkLoading: false,
     networkError: false,
+    // 修改房源相关
+    newBuildingDialog: false,
+    newBuildingValid: true,
+    select: {
+      parkInfoArr: [{ parkName: "无园区", parkNo: 0 }],
+      provinceInfoArr: [],
+      cityInfoArr: [],
+      districtInfoArr: []
+    },
+    editedBuilding: {
+      buildingName: "",
+      parkNo: 0,
+      constructionArea: "",
+      province: "",
+      city: "",
+      district: "",
+      address: ""
+    },
+    defaultBuilding: {
+      buildingName: "",
+      parkNo: 0,
+      constructionArea: "",
+      province: "",
+      city: "",
+      district: "",
+      address: ""
+    },
+    // 列表等相关
     buildingInfo: {},
     houseInfoArr: [],
-    newHouseInfo: {},
     houseView: "area",
     houseViewArr: [
       {
@@ -228,6 +288,20 @@ export default {
     },
     newFileList: []
   }),
+  computed: {
+    fullBuildingName() {
+      if (
+        this.select.parkInfoArr.length > 1 &&
+        this.editedBuilding.parkNo !== 0
+      ) {
+        let parkName = this.select.parkInfoArr.find(
+          item => item.parkNo == this.editedBuilding.parkNo
+        );
+        return `${parkName.parkName} ${this.editedBuilding.buildingName}`;
+      }
+      return this.editedBuilding.buildingName;
+    }
+  },
   watch: {
     $route: "initialize"
   },
@@ -256,12 +330,14 @@ export default {
           this.$http.spread((building, house) => {
             this.networkLoading = false;
             if (building.data.code == 500) {
+              this.networkError = true;
               this.$store.commit(
                 "addSnackBar",
                 `楼宇信息查询失败 ${building.data.msg}`,
                 "error"
               );
             } else if (house.data.code == 500) {
+              this.networkError = true;
               this.$store.commit(
                 "addSnackBar",
                 `房源信息查询失败 ${house.data.msg}`,
@@ -272,6 +348,19 @@ export default {
               let hData = house.data.data;
               this.buildingInfo = bData && bData.length ? bData[0] : {};
               this.houseInfoArr = hData && hData.length ? hData : [];
+              for (let key in this.buildingInfo) {
+                if (this.defaultBuilding.hasOwnProperty(key)) {
+                  this.defaultBuilding[key] = this.buildingInfo[key];
+                }
+              }
+              if (this.buildingInfo.parkNo) {
+                this.defaultBuilding.buildingName = this.defaultBuilding.buildingName.split(
+                  " "
+                )[1];
+              } else {
+                this.defaultBuilding.parkNo = 0;
+              }
+              this.editedBuilding = Object.assign({}, this.defaultBuilding);
             }
           })
         )
@@ -280,6 +369,150 @@ export default {
           this.networkError = true;
           this.$store.commit("addSnackBar", `楼宇查询失败 ${err}`, "error");
         });
+    },
+    getPark() {
+      this.select.parkInfoArr = [{ parkName: "无园区", parkNo: 0 }];
+      this.$http
+        .post("/cms/parkInfo/listParkInfo.json", {})
+        .then(res => {
+          let resData = res.data.data;
+          this.select.parkInfoArr = resData && resData.length ? resData : [];
+          this.select.parkInfoArr.unshift({ parkName: "无园区", parkNo: 0 });
+        })
+        .catch(err =>
+          this.$store.commit("addSnackBar", `园区信息查询失败 ${err}`, "error")
+        );
+    },
+    getProvince() {
+      this.select.provinceInfoArr = [];
+      this.$http
+        .get("/cms/administrativeDivision/province.json", {})
+        .then(res => {
+          let resData = res.data.data;
+          this.select.provinceInfoArr =
+            resData && resData.length ? resData : [];
+        })
+        .catch(err =>
+          this.$store.commit("addSnackBar", `省级信息查询失败 ${err}`, "error")
+        );
+    },
+    getCity(province) {
+      if (province) {
+        this.select.cityInfoArr = [];
+        this.$http
+          .get("/cms/administrativeDivision/city.json", {
+            params: {
+              province: province
+            }
+          })
+          .then(res => {
+            let resData = res.data.data;
+            this.editedBuilding.city = "";
+            this.editedBuilding.district = "";
+            this.select.cityInfoArr = resData && resData.length ? resData : [];
+          })
+          .catch(err =>
+            this.$store.commit(
+              "addSnackBar",
+              `市级信息查询失败 ${err}`,
+              "error"
+            )
+          );
+      }
+    },
+    getDistrict(city) {
+      if (city) {
+        this.select.districtInfoArr = [];
+        this.$http
+          .get("/cms/administrativeDivision/county.json", {
+            params: {
+              province: this.editedBuilding.province,
+              city: city
+            }
+          })
+          .then(res => {
+            let resData = res.data.data;
+            this.editedBuilding.district = "";
+            this.select.districtInfoArr =
+              resData && resData.length ? resData : [];
+          })
+          .catch(err =>
+            this.$store.commit(
+              "addSnackBar",
+              `区县信息查询失败 ${err}`,
+              "error"
+            )
+          );
+      }
+    },
+    delBuilding() {
+      this.$http
+        .post(
+          `/cms/buildingInfo/deleteBuildingInfo.json?buildingNos=${
+            this.buildingInfo.buildingNo
+          }`
+        )
+        .then(res => {
+          if (res.data.code != 500) {
+            this.$store.commit("addSnackBar", "楼宇删除成功", "success");
+            this.$router.go(0);
+          }
+        })
+        .catch(err =>
+          this.$store.commit("addSnackBar", `楼宇删除失败${err}`, "error")
+        );
+    },
+    newBuildingClose(isCancel) {
+      if (!isCancel || confirm("取消后内容将不会保存")) {
+        this.$refs.editBuildingForm.reset();
+        this.newBuildingDialog = false;
+        this.editedBuilding = Object.assign({}, this.defaultBuilding);
+      }
+    },
+    newBuildingSave() {
+      if (this.$refs.editBuildingForm.validate()) {
+        let park = this.select.parkInfoArr.find(
+          item => item.parkNo == this.editedBuilding.parkNo
+        );
+        this.$http
+          .post("/cms/buildingInfo/updateBuildingInfoByHouseNo.json", {
+            buildingId: this.buildingInfo.buildingId,
+            buildingNo: this.buildingInfo.buildingNo,
+            buildingName: this.fullBuildingName,
+            parkNo:
+              this.editedBuilding.parkNo != 0 ? this.editedBuilding.parkNo : "",
+            constructionArea: this.editedBuilding.constructionArea,
+            province:
+              this.editedBuilding.parkNo === 0
+                ? this.editedBuilding.province
+                : park.province,
+            city:
+              this.editedBuilding.parkNo === 0
+                ? this.editedBuilding.city
+                : park.city,
+            district:
+              this.editedBuilding.parkNo === 0
+                ? this.editedBuilding.district
+                : park.district,
+            address: this.editedBuilding.address
+          })
+          .then(res => {
+            if (res.data.code != 500) {
+              this.newBuildingClose(false);
+              this.initialize();
+              this.$store.commit("addSnackBar", "楼宇修改成功", "success");
+            } else {
+              this.$store.commit(
+                "addSnackBar",
+                `楼宇修改失败 ${res.data.msg}`,
+                "success"
+              );
+            }
+          })
+          .catch(err =>
+            this.$store.commit("addSnackBar", `楼宇修改失败 ${err}`, "error")
+          );
+      }
     },
     getOption(floor) {
       let floorData = this.resourceStatus.map((status, i) => ({
@@ -415,12 +648,15 @@ export default {
     },
     batchDeleteHouse() {
       this.$http
-        .post("/cms/houseInfo/delete.json", {
-          ids: this.selected.map(item => item.houseNo).toString()
-        })
+        .post(
+          `/cms/houseInfo/batchDelHouseInfoByHouseNo.json?houseNos=` +
+            `${this.selected.map(item => item.houseNo).toString()}`
+        )
         .then(res => {
-          if (res.data.code != 500)
+          if (res.data.code != 500) {
             this.$store.commit("addSnackBar", "批量删除成功", "success");
+            this.initialize();
+          }
         })
         .catch(err =>
           this.$store.commit("addSnackBar", `批量删除失败${err}`, "error")
@@ -527,6 +763,7 @@ export default {
   }
 };
 </script>
+
 <style lang="stylus">
 .no-data {
   height: 300px;

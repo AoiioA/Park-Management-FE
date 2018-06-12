@@ -1,6 +1,6 @@
 <template>
   <div class="park-list" v-resize="onResize">
-    <v-jumbotron color="blue-grey lighten-4" height="auto">
+    <v-jumbotron height="auto">
       <v-container grid-list-xl fill-height>
         <v-layout align-start align-content-start wrap>
           <v-flex xs12 sm4 md3 xl2 offset-xl1>

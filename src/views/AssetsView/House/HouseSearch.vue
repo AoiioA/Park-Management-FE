@@ -9,26 +9,24 @@
       </span>
     </view-tool-bar>
     <v-jumbotron height="auto">
-      <v-container grid-list-lg>
+      <v-container grid-list-xl>
         <v-layout justify-center align-center>
+        </v-layout>
+		    <v-layout justify-center wrap>
           <v-flex xs12 xl10>
-            <v-subheader class="px-0">
+            <v-subheader>
               筛选搜索您想要的房源
               <v-spacer></v-spacer>
               <!-- <v-btn depressed color="primary" @click="initialize">开始搜索</v-btn> -->
             </v-subheader>
-          </v-flex>
-        </v-layout>
-		    <v-layout justify-center wrap>
-          <v-flex xs12 xl10>
 						<v-form ref="searchHouseForm" v-model="searchHouseValid" lazy-validation>
               <v-layout row wrap align-center>
                 <v-flex xs12 sm6 lg4>
                   <v-container fill-height fluid grid-list-xs>
                     <v-layout row no-wrap align-center>
-                      <v-flex style="width: 50%"><v-text-field v-model="searchFilter.buildAreaMin" :rules="[$store.state.rules.nonnegative]" label="最小面积" flat solo class="elevation-1" type="number"></v-text-field></v-flex>
+                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMin" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最小面积" flat solo class="elevation-1"></v-text-field></v-flex>
                       <v-flex class="text-xs-center" style="flex:none">至</v-flex>
-                      <v-flex style="width: 50%"><v-text-field v-model="searchFilter.buildAreaMax" :rules="[$store.state.rules.nonnegative]" label="最大面积" flat solo class="elevation-1" type="number"></v-text-field></v-flex>
+                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMax" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最大面积" flat solo class="elevation-1"></v-text-field></v-flex>
                     </v-layout>
                   </v-container>
                 </v-flex>
@@ -37,7 +35,7 @@
                 <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.isRegister" :items="searchFilterArr.isRegister" solo hide-details single-line class="elevation-1"></v-select></v-flex>
                 <!-- <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.idleLevel" :items="searchFilterArr.idleLevel" solo hide-details single-line class="elevation-1"></v-select></v-flex> -->
                 <v-spacer></v-spacer>
-                <v-flex xs12 sm3 lg2><v-btn :disabled="!searchHouseValid" @click="initialize" block large color="primary">开始搜索</v-btn></v-flex>
+                <v-flex xs12 sm3 lg2><v-btn :disabled="!searchHouseValid||(searchFilter.buildAreaMin>searchFilter.buildAreaMax)" @click="initialize" block large color="primary">开始搜索</v-btn></v-flex>
               </v-layout>
 						</v-form>
           </v-flex>
@@ -121,11 +119,11 @@ export default {
     searchFilterArr: {
       resourceStatus: [
         { text: "租赁情况", value: "" },
-        { text: "空置房源", value: 0 },
-        { text: "租赁中房源", value: 1 },
-        { text: "预定房源", value: 2 },
-        { text: "维护房源", value: 3 },
-        { text: "租赁审核房源", value: 4 }
+        { text: "空置中", value: 0 },
+        { text: "出租中", value: 1 },
+        { text: "已预定", value: 2 },
+        { text: "维护中", value: 3 },
+        { text: "租赁审核", value: 4 }
       ],
       decorationSituation: [
         { text: "装修情况", value: "" },
@@ -137,8 +135,8 @@ export default {
       ],
       isRegister: [
         { text: "注册状态", value: "" },
-        { text: "可注册", value: 0 },
-        { text: "不可注册", value: 1 }
+        { text: "可注册", value: 1 },
+        { text: "不可注册", value: 0 }
       ],
       idleLevel: [
         { text: "预警状态", value: "" },
@@ -165,7 +163,9 @@ export default {
   }),
   created() {
     this.$store.commit("changeToolBarTitle", "搜索房源");
-    // this.initialize();
+  },
+  mounted() {
+    this.initialize();
   },
   methods: {
     initialize() {

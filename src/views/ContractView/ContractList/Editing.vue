@@ -1,5 +1,5 @@
 <template>
-  <v-jumbotron color="blue-grey lighten-4" height="auto">
+  <v-jumbotron height="auto">
     <v-container grid-list-xl fill-height>
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 xl10>
