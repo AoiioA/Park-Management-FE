@@ -228,7 +228,9 @@ export default {
           buildingName: this.buildingInfoArr.find(
             item => item.buildingNo == house.buildingNo
           ).buildingName,
-          floorNumber: `${house.floorNumber}层`,
+          floorNumber: `${(n => {
+            return n >= 0 ? n : "地下" + Math.abs(n);
+          })(house.floorNumber)}层`,
           doorNumber: `${house.doorNumber}室`,
           buildArea: `${house.buildArea}m²`,
           decorationSituation: this.decorationSituation[

@@ -82,7 +82,7 @@
                         </v-list-tile>
                         <v-list-tile>
                           <v-list-tile-content class="body-2">押金 : {{ props.item.deposit }}元&nbsp;&nbsp;&nbsp;&nbsp;违约金 : {{ props.item.liquidatedDamages }}元</v-list-tile-content>
-                          <v-list-tile-content class="body-2 align-end">缴纳间隔 : 每{{ props.item.month }}个月</v-list-tile-content>
+                          <v-list-tile-content class="body-2 align-end">缴纳周期 : 每{{ props.item.month }}个月</v-list-tile-content>
                         </v-list-tile>
                         <v-list-tile>
                           <v-list-tile-content class="body-2">租金递增率 : {{ 100 * props.item.houseInfo[0].increaseRate }}%</v-list-tile-content>
@@ -96,7 +96,7 @@
                         <v-list-tile v-for="(house, houseIndex) in props.item.houseInfo" :key="houseIndex" avatar ripple>
                           <v-list-tile-content>
                             <v-list-tile-title>{{ `${house.parkName} - ${house.buildName}` }}</v-list-tile-title>
-                            <v-list-tile-sub-title>{{`${house.floorNumber}层 ${house.doorNumber}室`}}</v-list-tile-sub-title>
+                            <v-list-tile-sub-title>{{`${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(house.floorNumber)}层 ${house.doorNumber}室`}}</v-list-tile-sub-title>
                           </v-list-tile-content>
                           <v-list-tile-action>
                             <v-list-tile-action-text>总面积 : {{ house.buildArea }}m²</v-list-tile-action-text>

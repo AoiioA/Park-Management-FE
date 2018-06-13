@@ -85,7 +85,7 @@
                   <v-card>
                     <v-card-title><h4>{{ CTRTInfo.contractName }}</h4></v-card-title>
                     <v-divider></v-divider>
-                    <v-list dense style="height: 208px;overflow: auto;">
+                    <v-list dense style="height: 248px;overflow: auto;">
                       <v-list-tile>
                         <v-list-tile-content>编号:</v-list-tile-content>
                         <v-list-tile-content class="align-end">{{ CTRTInfo.contractNo }}</v-list-tile-content>
@@ -123,7 +123,7 @@
                         <v-list-tile-content class="align-end">{{ CTRTInfo.liquidatedDamages }}元</v-list-tile-content>
                       </v-list-tile>
                       <v-list-tile>
-                        <v-list-tile-content>租金缴纳间隔:</v-list-tile-content>
+                        <v-list-tile-content>租金缴纳周期:</v-list-tile-content>
                         <v-list-tile-content class="align-end">每{{ CTRTInfo.month }}个月</v-list-tile-content>
                       </v-list-tile>
                       <v-list-tile>
@@ -140,15 +140,17 @@
                 <v-flex xs12 md6>
                   <v-subheader>租赁资产</v-subheader>
                   <v-card>
-                    <v-list dense style="height: 262px;overflow: auto;">
-                      <v-list-tile v-for="(house, houseIndex) in CTRTInfo.houseAndBuildingDtos" :key="houseIndex" avatar ripple @click="$router.push({ name: 'house-info-detail', params: { houseNo: house.id } })">
+                    <v-card-title><h4 v-if="CTRTInfo.houseAndBuildingDtos">{{ CTRTInfo.houseAndBuildingDtos.length }} 处资源</h4></v-card-title>
+                    <v-divider></v-divider>
+                    <v-list dense style="height: 248px;overflow: auto;">
+                      <v-list-tile v-for="(house, houseIndex) in CTRTInfo.houseAndBuildingDtos" :key="houseIndex" avatar ripple>
                         <v-list-tile-content>
-                          <v-list-tile-title>{{ `${house.parkName} - ${house.buildingName}` }}</v-list-tile-title>
-                          <v-list-tile-sub-title>{{`${house.floorNumber}层 ${house.doorNumber}室`}}</v-list-tile-sub-title>
+                          <v-list-tile-title>{{ `${house.parkName||'无归属楼宇'} - ${house.buildingName}` }}</v-list-tile-title>
+                          <v-list-tile-sub-title>{{ `${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(house.floorNumber)}层 ${house.doorNumber}室` }}</v-list-tile-sub-title>
                         </v-list-tile-content>
                         <v-list-tile-action>
-                          <v-list-tile-action-text>总面积 : {{ house.buildArea }}m²</v-list-tile-action-text>
-                          <v-list-tile-action-text>租金 : {{ house.rent.toFixed(2) }}元/m²·天</v-list-tile-action-text>
+                          <v-list-tile-action-text>{{ house.buildArea }}m²</v-list-tile-action-text>
+                          <v-list-tile-action-text>{{ house.rent.toFixed(2) }}元/m²·天</v-list-tile-action-text>
                         </v-list-tile-action>
                       </v-list-tile>
                     </v-list>
@@ -161,21 +163,22 @@
             <v-container grid-list-lg fill-height>
               <v-layout align-start align-content-start justify-center wrap>
                 <v-flex xs12 md12>
-                  <v-subheader>租金缴纳明细</v-subheader>
+                  <v-subheader>租金缴纳明细<small>（预计）</small></v-subheader>
                   <v-data-table
-                    :headers="rentHeaders"
+                    :headers="rentPreHeaders"
                     :items="CTRTInfo.contractRentTotalDto.contractRentDetailDtoList"
                     item-key="payDay"
                     no-data-text="暂无租金明细"
                     class="elevation-1 mb-5"
+                    hide-actions
                   >
                     <template slot="items" slot-scope="props">
                       <!-- <tr @click="props.expanded = !props.expanded"> -->
                       <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
                       <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
                       <td v-if="props.item.payDay">{{ props.item.payDay.slice(0, 10) }}</td>
-                      <td>{{ props.item.houseTotal.toFixed(2) }}元</td>
-                      <td>{{ props.item.propertyFees.toFixed(2) }}元</td>
+                      <td>{{ props.item.houseTotal }}元</td>
+                      <td>{{ props.item.propertyFees }}元</td>
                       <!-- </tr> -->
                     </template>
                     <!-- <template slot="expand" slot-scope="props">
@@ -185,9 +188,47 @@
                     </template> -->
                     <template slot="footer">
                       <td colspan="100%" class="text-xs-right">
-                        <span v-if="CTRTInfo.contractRentTotalDto.contractRentDetailDtoList">租金总计 : {{ CTRTInfo.contractRentTotalDto.contractRentDetailDtoList.map(el=>el.houseTotal).reduce((all, el, i) => parseFloat(all) + parseFloat(el)).toFixed(2) }}元</span>
+                        <span v-if="CTRTInfo.contractRentTotalDto.contractRentDetailDtoList">租金总计 : {{ CTRTInfo.contractRentTotalDto.contractRentDetailDtoList.map(el=>el.houseTotal).reduce((all, el, i) => parseFloat(all) + parseFloat(el)).toFixed(0) }}元</span>
                         &nbsp;
-                        <span>物业费总计 : {{ CTRTInfo.contractRentTotalDto.propertyFeeTotal.toFixed(2) }}元</span>
+                        <span>物业费总计 : {{ CTRTInfo.contractRentTotalDto.propertyFeeTotal }}元</span>
+                      </td>
+                    </template>
+                  </v-data-table>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-jumbotron>
+          <v-jumbotron height="auto" v-if="CTRTInfo.rentBillListDtos">
+            <v-container grid-list-lg fill-height>
+              <v-layout align-start align-content-start justify-center wrap>
+                <v-flex xs12 md12>
+                  <v-subheader>所含交易明细</v-subheader>
+                  <v-data-table
+                    :headers="rentHeaders"
+                    :items="CTRTInfo.rentBillListDtos"
+                    item-key="id"
+                    no-data-text="暂无交易明细"
+                    class="elevation-1 mb-5"
+                    hide-actions
+                  >
+                    <template slot="items" slot-scope="props">
+                      <!-- <tr @click="props.expanded = !props.expanded"> -->
+                      <td v-if="props.item.rentType">{{ props.item.rentType }}</td>
+                      <td v-if="props.item.payDate">{{ props.item.payDate.slice(0, 10) }}</td>
+                      <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
+                      <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
+                      <td>{{ props.item.totalRent }}元</td>
+                      <td>{{ props.item.state }}</td>
+                      <!-- </tr> -->
+                    </template>
+                    <!-- <template slot="expand" slot-scope="props">
+                      <v-card flat>
+                        <v-card-text>Peek-a-boo!</v-card-text>
+                      </v-card>
+                    </template> -->
+                    <template slot="footer">
+                      <td colspan="100%" class="text-xs-right">
+                        <span v-if="CTRTInfo.rentBillListDtos">金额总计 : {{ CTRTInfo.rentBillListDtos.map(el=>el.totalRent).reduce((all, el, i) => parseFloat(all) + parseFloat(el)) }}元</span>
                       </td>
                     </template>
                   </v-data-table>
@@ -352,12 +393,20 @@ export default {
       invalidatedValid: false
     },
     CTRTInfo: {},
-    rentHeaders: [
-      { text: "待缴起始日期", value: "fromDate", sortable: false },
-      { text: "待缴结束日期", value: "endDate", sortable: false },
+    rentPreHeaders: [
       { text: "应缴日期", value: "payDay", sortable: false },
+      { text: "计费起始日期", value: "fromDate", sortable: false },
+      { text: "计费截至日期", value: "endDate", sortable: false },
       { text: "应缴租金", value: "total", sortable: false },
-      { text: "物业费", value: "propertyFees", sortable: false }
+      { text: "应缴物业费", value: "propertyFees", sortable: false }
+    ],
+    rentHeaders: [
+      { text: "费用类型", value: "rentType", sortable: false },
+      { text: "应缴日期", value: "payDate", sortable: false },
+      { text: "计费起始日期", value: "fromDate", sortable: false },
+      { text: "计费截至日期", value: "endDate", sortable: false },
+      { text: "应缴金额", value: "totalRent", sortable: false },
+      { text: "费用状态", value: "state", sortable: false }
     ],
     invalidatedInfo: "",
     refundInfo: "",

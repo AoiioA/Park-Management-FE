@@ -7,7 +7,7 @@
         <v-flex xs12 lg10>
           <v-subheader class="px-0">
             <h3>
-              {{ `${houseInfo.floorNumber}层 - ${houseInfo.doorNumber}室` }}<br />
+              {{ `${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(houseInfo.floorNumber)}层&nbsp;${houseInfo.doorNumber}室` }}<br />
               <small v-if="buildingInfo.parkId">{{ `${buildingInfo.parkName} - ` }}</small>
               <small>{{ buildingInfo.buildingName }}</small>
             </h3>

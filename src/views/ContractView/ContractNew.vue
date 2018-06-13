@@ -36,7 +36,7 @@
                   </v-flex> -->
                   <v-layout row wrap v-if="newCTRT.customerType=='企业'">
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.companyName" :rules="[$store.state.rules.required]" label="承租方公司" hint="" persistent-hint box required></v-text-field></v-flex>
-                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.businessLicense" :rules="[$store.state.rules.required]" label="承租方营业执照" hint="" persistent-hint box required></v-text-field></v-flex>
+                    <v-flex xs12 sm4><v-text-field v-model="newCTRT.businessLicense" :rules="[$store.state.rules.required]" mask="####################" label="承租方营业执照" hint="" persistent-hint box required></v-text-field></v-flex>
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.legalPerson" :rules="[$store.state.rules.required]" label="承租方公司法人" hint="" persistent-hint box required></v-text-field></v-flex>
                   </v-layout>
                   <v-layout row wrap>
@@ -102,14 +102,14 @@
                     </v-flex>
                     <v-flex xs6 sm4 style="min-width: 200px;">
                       <v-menu v-model="assets.houseMenu" :disabled="!assets.buildingName" :close-on-content-click="false" lazy offset-y nudge-top="20">
-                        <v-text-field slot="activator" @click="getHouse(assets.buildingNo)" :disabled="!assets.buildingName" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.doorNumber}室 - ${assets.floorNumber}层` : ''" label="签约房源" :hint="assets.houseId?`单间面积 ${assets.buildArea}M²`:''" persistent-hint box required readonly></v-text-field>
+                        <v-text-field slot="activator" @click="getHouse(assets.buildingNo)" :disabled="!assets.buildingName" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.doorNumber}室 - ${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(assets.floorNumber)}层` : ''" label="签约房源" :hint="assets.houseId?`单间面积 ${assets.buildArea}M²`:''" persistent-hint box required readonly></v-text-field>
                         <v-list style="max-height: 200px; overflow-y: auto;">
                           <v-list-tile v-if="!assetsFloorInfo.length">
                             <v-list-tile-title>暂无房源可以添加</v-list-tile-title>
                           </v-list-tile>
                           <v-menu v-else v-for="(assetsFloor, i) in assetsFloorInfo" :key="i" offset-x style="display:block">
                             <v-list-tile slot="activator" @click="1">
-                              <v-list-tile-title>{{ assetsFloor.floorNumber }}层</v-list-tile-title>
+                              <v-list-tile-title>{{ ((n)=>{return n>=0?n:'地下'+Math.abs(n)})(assetsFloor.floorNumber) }}层</v-list-tile-title>
                             </v-list-tile>
                             <v-list style="max-height: 200px; overflow-y: auto;">
                               <v-list-tile v-for="(assetsHouse, j) in assetsFloor.house" :key="j" :disabled="assetsHouse.isAdded" @click="!assetsHouse.isAdded ? changeHouse(assetsIndex, assetsFloor, assetsHouse) : ''">
@@ -173,10 +173,10 @@
                     <!-- <v-flex xs12 sm4><v-text-field v-model="newCTRT.rentDate" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="租金缴纳应提前(天)" hint="" persistent-hint type="number" box required></v-text-field></v-flex> -->
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.deposit" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="押金(元)" hint="合同生效后既缴纳<br />合同到期后返还" persistent-hint type="number" box required></v-text-field></v-flex>
                     <v-flex xs12 sm4><v-text-field v-model="newCTRT.liquidatedDamages" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="违约金(元)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
-                    <!-- <v-flex xs12 sm4><v-text-field v-model="newCTRT.month" :rules="[$store.state.rules.required, $store.state.rules.noZero]" mask="##" label="租金缴纳间隔(月)" hint="" persistent-hint box required></v-text-field></v-flex> -->
+                    <!-- <v-flex xs12 sm4><v-text-field v-model="newCTRT.month" :rules="[$store.state.rules.required, $store.state.rules.noZero]" mask="##" label="租金缴纳周期(月)" hint="" persistent-hint box required></v-text-field></v-flex> -->
                     <v-flex xs12 sm4>
                       <v-menu v-model="menu.month" lazy offset-y nudge-top="20">
-                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="`每${newCTRT.month}个月`" label="租金缴纳间隔" hint="" persistent-hint box required readonly></v-text-field>
+                        <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="`每${newCTRT.month}个月`" label="租金缴纳周期" hint="" persistent-hint box required readonly></v-text-field>
                         <v-list>
                           <v-list-tile v-for="monthNum in [1, 3, 6, 12]" :key="monthNum" @click="newCTRT.month=monthNum">
                             <v-list-tile-title>每{{monthNum}}个月</v-list-tile-title>
@@ -620,8 +620,8 @@ export default {
       }
     },
     translateBuilding(list, buildingNo) {
-      // 将List形式的房源信息转换为Tree形式(按floorNo划分house)并返回
-      let floorInfo = [];
+      // 将List形式的房源信息转换为Tree形式(按floorNumber划分house)并返回
+      let floorInfo = {};
       list.forEach(item => {
         if (item.buildingNo == buildingNo) {
           if (!floorInfo[item.floorNumber]) {
@@ -646,7 +646,7 @@ export default {
         }
       });
       // 返回去除空项的楼层信息数组
-      return floorInfo.filter(el => el);
+      return _.values(floorInfo).sort((x, y) => x.floorNumber > y.floorNumber);
     },
     changeHouse(assetsIndex, assetsFloor, assetsHouse) {
       let newAssetsData = this.newAssets[assetsIndex];

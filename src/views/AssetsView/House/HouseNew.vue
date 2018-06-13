@@ -14,7 +14,7 @@
             <v-stepper v-model="stepNum" vertical class="elevation-0" style="background: #eceff1">
               <v-stepper-step :rules="[() => !!formValid]" :complete="stepNum>1" step="1">
                 编辑房源信息
-                <small v-if="editHouse.resourceStatus===0">{{ `&nbsp;${assetsOfNewHouse.parkName} ${assetsOfNewHouse.buildingName} ${editHouse.floorNumber}层 ${editHouse.doorNumber}室` }}</small>
+                <small v-if="editHouse.resourceStatus===0">{{ `&nbsp;${assetsOfNewHouse.parkName} ${assetsOfNewHouse.buildingName} ${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(editHouse.floorNumber)}层 ${editHouse.doorNumber}室` }}</small>
               </v-stepper-step>
               <v-stepper-content step="1">
                 <v-form ref="houseForm" v-model="formValid" lazy-validation>
@@ -97,7 +97,7 @@
               </v-stepper-content>
               <v-stepper-step :complete="isSubmitHouse" step="2">
                 上传房屋照片
-                <small v-if="stepNum==2">{{ `&nbsp;${assetsOfNewHouse.parkName} ${assetsOfNewHouse.buildingName} ${editHouse.floorNumber}层 ${editHouse.doorNumber}室` }}</small>
+                <small v-if="stepNum==2">{{ `&nbsp;${assetsOfNewHouse.parkName} ${assetsOfNewHouse.buildingName} ${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(editHouse.floorNumber)}层 ${editHouse.doorNumber}室` }}</small>
               </v-stepper-step>
               <v-stepper-content step="2">
                 <div class="no-data" v-if="networkLoading.image"><v-progress-circular indeterminate color="primary" class="my-0"></v-progress-circular></div>

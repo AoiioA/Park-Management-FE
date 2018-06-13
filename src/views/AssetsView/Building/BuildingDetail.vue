@@ -540,7 +540,9 @@ export default {
 
       return {
         title: {
-          text: `房源 - ${floor.item.floorNo}层`,
+          text: `房源 - ${(n => {
+            return n >= 0 ? n : "地下" + Math.abs(n);
+          })(floor.item.floorNo)}层`,
           subtext: "",
           top: 10,
           left: 10,
@@ -634,7 +636,9 @@ export default {
           houseList.push({
             houseId: house.houseId,
             houseNo: house.houseNo,
-            floorNumber: `${floor.floorNo}层`,
+            floorNumber: `${(n => {
+              return n >= 0 ? n : "地下" + Math.abs(n);
+            })(floor.floorNo)}层`,
             doorNumber: `${house.doorNumber}室`,
             buildArea: `${house.buildArea}m²`,
             decorationSituation: this.decorationSituation[
