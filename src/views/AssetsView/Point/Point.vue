@@ -19,11 +19,11 @@ export default {
     ViewToolBar
   },
   data: () => ({
-    // viewToolBarTab: [{ name: "全部网点", to: "point-list" }]
+    // viewToolBarTab: [{ name: "生态圈概览", to: "point-list" }]
     viewToolBarTab: []
   }),
   created() {
-    this.$store.commit("changeToolBarTitle", "网点概览");
+    this.$store.commit("changeToolBarTitle", "生态圈概览");
   }
 };
 </script>

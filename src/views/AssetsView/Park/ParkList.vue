@@ -75,7 +75,7 @@
               </v-btn>
             </v-card>
           </v-flex>
-					<v-flex v-if="parkList.length==0" class="no-data">暂无园区记录 - <a @click.native="addSnackBar('假装添加园区成功~', 'success')">点击此处添加</a></v-flex>
+					<v-flex v-if="parkList.length==0" class="no-data">暂无园区记录 - <a @click="menu.newPark=true;getProvince();">点击此处添加</a></v-flex>
 					<v-flex v-for="parkItem in parkList" :key="parkItem.parkNo" xs12 sm4 md3 xl2>
 						<v-card height="200px" :to="{ name: 'park-detail', params: { parkNo: parkItem.parkNo }, query: { parkId: parkItem.parkId } }" ripple>
 							<v-container fill-height fluid class="pb-1">

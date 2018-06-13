@@ -14,33 +14,33 @@
       <v-flex>
         <v-list class="py-1">
           <v-list-tile avatar>
-            <v-list-tile-avatar>
-              <img src="https://vuetifyjs.com/static/doc-images/logo.svg" >
+            <v-list-tile-avatar tile>
+              <img src="@/assets/logo.png">
             </v-list-tile-avatar>
             <v-list-tile-content>
-              <v-list-tile-title>Park Management</v-list-tile-title>
+              <v-list-tile-title>科技金融园区共享服务平台</v-list-tile-title>
             </v-list-tile-content>
-            <v-list-tile-action>
+            <!-- <v-list-tile-action>
               <v-btn icon @click.stop="mini = !mini">
                 <v-icon>chevron_left</v-icon>
               </v-btn>
-            </v-list-tile-action>
+            </v-list-tile-action> -->
           </v-list-tile>
         </v-list>
-        <v-divider light></v-divider>
+        <v-divider></v-divider>
       </v-flex>
       <v-flex class="no-scroll nav-list">
-        <v-expansion-panel expand class="elevation-0">
+        <v-expansion-panel class="elevation-0">
           <v-expansion-panel-content v-for="navItem in navItems" :key="navItem.title">
             <div slot="header" class="nav-list-header">
-              <v-list two-line>
+              <v-list two-line dense>
                 <v-list-tile>
                   <v-list-tile-avatar>
                     <v-icon>{{ navItem.action }}</v-icon>
                   </v-list-tile-avatar>
                   <v-list-tile-content>
                     <v-list-tile-title>{{ navItem.title }}</v-list-tile-title>
-                    <v-list-tile-sub-title>{{ navItem.child.map(el=>el.title).join('，') }}</v-list-tile-sub-title>
+                    <v-list-tile-sub-title>{{ navItem.child.map(el=>el.title).join(' ') }}</v-list-tile-sub-title>
                   </v-list-tile-content>
                 </v-list-tile>
               </v-list>
@@ -70,11 +70,19 @@
         </v-expansion-panel>
       </v-flex>
       <v-flex>
-        <v-list v-if="mini">
-          <v-list-tile @click.stop="mini = !mini">
-            <v-list-tile-action>
+        <v-list dense subheader>
+          <v-divider></v-divider>
+          <v-list-tile @click.stop="mini = !mini" avatar>
+            <v-list-tile-action v-if="mini">
               <v-icon>chevron_right</v-icon>
             </v-list-tile-action>
+            <template v-else>
+              <v-list-tile-avatar></v-list-tile-avatar>
+              <v-list-tile-content></v-list-tile-content>
+              <v-list-tile-action>
+                <v-icon>chevron_left</v-icon>
+              </v-list-tile-action>
+            </template>
           </v-list-tile>
         </v-list>
       </v-flex>
@@ -104,7 +112,7 @@ export default {
           action: "business",
           title: "资产管理",
           child: [
-            { action: "business", title: "网点管理", url: "/home/point" },
+            { action: "business", title: "智慧生态圈", url: "/home/point" },
             { action: "business", title: "园区管理", url: "/home/park" },
             { action: "business", title: "楼宇管理", url: "/home/building" },
             { action: "business", title: "房源管理", url: "/home/house" }
@@ -112,7 +120,7 @@ export default {
         },
         {
           action: "gavel",
-          title: "招商管理",
+          title: "智能招商",
           child: [
             { action: "gavel", title: "预约管理", url: "/home/sale" },
             { action: "gavel", title: "客户管理", url: "/home/404" },
@@ -203,6 +211,7 @@ export default {
 
       .expansion-panel {
         .expansion-panel__container {
+          border-top: 1px solid #424242;
           &.expansion-panel__container--active {
             background: rgba(0, 0, 0, 0.3);
           }
@@ -216,8 +225,6 @@ export default {
           }
 
           .nav-sublist {
-            border-bottom: 1px solid hsla(0, 0%, 100%, 0.12);
-
             .list__tile__action {
               text-align: center;
               display: inline-block;
@@ -240,8 +247,14 @@ export default {
     padding: 0 16px 0 0;
   }
 
-  &.navigation-drawer--mini-variant /deep/ .expansion-panel__header {
-    display: none;
+  & /deep/ .expansion-panel__header {
+    transition: height 0.3s ease;
+    height: 68px;
+    overflow: hidden;
+  }
+
+  &.navigation-drawer--mini-variant /deep/ .expansion-panel__container--active .expansion-panel__header {
+    height: 0;
   }
 }
 </style>

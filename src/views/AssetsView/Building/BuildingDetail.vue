@@ -112,7 +112,7 @@
                         <file-upload
                           ref="upload"
                           v-model="newFileList"
-                          :data="{ buildingId: buildingInfo.buildingId }"
+                          :data="{ buildingId: buildingInfo.buildingId, buildingNo: buildingInfo.buildingNo }"
                           :post-action="`${$store.getters.getBaseUrl}${upload.postAction}`"
                           :accept="upload.accept"
                           :extensions="upload.extensions"
@@ -481,6 +481,7 @@ export default {
             buildingName: this.fullBuildingName,
             parkNo:
               this.editedBuilding.parkNo != 0 ? this.editedBuilding.parkNo : "",
+            parkId: this.editedBuilding.parkNo != 0 ? park.parkId : "",
             constructionArea: this.editedBuilding.constructionArea,
             province:
               this.editedBuilding.parkNo === 0
@@ -631,6 +632,7 @@ export default {
       houseInfo.map(floor => {
         floor.room.map(house =>
           houseList.push({
+            houseId: house.houseId,
             houseNo: house.houseNo,
             floorNumber: `${floor.floorNo}层`,
             doorNumber: `${house.doorNumber}室`,
@@ -666,7 +668,7 @@ export default {
       this.$http
         .post(
           "/cms/houseInfo/excelExport",
-          { ids: this.selected.map(item => item.houseNo).toString() },
+          { ids: this.selected.map(item => item.houseId).toString() },
           { responseType: "blob" }
         )
         .then(res => {
@@ -691,8 +693,8 @@ export default {
         );
     },
     createDownloadEl(res) {
-      const fileName = "批量上传房源.xlsx";
-      // const fileName = response.headers['content-disposition'].split('filename=')[1].split(';')[0] || "";
+      const fileName = "房源excel.xlsx";
+      // const fileName = res.headers['content-disposition'].split('filename=')[1].split(';')[0] || "";
       const blob = new Blob([res]);
       // if ("download" in document.createElement("a")) {
       const url = window.URL.createObjectURL(blob);
@@ -730,7 +732,7 @@ export default {
           // console.log("error", newFile.error, newFile, newFile.xhr.response);
           this.$store.commit(
             "addSnackBar",
-            `Excel上传失败: ${newFile.error}`,
+            `Excel上传失败 ${newFile.error}`,
             "error"
           );
         }
@@ -739,12 +741,16 @@ export default {
         if (newFile.success && !oldFile.success) {
           let res = JSON.parse(newFile.xhr.response);
           if (res.code == 0) {
-            this.saveFile.push(res.data);
-            this.$refs.upload.remove(newFile.id);
+            this.$store.commit(
+              "addSnackBar",
+              `Excel上传成功 ${res.data}`,
+              "success"
+            );
+            this.initialize();
           } else {
             this.$store.commit(
               "addSnackBar",
-              `Excel上传失败: ${res.msg}`,
+              `Excel上传失败 ${res.msg}`,
               "error"
             );
           }

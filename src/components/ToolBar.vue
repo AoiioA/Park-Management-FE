@@ -15,7 +15,7 @@
       <v-avatar size="32px" tile style="display: inline-block;margin: 0 8px;">
         <img src="https://vuetifyjs.com/static/doc-images/logo.svg" alt="Vuetify">
       </v-avatar>
-      <span v-if="!mini" class="hidden-sm-and-down">Park Management</span>
+      <span v-if="!mini" class="hidden-sm-and-down">科技金融园区共享服务平台</span>
     </v-toolbar-title> -->
     <v-toolbar-side-icon v-if="!$vuetify.breakpoint.lgAndUp" @click.stop="$emit('toggleDrawer')"></v-toolbar-side-icon>
     <transition name="fade">
@@ -43,9 +43,9 @@
       v-model="menu"
     >
       <v-btn icon large slot="activator">
-        <v-avatar size="36px" color="white">
+        <v-avatar size="44" color="white">
           <!-- <img src="https://vuetifyjs.com/static/doc-images/logo.svg" alt="Vuetify"> -->
-          <strong class="blue--text text--darken-2">普惠</strong>
+          <strong class="blue--text text--darken-2 body-1"><strong>中海融</strong></strong>
         </v-avatar>
       </v-btn>
       <v-card>
@@ -53,10 +53,10 @@
           <v-list-tile avatar>
             <v-list-tile-avatar color="primary">
               <!-- <img src="https://vuetifyjs.com/static/doc-images/logo.svg" alt="Vuetify"> -->
-              <span class="white--text body-2">普惠</span>
+              <span class="white--text body-2 caption">中海融</span>
             </v-list-tile-avatar>
             <v-list-tile-content>
-              <v-list-tile-title>普惠互联</v-list-tile-title>
+              <v-list-tile-title>中海融科技</v-list-tile-title>
               <v-list-tile-sub-title>系统管理员</v-list-tile-sub-title>
             </v-list-tile-content>
           </v-list-tile>

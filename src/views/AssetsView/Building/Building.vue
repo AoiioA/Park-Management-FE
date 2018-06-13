@@ -38,7 +38,7 @@
     </view-tool-bar>
     <v-progress-linear v-if="networkLoading" :size="48" indeterminate class="my-0"></v-progress-linear>
     <v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
-    <div v-else-if="viewToolBarTab.length==0" class="no-data">暂无楼宇记录 - <a @click.native="$store.commit('addSnackBar', '假装添加楼宇成功~', 'success')">点击此处添加</a></div>
+    <div v-else-if="viewToolBarTab.length==0" class="no-data">暂无楼宇记录 - <a @click="newBuildingDialog=true;getPark();getProvince();">点击此处添加</a></div>
     <router-view v-else></router-view>
   </div>
 </template>
@@ -93,9 +93,7 @@ export default {
     }
   },
   watch: {
-    $route() {
-      if (this.viewToolBarTab.length == 0) this.initialize();
-    }
+    $route: "initialize"
   },
   created() {
     this.$store.commit("changeToolBarTitle", "楼宇概览");
@@ -240,6 +238,7 @@ export default {
             buildingName: this.fullBuildingName,
             parkNo:
               this.editedBuilding.parkNo != 0 ? this.editedBuilding.parkNo : "",
+            parkId: this.editedBuilding.parkNo != 0 ? park.parkId : "",
             constructionArea: this.editedBuilding.constructionArea,
             province:
               this.editedBuilding.parkNo === 0
@@ -256,14 +255,14 @@ export default {
             address: this.editedBuilding.address
           })
           .then(res => {
-            if (res.data.code == 500) {
+            if (res.data.code != 500) {
               this.newBuildingClose(false);
               this.initialize();
               this.$store.commit("addSnackBar", "楼宇添加成功", "success");
             } else {
               this.$store.commit(
                 "addSnackBar",
-                `楼宇添加失败 ${res.data.data}`,
+                `楼宇添加失败 ${res.data.msg}`,
                 "success"
               );
             }

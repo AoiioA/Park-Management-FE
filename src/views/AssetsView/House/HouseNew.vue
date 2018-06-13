@@ -43,7 +43,7 @@
                           </v-list>
                         </v-menu>
                       </v-flex>
-                      <v-flex xs12 sm3><v-text-field v-model.number="newHouse.floorNumber" mask="###" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="楼层" hint="" persistent-hint box required></v-text-field></v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newHouse.floorNumber" :rules="[$store.state.rules.required, $store.state.rules.noZero, rules.testFloorNumber]" label="楼层" hint="" persistent-hint box required></v-text-field></v-flex>
                       <v-flex xs12 sm3><v-text-field v-model="newHouse.doorNumber" :rules="[$store.state.rules.required]" label="门牌号" hint="" persistent-hint box required></v-text-field></v-flex>
                       <v-flex xs12 sm3>
                         <v-menu v-model="menu.decorationSituationMenu" offset-y nudge-top="20">
@@ -57,7 +57,7 @@
                       </v-flex>
                       <v-flex xs12 sm3><v-text-field v-model.number="newHouse.orientation" :rules="[$store.state.rules.required]" label="房源朝向" hint="" persistent-hint box required></v-text-field></v-flex>
                       <v-flex xs12 sm3><v-text-field v-model.number="newHouse.buildArea" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="建筑面积(m²)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
-                      <v-flex xs12 sm3><v-text-field v-model.number="newHouse.usageRate" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="使用率(%)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newHouse.usageRate" :rules="[$store.state.rules.required, $store.state.rules.noZero, rules.lessThanHundred]" label="使用率(%)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
                       <v-flex xs12 sm3><v-text-field v-model.number="newHouse.accommodatingNumber" mask="####" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="容纳人数" hint="" persistent-hint box required></v-text-field></v-flex>
                       <v-flex xs6 sm3><v-switch :label="`${newHouse.isDecoration?'可':'不可'}自行装修`" v-model="newHouse.isDecoration" @change="newHouse.isDecoration=Number(newHouse.isDecoration)"></v-switch></v-flex>
                       <v-flex xs6 sm3><v-switch :label="`${newHouse.isOfficeFurniture?'含':'不含'}办公家具`" v-model="newHouse.isOfficeFurniture" @change="newHouse.isOfficeFurniture=Number(newHouse.isOfficeFurniture)"></v-switch></v-flex>
@@ -274,14 +274,19 @@ export default {
       accept: "image/png,image/gif,image/jpeg,image/webp",
       extensions: /\.(gif|jpe?g|png|webp)$/i,
       size: 1024 * 1024 * 2,
-      minSize: 128 * 1024,
+      minSize: 10 * 1024,
       multiple: false,
       thread: 1,
       directory: false,
       dropDirectory: false
     },
     newImageList: [],
-    houseImageList: []
+    houseImageList: [],
+    rules: {
+      testFloorNumber: val =>
+        !new RegExp(/[^(\-?)\d+]/gi).test(val) || "楼层需为整数",
+      lessThanHundred: val => val <= 100 || "该项需小于一百"
+    }
   }),
   created() {
     this.$store.commit("changeToolBarTitle", "添加房源");
@@ -407,7 +412,10 @@ export default {
           submitData = Object.assign(
             {
               houseId: this.editHouse.houseId,
-              houseNo: this.editHouse.houseNo
+              houseNo: this.editHouse.houseNo,
+              resourceStatus: this.editHouse.resourceStatus,
+              idleDays: this.editHouse.idleDays,
+              delFlag: this.editHouse.delFlag
             },
             submitData
           );
@@ -595,16 +603,21 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.no-data
-  height 400px
-  line-height 400px
-  text-align center
+.no-data {
+  height: 400px;
+  line-height: 400px;
+  text-align: center;
+}
 
-.house-new
-  .image-container
-    opacity 0
-    background rgba(128, 128, 128, 0.3)
-    transition 0.3s ease
-    &:hover
-      opacity 1
+.house-new {
+  .image-container {
+    opacity: 0;
+    background: rgba(128, 128, 128, 0.3);
+    transition: 0.3s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
 </style>

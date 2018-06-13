@@ -174,7 +174,10 @@ export default {
         this.networkError = null;
         this.buildingInfoArr = [];
         this.houseInfoArr = [];
-        let paramsData = {};
+        let paramsData = {
+          limit: 9999,
+          page: 1
+        };
         for (const key in this.searchFilter) {
           if (this.searchFilter.hasOwnProperty(key)) {
             if (this.searchFilter[key] !== "") {

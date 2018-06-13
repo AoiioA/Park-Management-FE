@@ -3,7 +3,7 @@
     <v-container class="contract-detail px-2">
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 md10 lg8>
-          <v-toolbar dense flat>
+          <v-toolbar dense flat color="blue-grey lighten-5">
             <v-toolbar-side-icon @click="$router.push({})">
               <v-icon>close</v-icon>
             </v-toolbar-side-icon>
@@ -536,7 +536,7 @@ export default {
   width: 100%;
   max-width: 100%;
   min-height: 100%;
-  background: #f5f5f5;
+  background: #ECEFF1;
   z-index: 1;
 
   .center-box {
