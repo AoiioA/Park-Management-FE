@@ -170,13 +170,12 @@
                     item-key="payDay"
                     no-data-text="暂无租金明细"
                     class="elevation-1 mb-5"
-                    hide-actions
                   >
                     <template slot="items" slot-scope="props">
                       <!-- <tr @click="props.expanded = !props.expanded"> -->
+                      <td v-if="props.item.payDay">{{ props.item.payDay.slice(0, 10) }}</td>
                       <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
                       <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
-                      <td v-if="props.item.payDay">{{ props.item.payDay.slice(0, 10) }}</td>
                       <td>{{ props.item.houseTotal }}元</td>
                       <td>{{ props.item.propertyFees }}元</td>
                       <!-- </tr> -->
@@ -209,7 +208,6 @@
                     item-key="id"
                     no-data-text="暂无交易明细"
                     class="elevation-1 mb-5"
-                    hide-actions
                   >
                     <template slot="items" slot-scope="props">
                       <!-- <tr @click="props.expanded = !props.expanded"> -->

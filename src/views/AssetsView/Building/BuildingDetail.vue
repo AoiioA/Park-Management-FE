@@ -347,7 +347,10 @@ export default {
               let bData = building.data.data;
               let hData = house.data.data;
               this.buildingInfo = bData && bData.length ? bData[0] : {};
-              this.houseInfoArr = hData && hData.length ? hData : [];
+              this.houseInfoArr =
+                hData && hData.length
+                  ? hData.sort((x, y) => x.floorNo > y.floorNo)
+                  : [];
               for (let key in this.buildingInfo) {
                 if (this.defaultBuilding.hasOwnProperty(key)) {
                   this.defaultBuilding[key] = this.buildingInfo[key];
