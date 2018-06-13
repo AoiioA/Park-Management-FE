@@ -19,7 +19,7 @@ import NotFind from "@/views/NotFind.vue";
 export default {
   data: () => ({}),
   created() {
-    this.$store.commit("changeToolBarTitle", "租金管理");
+    this.$store.commit("changeToolBarTitle", { title: "租金管理" });
   },
   components: {
     ViewToolBar,

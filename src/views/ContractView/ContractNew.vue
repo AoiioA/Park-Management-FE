@@ -429,7 +429,7 @@ export default {
     }
   },
   created() {
-    this.$store.commit("changeToolBarTitle", "添加合同");
+    // this.$store.commit("changeToolBarTitle", { title: "添加合同" });
     this.initialize();
   },
   methods: {

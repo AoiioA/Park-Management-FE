@@ -47,7 +47,9 @@ export default {
     viewToolBarTab() {
       for (const page in this.pageInfo) {
         if (this.$route.path.indexOf(page) != -1) {
-          this.$store.commit("changeToolBarTitle", this.pageInfo[page].title);
+          this.$store.commit("changeToolBarTitle", {
+            title: this.pageInfo[page].title
+          });
           return this.pageInfo[page].tabs.map(tab => ({
             name: tab.name,
             to: `/home/contract/${page}/${tab.to}`

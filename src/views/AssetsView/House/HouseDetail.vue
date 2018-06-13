@@ -41,7 +41,7 @@ export default {
     }
   },
   created() {
-    this.$store.commit("changeToolBarTitle", "房源详情");
+    this.$store.commit("changeToolBarTitle", { title: "房源详情" });
   }
 };
 </script>

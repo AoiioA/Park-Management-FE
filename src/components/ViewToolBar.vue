@@ -4,9 +4,26 @@
     color="primary"
     style="height: auto;"
   >
+    <v-breadcrumbs
+      v-if="$store.state.toolBarCrumbs.length"
+      divider="/"
+      class="px-4 pb-0"
+    >
+      <v-breadcrumbs-item
+        v-for="crumbs in $store.state.toolBarCrumbs"
+        :key="crumbs.name"
+      >
+        <a @click="$router.push(crumbs.to)" class="white--text">
+          {{ crumbs.name }}
+        </a>
+      </v-breadcrumbs-item>
+    </v-breadcrumbs>
     <v-layout class="mx-3 bar-content">
+      <v-btn v-if="$store.state.toolBarIsBack" @click="$router.go(-1)" class="mx-0" flat icon>
+        <v-icon>arrow_back</v-icon>
+      </v-btn>
       <v-flex>
-        <div class="ml-2 mb-2 py-2 bar-title">{{ $store.state.toolBarTitle }}</div>
+        <div class="ml-2 mb-2 bar-title">{{ $store.state.toolBarTitle }}</div>
       </v-flex>
       <slot name="bar-menu"></slot>
     </v-layout>
@@ -41,7 +58,7 @@ export default {
   .bar-title
     font-size 26px
     font-weight 500
-    line-height 32px
+    line-height 48px
     overflow hidden
     text-overflow ellipsis
     white-space nowrap

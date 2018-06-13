@@ -289,7 +289,7 @@ export default {
     }
   }),
   created() {
-    this.$store.commit("changeToolBarTitle", "添加房源");
+    this.$store.commit("changeToolBarTitle", { title: "添加房源" });
     this.initialize();
   },
   methods: {
@@ -342,7 +342,7 @@ export default {
             } else {
               this.editHouse = houseRes.data.data;
               if (this.editHouse.resourceStatus === 0) {
-                this.$store.commit("changeToolBarTitle", "修改房源");
+                this.$store.commit("changeToolBarTitle", { title: "修改房源" });
                 for (let key in this.editHouse) {
                   if (this.newHouse.hasOwnProperty(key)) {
                     this.newHouse[key] = this.editHouse[key];

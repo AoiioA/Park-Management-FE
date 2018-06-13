@@ -96,7 +96,7 @@ export default {
     $route: "initialize"
   },
   created() {
-    this.$store.commit("changeToolBarTitle", "楼宇概览");
+    this.$store.commit("changeToolBarTitle", { title: "楼宇概览" });
     this.initialize();
   },
   methods: {

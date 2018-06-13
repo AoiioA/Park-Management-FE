@@ -230,6 +230,14 @@ export default {
               this.buildingInfo = buildingRes.data.data.find(
                 item => item.buildingNo == this.houseInfo.buildingNo
               );
+              this.$store.commit("changeToolBarTitle", {
+                title: `${this.houseInfo.doorNumber}`,
+                isBack: true,
+                crumbs: [
+                  { name: "房源概览", to: { name: "house-search" } },
+                  { name: "房源详情" }
+                ]
+              });
             }
           })
         )

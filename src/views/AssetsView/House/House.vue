@@ -21,7 +21,7 @@
 //   },
 //   data: () => ({}),
 //   created() {
-//     this.$store.commit("changeToolBarTitle", "房源概览");
+//     this.$store.commit("changeToolBarTitle", { title: "房源概览" });
 //   }
 // };
 </script>

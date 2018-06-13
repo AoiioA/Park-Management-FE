@@ -23,7 +23,7 @@ export default {
   },
   data: () => ({}),
   created() {
-    this.$store.commit("changeToolBarTitle", "数据概览");
+    this.$store.commit("changeToolBarTitle", { title: "数据概览" });
   }
 };
 </script>

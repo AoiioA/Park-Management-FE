@@ -23,7 +23,7 @@ export default {
     viewToolBarTab: []
   }),
   created() {
-    this.$store.commit("changeToolBarTitle", "生态圈概览");
+    this.$store.commit("changeToolBarTitle", { title: "生态圈概览" });
   }
 };
 </script>

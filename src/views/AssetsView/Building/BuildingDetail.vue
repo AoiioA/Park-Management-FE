@@ -306,7 +306,7 @@ export default {
     $route: "initialize"
   },
   created() {
-    this.$store.commit("changeToolBarTitle", "楼宇详情");
+    this.$store.commit("changeToolBarTitle", { title: "楼宇详情" });
     this.houseView =
       this.$route.params.buildingDetailType || this.houseViewArr[0].value;
     this.initialize();

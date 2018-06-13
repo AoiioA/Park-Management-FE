@@ -162,7 +162,7 @@ export default {
     houseInfoArr: []
   }),
   created() {
-    this.$store.commit("changeToolBarTitle", "搜索房源");
+    this.$store.commit("changeToolBarTitle", { title: "房源概览" });
   },
   mounted() {
     this.initialize();

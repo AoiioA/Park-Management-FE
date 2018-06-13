@@ -6,7 +6,7 @@
       <v-layout justify-center wrap>
         <v-flex xs12 sm4 x2>
           <v-subheader>
-            {{ parkInfo.parkName }}
+            园区信息
             <v-spacer></v-spacer>
             <v-dialog v-model="menu.newPark" max-width="500px" persistent>
               <v-btn slot="activator" color="primary" small depressed class="mx-0">编辑园区</v-btn>
@@ -48,29 +48,35 @@
             <v-divider></v-divider> -->
             <v-list dense>
               <v-list-tile>
-                <v-list-tile-content>省市区县 : {{ `${parkInfo.province} ${parkInfo.city} ${parkInfo.district}` }}</v-list-tile-content>
+                <v-list-tile-content>省市区县 : </v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ `${parkInfo.province} ${parkInfo.city} ${parkInfo.district}` }}</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
-                <v-list-tile-content>详细地址 : {{ parkInfo.address }}</v-list-tile-content>
+                <v-list-tile-content>详细地址 : </v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ parkInfo.address }}</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
-                <v-list-tile-content>占地面积 : {{ parkInfo.floorArea }}m²</v-list-tile-content>
+                <v-list-tile-content>占地面积 : </v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ parkInfo.floorArea }}m²</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
-                <v-list-tile-content>建筑面积 : {{ parkInfo.constructionArea }}m²</v-list-tile-content>
+                <v-list-tile-content>建筑面积 : </v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ parkInfo.constructionArea }}m²</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
-                <v-list-tile-content>绿化率 : {{ parkInfo.greeningRate }}%</v-list-tile-content>
+                <v-list-tile-content>绿化率 : </v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ parkInfo.greeningRate }}%</v-list-tile-content>
               </v-list-tile>
               <v-list-tile>
-                <v-list-tile-content>容积率 : {{ parkInfo.volumeRate }}%</v-list-tile-content>
+                <v-list-tile-content>容积率 : </v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ parkInfo.volumeRate }}%</v-list-tile-content>
               </v-list-tile>
-              <v-flex class="px-3">{{ parkInfo.environment }}</v-flex>
+              <v-flex class="px-3" style="text-align: justify;">{{ parkInfo.environment }}</v-flex>
             </v-list>
           </v-card>
         </v-flex>
         <v-flex xs12 sm8 xl8>
-          <v-subheader>{{ parkInfo.parkName }} - 楼宇</v-subheader>
+          <v-subheader>园区所含楼宇</v-subheader>
           <v-card>
             <!-- <v-card-title class="py-2">
               <v-text-field
@@ -171,7 +177,7 @@ export default {
     ]
   }),
   created() {
-    this.$store.commit("changeToolBarTitle", "园区概览");
+    this.$store.commit("changeToolBarTitle", { title: "园区详情" });
     this.initialize();
   },
   methods: {
@@ -225,6 +231,14 @@ export default {
                 }
               }
               this.editedPark = Object.assign({}, this.defaultPark);
+              this.$store.commit("changeToolBarTitle", {
+                title: this.parkInfo.parkName,
+                isBack: true,
+                crumbs: [
+                  { name: "园区概览", to: { name: "park-list" } },
+                  { name: "园区详情" }
+                ]
+              });
             }
           })
         )

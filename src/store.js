@@ -20,6 +20,8 @@ export default new Vuex.Store({
       }
     },
     snackbar: [],
+    toolBarIsBack: false,
+    toolBarCrumbs: [],
     toolBarTitle: ""
   },
   getters: {
@@ -47,8 +49,11 @@ export default new Vuex.Store({
     closeSnackBar(state, index) {
       state.snackbar[index].value = false;
     },
-    changeToolBarTitle(state, title) {
+    changeToolBarTitle(state, toolBar) {
+      let { title, isBack, crumbs } = toolBar;
       state.toolBarTitle = title;
+      state.toolBarIsBack = isBack || false;
+      state.toolBarCrumbs = crumbs || [];
     }
   },
   actions: {}

@@ -428,7 +428,7 @@ export default {
     ]
   }),
   created() {
-    // this.$store.commit("changeToolBarTitle", "合同详情");
+    // this.$store.commit("changeToolBarTitle", { title: "合同详情" });
     this.initialize();
   },
   methods: {

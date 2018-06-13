@@ -20,7 +20,7 @@ export default {
     viewToolBarTab: []
   }),
   created() {
-    this.$store.commit("changeToolBarTitle", "园区概览");
+    this.$store.commit("changeToolBarTitle", { title: "园区概览" });
   },
   components: {
     ViewToolBar
