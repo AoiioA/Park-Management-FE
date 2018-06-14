@@ -101,39 +101,43 @@ export default {
   },
   methods: {
     initialize() {
-      this.networkLoading = true;
-      this.networkError = null;
-      this.$http
-        .post("/cms/buildingInfo/listBuildingInfo.json", {})
-        .then(res => {
-          this.networkLoading = false;
+      if (this.$route.name !== "building-detail") {
+        if (!this.viewToolBarTab.length) {
+          this.networkLoading = true;
+          this.networkError = null;
+          this.$http
+            .post("/cms/buildingInfo/listBuildingInfo.json", {})
+            .then(res => {
+              this.networkLoading = false;
 
-          let resData = res.data.data;
-          let buildingArr =
-            resData && resData.length
-              ? resData.sort((x, y) => x.buildingNo - y.buildingNo)
-              : [];
+              let resData = res.data.data;
+              let buildingArr =
+                resData && resData.length
+                  ? resData.sort((x, y) => x.buildingNo - y.buildingNo)
+                  : [];
 
-          this.viewToolBarTab = buildingArr.map(el => ({
-            name: el.buildingName,
-            to: {
-              name: "building-detail",
-              params: { buildingNo: el.buildingNo, buildingDetailType: "area" }
-            }
-          }));
+              this.viewToolBarTab = buildingArr.map(el => ({
+                name: el.buildingName,
+                to: {
+                  name: "building-detail",
+                  params: {
+                    buildingNo: el.buildingNo,
+                    buildingDetailType: "area"
+                  }
+                }
+              }));
 
-          if (
-            this.$route.name !== "building-detail" &&
-            this.viewToolBarTab.length
-          ) {
-            this.$router.push(this.viewToolBarTab[0].to);
-          }
-        })
-        .catch(err => {
-          this.networkLoading = false;
-          this.networkError = true;
-          this.$store.commit("addSnackBar", `楼宇查询失败 ${err}`, "error");
-        });
+              this.$router.replace(this.viewToolBarTab[0].to);
+            })
+            .catch(err => {
+              this.networkLoading = false;
+              this.networkError = true;
+              this.$store.commit("addSnackBar", `楼宇查询失败 ${err}`, "error");
+            });
+        } else {
+          this.$router.replace(this.viewToolBarTab[0].to);
+        }
+      }
     },
     getPark() {
       this.select.parkInfoArr = [{ parkName: "无园区", parkNo: 0 }];

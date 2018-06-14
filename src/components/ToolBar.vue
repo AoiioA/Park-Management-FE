@@ -42,17 +42,16 @@
       :nudge-bottom="10"
       v-model="menu"
     >
-      <v-btn icon large slot="activator">
-        <v-avatar size="44" color="white">
-          <!-- <img src="https://vuetifyjs.com/static/doc-images/logo.svg" alt="Vuetify"> -->
-          <strong class="blue--text text--darken-2 body-1"><strong>中海融</strong></strong>
+      <v-btn icon slot="activator">
+        <v-avatar>
+          <v-icon>account_circle</v-icon>
+          <!-- <strong class="blue--text text--darken-2 body-1"><strong>中海融</strong></strong> -->
         </v-avatar>
       </v-btn>
       <v-card>
         <v-list>
           <v-list-tile avatar>
             <v-list-tile-avatar color="primary">
-              <!-- <img src="https://vuetifyjs.com/static/doc-images/logo.svg" alt="Vuetify"> -->
               <span class="white--text body-2 caption">中海融</span>
             </v-list-tile-avatar>
             <v-list-tile-content>

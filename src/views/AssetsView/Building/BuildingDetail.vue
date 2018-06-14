@@ -4,7 +4,7 @@
       <v-container grid-list-xl>
         <v-layout justify-center align-center>
           <v-flex xs12 xl10>
-            <v-subheader class="px-0">
+            <v-subheader>
               <span style="min-width: 104px" class="mx-2">
                 <v-select
                   @change="val => $router.push({ params: { buildingNo: $route.params.buildingNo, buildingDetailType: val } })"
@@ -702,12 +702,12 @@ export default {
     createDownloadEl(res) {
       const fileName = "房源excel.xlsx";
       // const fileName = res.headers['content-disposition'].split('filename=')[1].split(';')[0] || "";
-      const blob = new Blob([res]);
+      const blob = new Blob([res.data]);
       // if ("download" in document.createElement("a")) {
-      const url = window.URL.createObjectURL(blob);
+      const imgUrl = window.URL.createObjectURL(blob);
       let link = document.createElement("a");
       link.style.display = "none";
-      link.href = url;
+      link.href = imgUrl;
       link.setAttribute("download", fileName);
 
       document.body.appendChild(link);

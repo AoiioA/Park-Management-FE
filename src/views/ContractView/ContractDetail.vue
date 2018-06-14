@@ -15,7 +15,7 @@
         <v-alert v-else-if="networkError" :value="true" type="error" class="center-box">网络出现异常 - 检查网络后刷新重试</v-alert>
         <v-flex xs12 md10 lg8 v-else>
           <v-jumbotron height="auto">
-            <v-container grid-list-lg fill-height>
+            <v-container grid-list-xl fill-height>
               <v-layout wrap>
                 <!-- <v-flex xs12 md12 class="subheading grey--text text--darken-1">合同明细</v-flex> -->
                 <v-flex xs12 md6>
@@ -160,7 +160,7 @@
             </v-container>
           </v-jumbotron>
           <v-jumbotron height="auto" v-if="CTRTInfo.contractRentTotalDto">
-            <v-container grid-list-lg fill-height>
+            <v-container grid-list-xl fill-height>
               <v-layout align-start align-content-start justify-center wrap>
                 <v-flex xs12 md12>
                   <v-subheader>租金缴纳明细<small>（预计）</small></v-subheader>
@@ -198,7 +198,7 @@
             </v-container>
           </v-jumbotron>
           <v-jumbotron height="auto" v-if="CTRTInfo.rentBillListDtos">
-            <v-container grid-list-lg fill-height>
+            <v-container grid-list-xl fill-height>
               <v-layout align-start align-content-start justify-center wrap>
                 <v-flex xs12 md12>
                   <v-subheader>所含交易明细</v-subheader>

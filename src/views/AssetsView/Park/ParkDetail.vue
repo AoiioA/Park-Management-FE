@@ -4,7 +4,7 @@
 		<v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
 		<v-container v-else grid-list-xl>
       <v-layout justify-center wrap>
-        <v-flex xs12 sm4 x2>
+        <v-flex xs12 sm10 md4 xl2>
           <v-subheader>
             园区信息
             <v-spacer></v-spacer>
@@ -15,15 +15,23 @@
                   <v-card-title>
                     <span class="headline">编辑园区</span>
                     <v-spacer></v-spacer>
-                    <v-btn flat @click="delPark" color="error">删除园区</v-btn>
+                    <v-dialog v-model="menu.delDialog" persistent max-width="290">
+                      <v-btn slot="activator" flat color="error">删除园区</v-btn>
+                      <v-card>
+                        <v-card-title class="headline">确认删除园区?</v-card-title>
+                        <v-card-text>删除园区前请先移除该园区下所包含的资源。</v-card-text>
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn color="primary" flat @click.native="delDialog = false">再看看</v-btn>
+                          <v-btn color="error" flat @click.native="delPark">我确认</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-dialog>
                   </v-card-title>
                   <v-card-text>
                     <v-container grid-list-xs>
                       <v-layout wrap>
                         <v-flex xs12><v-text-field v-model="editedPark.parkName" :rules="[$store.state.rules.required]" label="园区名称" hint="如 : 望京园区" persistent-hint required></v-text-field></v-flex>
-                        <!-- <v-flex xs4><v-select @change="getCity" v-model="editedPark.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" autocomplete required></v-select></v-flex> -->
-                        <!-- <v-flex xs4><v-select :disabled="!editedPark.province" @change="getDistrict" v-model="editedPark.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex> -->
-                        <!-- <v-flex xs4><v-select :disabled="!editedPark.city" v-model="editedPark.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex> -->
                         <v-flex xs12><v-text-field v-model="editedPark.address" :rules="[$store.state.rules.required]" label="详细地址" hint="省市区县不可更换" persistent-hint required></v-text-field></v-flex>
                         <v-flex xs3><v-text-field v-model="editedPark.floorArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="占地面积(m²)" type="number"></v-text-field></v-flex>
                         <v-flex xs3><v-text-field v-model="editedPark.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number"></v-text-field></v-flex>
@@ -75,7 +83,7 @@
             </v-list>
           </v-card>
         </v-flex>
-        <v-flex xs12 sm8 xl8>
+        <v-flex xs12 sm10 md8 xl8>
           <v-subheader>园区所含楼宇</v-subheader>
           <v-card>
             <!-- <v-card-title class="py-2">
@@ -189,17 +197,17 @@ export default {
       this.$http
         .all([
           this.$http.post("/cms/parkInfo/listParkInfo.json", {
-            parkId: Number(this.$route.query.parkId)
+            parkNo: Number(this.$route.params.parkNo)
           }),
           this.$http.post("/cms/buildingInfo/listBuildingInfo.json", {
             parkNo: Number(this.$route.params.parkNo)
+          }),
+          this.$http.post("/cms/AssetsInfo/queryParkAssetsStatistics.json", {
+            parkNo: Number(this.$route.params.parkNo)
           })
-          // this.$http.post("/cms/AssetsInfo/queryParkAssetsStatistics.json", {
-          //   ParkNo: Number(this.$route.params.parkNo)
-          // })
         ])
         .then(
-          this.$http.spread((park, building) => {
+          this.$http.spread((park, building, parkData) => {
             this.networkLoading = false;
             if (park.data.code == 500) {
               this.$store.commit(
@@ -213,18 +221,18 @@ export default {
                 `楼宇信息查询失败 ${building.data.msg}`,
                 "error"
               );
-              // } else if (parkData.data.code == 500) {
-              //   this.$store.commit(
-              //     "addSnackBar",
-              //     `园区统计信息查询失败 ${parkData.data.msg}`,
-              //     "error"
-              //   );
+            } else if (parkData.data.code == 500) {
+              this.$store.commit(
+                "addSnackBar",
+                `园区统计信息查询失败 ${parkData.data.msg}`,
+                "error"
+              );
             } else {
               let pData = park.data.data;
               let bData = building.data.data;
               this.parkInfo = pData && pData.length ? pData[0] : {};
               this.buildingInfoArr = bData && bData.length ? bData : [];
-              // this.parkDataInfo = parkData.data.data;
+              this.parkDataInfo = parkData.data.data;
               for (let key in this.parkInfo) {
                 if (this.defaultPark.hasOwnProperty(key)) {
                   this.defaultPark[key] = this.parkInfo[key];
@@ -245,7 +253,7 @@ export default {
         .catch(err => {
           this.networkLoading = false;
           this.networkError = true;
-          this.$store.commit("addSnackBar", `楼宇查询失败 ${err}`, "error");
+          this.$store.commit("addSnackBar", `园区查询失败 ${err}`, "error");
         });
     },
     getProvince() {

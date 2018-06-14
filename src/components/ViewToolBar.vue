@@ -7,15 +7,15 @@
     <v-breadcrumbs
       v-if="$store.state.toolBarCrumbs.length"
       divider="/"
-      class="px-4 pb-0"
+      class="px-4 py-0 bar-crumbs"
     >
       <v-breadcrumbs-item
         v-for="crumbs in $store.state.toolBarCrumbs"
         :key="crumbs.name"
       >
-        <a @click="$router.push(crumbs.to)" class="white--text">
+        <span @click="$router.push(crumbs.to)">
           {{ crumbs.name }}
-        </a>
+        </span>
       </v-breadcrumbs-item>
     </v-breadcrumbs>
     <v-layout class="mx-3 bar-content">
@@ -54,6 +54,9 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+.bar-crumbs
+  & /deep/ .breadcrumbs__item
+    color inherit
 .bar-content
   .bar-title
     font-size 26px
