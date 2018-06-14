@@ -23,7 +23,7 @@
         <v-icon>arrow_back</v-icon>
       </v-btn>
       <v-flex>
-        <div class="ml-2 mb-2 bar-title">{{ $store.state.toolBarTitle }}</div>
+        <div class="ml-2 mb-2 bar-title" v-html="$store.state.toolBarTitle"></div>
       </v-flex>
       <slot name="bar-menu"></slot>
     </v-layout>

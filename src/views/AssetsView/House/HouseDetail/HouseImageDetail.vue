@@ -2,10 +2,10 @@
   <v-jumbotron height="auto" class="house-image">
     <v-progress-linear v-if="networkLoading" indeterminate class="my-0"></v-progress-linear>
     <v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
-    <v-container grid-list-lg v-else>
+    <v-container grid-list-xl v-else>
       <v-layout justify-center align-center>
         <v-flex xs12 lg10>
-          <v-subheader class="px-0">
+          <v-subheader>
             房源图片
             <v-spacer></v-spacer>
             <file-upload
@@ -44,12 +44,23 @@
                   <v-container fill-height fluid class="image-container">
                     <v-layout column>
                       <v-flex class="text-xs-right">
-                        <v-tooltip top>
-                          <v-btn slot="activator" :loading="imageItem.loading" @click="delFile(imageIndex)" icon dark class="mx-0 my-0">
-                            <v-icon>cloud_off</v-icon>
-                          </v-btn>
-                          <span>从云端移除</span>
-                        </v-tooltip>
+                        <v-dialog v-model="menu.delDialog" persistent max-width="290">
+                          <v-tooltip slot="activator" left>
+                            <v-btn slot="activator" :loading="imageItem.loading" icon dark class="mx-0 my-0">
+                              <v-icon>cloud_off</v-icon>
+                            </v-btn>
+                            <span>移除</span>
+                          </v-tooltip>
+                          <v-card>
+                            <v-card-title class="headline">确认删除照片?</v-card-title>
+                            <v-card-text>请您谨慎进行此操作。</v-card-text>
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn color="primary" flat @click.native="menu.delDialog = false">再看看</v-btn>
+                              <v-btn color="error" flat @click.native="delFile(imageIndex)">我确认</v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
                       </v-flex>
                     </v-layout>
                   </v-container>
@@ -111,6 +122,9 @@ export default {
   data: () => ({
     networkLoading: false,
     networkError: null,
+    menu: {
+      delDialog: false
+    },
     rowsPerPageItems: [4, 8, 12],
     pagination: {
       rowsPerPage: 4

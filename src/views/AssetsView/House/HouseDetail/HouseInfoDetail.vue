@@ -2,10 +2,10 @@
   <v-jumbotron height="auto">
     <v-progress-linear v-if="networkLoading" indeterminate class="my-0"></v-progress-linear>
     <v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
-    <v-container v-else grid-list-lg>
+    <v-container v-else grid-list-xl>
       <v-layout justify-center align-center>
-        <v-flex xs12 lg10>
-          <v-subheader class="px-0">
+        <v-flex xs12 sm10>
+          <v-subheader>
             <h3>
               {{ `${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(houseInfo.floorNumber)}层&nbsp;${houseInfo.doorNumber}室` }}<br />
               <small v-if="buildingInfo.parkId">{{ `${buildingInfo.parkName} - ` }}</small>
@@ -22,18 +22,23 @@
               >编辑房源</v-btn>
               <span>空置状态才可编辑</span>
             </v-tooltip>
-            <v-btn
-              :disabled="houseInfo.resourceStatus!==0"
-              @click="delHouse"
-              depressed
-              color="error"
-              class="mx-0"
-            >删除房源</v-btn>
+            <v-dialog :disabled="houseInfo.resourceStatus!==0" v-model="menu.delDialog" persistent max-width="290">
+              <v-btn slot="activator" :disabled="houseInfo.resourceStatus!==0" flat color="error">删除房源</v-btn>
+              <v-card>
+                <v-card-title class="headline">确认删除房源?</v-card-title>
+                <v-card-text>请您谨慎进行此操作。</v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="primary" flat @click.native="menu.delDialog = false">再看看</v-btn>
+                  <v-btn color="error" flat @click.native="delHouse">我确认</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
           </v-subheader>
         </v-flex>
       </v-layout>
       <v-layout justify-center wrap>
-        <v-flex xs12 lg10>
+        <v-flex xs12 sm10>
           <v-layout wrap>
             <v-flex xs6 sm3>
               <v-card>
@@ -69,7 +74,7 @@
             </v-flex>
           </v-layout>
         </v-flex>
-        <v-flex xs12 lg5>
+        <v-flex xs12 sm5>
           <v-subheader>基础信息</v-subheader>
           <v-card height="328px">
             <!-- <v-card-title></v-card-title>
@@ -116,7 +121,7 @@
             </v-list>
           </v-card>
         </v-flex>
-        <v-flex xs12 lg5>
+        <v-flex xs12 sm5>
           <v-subheader>租赁信息</v-subheader>
           <v-card height="328px">
             <!-- <v-card-title></v-card-title>
@@ -161,6 +166,9 @@
 <script>
 export default {
   data: () => ({
+    menu: {
+      delDialog: false
+    },
     networkLoading: false,
     networkError: null,
     houseStatus: ["空置", "租赁中", "预定", "维护", "租赁审核"],

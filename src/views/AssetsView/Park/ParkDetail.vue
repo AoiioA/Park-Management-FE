@@ -8,7 +8,7 @@
           <v-subheader>
             园区信息
             <v-spacer></v-spacer>
-            <v-dialog v-model="menu.newPark" max-width="500px" persistent>
+            <v-dialog v-model="menu.newDialog" max-width="500px" persistent>
               <v-btn slot="activator" color="primary" small depressed class="mx-0">编辑园区</v-btn>
               <v-form ref="newParkForm" v-model="newParkValid" lazy-validation>
                 <v-card>
@@ -19,10 +19,10 @@
                       <v-btn slot="activator" flat color="error">删除园区</v-btn>
                       <v-card>
                         <v-card-title class="headline">确认删除园区?</v-card-title>
-                        <v-card-text>删除园区前请先移除该园区下所包含的资源。</v-card-text>
+                        <v-card-text>删除园区前请先移除该园区所含资源。</v-card-text>
                         <v-card-actions>
                           <v-spacer></v-spacer>
-                          <v-btn color="primary" flat @click.native="delDialog = false">再看看</v-btn>
+                          <v-btn color="primary" flat @click.native="menu.delDialog = false">再看看</v-btn>
                           <v-btn color="error" flat @click.native="delPark">我确认</v-btn>
                         </v-card-actions>
                       </v-card>
@@ -138,7 +138,8 @@ export default {
     networkLoading: false,
     networkError: null,
     menu: {
-      newPark: false
+      newDialog: false,
+      delDialog: false
     },
     select: {
       provinceInfoArr: [],
@@ -322,7 +323,7 @@ export default {
       if (!isCancel || confirm("取消后内容将不会保存")) {
         this.editedPark = Object.assign({}, this.defaultPark);
         this.$refs.newParkForm.reset();
-        this.menu.newPark = false;
+        this.menu.newDialog = false;
       }
     },
     newParkSave() {

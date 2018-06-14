@@ -37,9 +37,6 @@
                           <v-flex xs4><v-select v-if="editedBuilding.parkNo==0" @change="getCity" v-model="editedBuilding.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" autocomplete required></v-select></v-flex>
                           <v-flex xs4><v-select v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.province" @change="getDistrict" v-model="editedBuilding.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
                           <v-flex xs4><v-select v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.city" v-model="editedBuilding.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex>
-                          <!-- <v-flex xs4><v-text-field v-if="editedBuilding.parkNo==0" v-model="editedBuilding.province" :rules="[$store.state.rules.required]" label="省" required></v-text-field></v-flex>
-                          <v-flex xs4><v-text-field v-if="editedBuilding.parkNo==0" v-model="editedBuilding.city" :rules="[$store.state.rules.required]" label="市" required></v-text-field></v-flex>
-                          <v-flex xs4><v-text-field v-if="editedBuilding.parkNo==0" v-model="editedBuilding.district" :rules="[$store.state.rules.required]" label="区县" required></v-text-field></v-flex> -->
                           <v-flex xs12><v-text-field v-model="editedBuilding.address" :rules="[$store.state.rules.required]" label="详细地址" required></v-text-field></v-flex>
                         </v-layout>
                       </v-container>

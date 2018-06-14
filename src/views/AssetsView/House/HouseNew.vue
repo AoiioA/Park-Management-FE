@@ -113,12 +113,23 @@
                           <v-container fill-height fluid class="image-container">
                             <v-layout column>
                               <v-flex class="text-xs-right">
-                                <v-tooltip top>
-                                  <v-btn slot="activator" :loading="imageItem.loading" @click="delFile(imageIndex)" small icon dark class="mx-0 my-0">
-                                    <v-icon>cloud_off</v-icon>
-                                  </v-btn>
-                                  <span>从云端移除</span>
-                                </v-tooltip>
+                                <v-dialog v-model="menu.delDialog" persistent max-width="290">
+                                  <v-tooltip slot="activator" left>
+                                    <v-btn slot="activator" :loading="imageItem.loading" icon dark class="mx-0 my-0">
+                                      <v-icon>cloud_off</v-icon>
+                                    </v-btn>
+                                    <span>移除</span>
+                                  </v-tooltip>
+                                  <v-card>
+                                    <v-card-title class="headline">确认删除照片?</v-card-title>
+                                    <v-card-text>请您谨慎进行此操作。</v-card-text>
+                                    <v-card-actions>
+                                      <v-spacer></v-spacer>
+                                      <v-btn color="primary" flat @click.native="menu.delDialog = false">再看看</v-btn>
+                                      <v-btn color="error" flat @click.native="delFile(imageIndex)">我确认</v-btn>
+                                    </v-card-actions>
+                                  </v-card>
+                                </v-dialog>
                               </v-flex>
                             </v-layout>
                           </v-container>
@@ -235,7 +246,8 @@ export default {
       orientation: false,
       decorationSituationMenu: false,
       houseType: false,
-      priceUnit: false
+      priceUnit: false,
+      delDialog: false
     },
     decorationInfo: ["毛坯", "简装修", "中等装修", "豪华装修", "精装修"],
     stepNum: 1,

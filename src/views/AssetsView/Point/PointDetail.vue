@@ -19,10 +19,10 @@
                         <v-btn slot="activator" flat color="error">删除生态圈</v-btn>
                         <v-card>
                           <v-card-title class="headline">确认删除生态圈?</v-card-title>
-                          <v-card-text>删除生态圈并不会影响该生态圈下所包含的资源。</v-card-text>
+                          <v-card-text>删除生态圈并不会影响该生态圈所含资源。</v-card-text>
                           <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="primary" flat @click.native="delDialog = false">再看看</v-btn>
+                            <v-btn color="primary" flat @click.native="menu.delDialog = false">再看看</v-btn>
                             <v-btn color="error" flat @click.native="delPoint">我确认</v-btn>
                           </v-card-actions>
                         </v-card>
@@ -55,8 +55,8 @@
             <v-divider></v-divider> -->
             <v-list dense>
               <v-list-tile>
-                <v-list-tile-content>省市区县 : </v-list-tile-content>
-                <v-list-tile-content class="align-end">{{ `${pointInfo.province} ${pointInfo.city} ${pointInfo.district}` }}</v-list-tile-content>
+                <v-list-tile-content>省 : </v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ pointDataInfo.province }}</v-list-tile-content>
               </v-list-tile>
             </v-list>
           </v-card>
@@ -154,7 +154,10 @@ export default {
               }
               this.editedPoint = Object.assign({}, this.defaultPoint);
               this.$store.commit("changeToolBarTitle", {
-                title: this.pointInfo.pointName,
+                title: `${this.pointInfo.pointName}
+                  <span class="subheading">
+                    ${this.pointInfo.city} ${this.pointInfo.district}
+                  </span>`,
                 isBack: true,
                 crumbs: [
                   { name: "生态圈概览", to: { name: "point-list" } },
@@ -302,7 +305,9 @@ export default {
     delPoint() {
       this.$http
         .post(
-          `/cms/pointInfo/batchDelPointInfo.json?pointNos=${this.pointInfo.pointNo}`
+          `/cms/pointInfo/batchDelPointInfo.json?pointNos=${
+            this.pointInfo.pointNo
+          }`
         )
         .then(res => {
           if (res.data.code != 500) {
