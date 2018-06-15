@@ -6,20 +6,20 @@
       <v-layout justify-center align-center>
         <v-flex xs12 xl10>
           <v-subheader>
-            生态圈信息
+            商圈信息
             <v-spacer></v-spacer>
             <v-dialog v-model="menu.newDialog" max-width="500px" persistent>
-              <v-btn slot="activator" color="primary" small depressed>编辑生态圈</v-btn>
+              <v-btn slot="activator" @click="getProvince" color="primary" small depressed>编辑商圈</v-btn>
               <v-form ref="newPointForm" v-model="newPointValid" lazy-validation>
                 <v-card>
                   <v-card-title>
-                    <span class="headline">编辑生态圈</span>
+                    <span class="headline">编辑商圈</span>
                       <v-spacer></v-spacer>
                       <v-dialog v-model="menu.delDialog" persistent max-width="290">
-                        <v-btn slot="activator" flat color="error">删除生态圈</v-btn>
+                        <v-btn slot="activator" flat color="error">删除商圈</v-btn>
                         <v-card>
-                          <v-card-title class="headline">确认删除生态圈?</v-card-title>
-                          <v-card-text>删除生态圈并不会影响该生态圈所含资源。</v-card-text>
+                          <v-card-title class="headline">确认删除商圈?</v-card-title>
+                          <v-card-text>删除商圈并不会影响该商圈所含资源。</v-card-text>
                           <v-card-actions>
                             <v-spacer></v-spacer>
                             <v-btn color="primary" flat @click.native="menu.delDialog = false">再看看</v-btn>
@@ -31,7 +31,7 @@
                   <v-card-text>
                     <v-container grid-list-xs>
                       <v-layout wrap>
-                        <v-flex xs12><v-text-field v-model="editedPoint.pointName" :rules="[$store.state.rules.required]" label="生态圈名称" hint="如 : 望京生态圈" persistent-hint required></v-text-field></v-flex>
+                        <v-flex xs12><v-text-field v-model="editedPoint.pointName" :rules="[$store.state.rules.required]" label="商圈名称" hint="如 : 望京商圈" persistent-hint required></v-text-field></v-flex>
                         <v-flex xs4><v-select @change="getCity" v-model="editedPoint.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" hint="创建后省市区县不可修改" persistent-hint autocomplete required></v-select></v-flex>
                         <v-flex xs4><v-select :disabled="!editedPoint.province" @change="getDistrict" v-model="editedPoint.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
                         <v-flex xs4><v-select :disabled="!editedPoint.city" v-model="editedPoint.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex>
@@ -50,16 +50,73 @@
               </v-form>
             </v-dialog>
           </v-subheader>
-          <v-card>
-            <!-- <v-card-title></v-card-title>
-            <v-divider></v-divider> -->
-            <v-list dense>
-              <v-list-tile>
-                <v-list-tile-content>省 : </v-list-tile-content>
-                <v-list-tile-content class="align-end">{{ pointDataInfo.province }}</v-list-tile-content>
-              </v-list-tile>
-            </v-list>
-          </v-card>
+          <v-container fluid grid-list-xs>
+            <v-layout justify-center wrap>
+              <v-flex xs12 sm6>
+                <v-card>
+                  <v-card-title>房源租赁情况(数量)</v-card-title>
+                  <!-- <v-divider></v-divider> -->
+                  <v-container fluid fill-height>
+                    <v-layout>
+                      <v-flex>
+                        <chart
+                          :options="assetsNumberOption"
+                          auto-resize
+                          theme="light"
+                          style="height:240px;width:100%;"
+                        ></chart>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-card>
+              </v-flex>
+              <v-flex xs12 sm6>
+                <v-card>
+                  <v-card-title>房源租赁情况(面积)</v-card-title>
+                  <!-- <v-divider></v-divider> -->
+                  <v-container fluid fill-height>
+                    <v-layout wrap>
+                      <v-flex xs12 sm8>
+                        <chart
+                          :options="assetsAreaOption"
+                          auto-resize
+                          theme="light"
+                          style="height:240px;width:100%;"
+                        ></chart>
+                      </v-flex>
+                      <v-flex xs12 sm4>
+                        <v-container fluid fill-height>
+                          <v-layout column>
+                            <v-flex>
+                              <div class="mb-1 grey--text text--darken-1">
+                                <span class="chart-legend-icon" style="background: #29B6F6"></span>
+                                空置房源
+                              </div>
+                              <div class="title">{{ pointDataInfo.emptyHouseArea }}m²</div>
+                            </v-flex>
+                            <v-flex>
+                              <div class="mb-1 grey--text text--darken-1">
+                                <span class="chart-legend-icon" style="background: #1976d2"></span>
+                                出租房源
+                              </div>
+                              <div class="title">{{ pointDataInfo.rentHouseArea }}m²</div>
+                            </v-flex>
+                            <v-flex>
+                              <div class="mb-1 grey--text text--darken-1">
+                                <span class="chart-legend-icon" style="background: #90A4AE"></span>
+                                其他房源
+                              </div>
+                              <div class="title">{{ pointDataInfo.totalHouseArea - pointDataInfo.emptyHouseArea - pointDataInfo.rentHouseArea }}m²</div>
+                            </v-flex>
+                          </v-layout>
+                        </v-container>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-card>
+              </v-flex>
+            </v-layout>
+          </v-container>
         </v-flex>
       </v-layout>
 		</v-container>
@@ -103,8 +160,105 @@ export default {
     parkInfoArr: [],
     pointDataInfo: {}
   }),
+  computed: {
+    assetsNumberOption() {
+      let optLegend = ["空置房源", "出租房源", "其他房源"];
+      let optData = [
+        this.pointDataInfo.emptyHouseCount,
+        this.pointDataInfo.rentHouseCount
+      ];
+      optData.push(
+        this.pointDataInfo.totalHouseCount -
+          optData.reduce((all, item) => all + item)
+      );
+      return {
+        color: ["#1976d2", "#29B6F6", "#5C6BC0", "#90A4AE", "#90A4AE"],
+        tooltip: {
+          textStyle: {
+            color: "rgba(0,0,0,0.87)"
+          },
+          backgroundColor: "#ECEFF1",
+          padding: [8, 12],
+          extraCssText: `
+            border-radius: 3px;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+          `
+        },
+        legend: {
+          data: optLegend
+        },
+        grid: [{ left: 20, right: 0, top: 6, bottom: 0, containLabel: true }],
+        xAxis: {
+          type: "category",
+          data: optLegend,
+          axisLine: { show: false },
+          axisTick: { show: false }
+        },
+        yAxis: {
+          name: "房源数量",
+          nameLocation: "middle",
+          nameGap: "60",
+          type: "value",
+          axisLine: { show: false },
+          axisTick: { show: false }
+        },
+        series: [
+          {
+            data: optData,
+            type: "bar",
+            barWidth: "50%",
+            label: {
+              show: true,
+              position: "top",
+              fontSize: "16"
+            }
+          }
+        ]
+      };
+    },
+    assetsAreaOption() {
+      let optLegend = ["空置房源", "出租房源", "其他房源"];
+      let optData = [
+        this.pointDataInfo.emptyHouseArea,
+        this.pointDataInfo.rentHouseArea
+      ];
+      optData.push(
+        this.pointDataInfo.totalHouseArea -
+          optData.reduce((all, item) => all + item)
+      );
+      optData = optData.map((item, index) => ({
+        value: item,
+        name: optLegend[index]
+      }));
+      return {
+        color: ["#29B6F6", "#1976d2", "#90A4AE"],
+        tooltip: {
+          textStyle: {
+            color: "rgba(0,0,0,0.87)"
+          },
+          backgroundColor: "#ECEFF1",
+          padding: [8, 12],
+          extraCssText: `
+            border-radius: 3px;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+          `
+        },
+        grid: [{ left: 0, right: 0, top: 0, bottom: 0, containLabel: true }],
+        series: [
+          {
+            type: "pie",
+            radius: ["70%", "90%"],
+            label: {
+              show: false
+            },
+            data: optData
+          }
+        ]
+      };
+    }
+  },
   created() {
-    this.$store.commit("changeToolBarTitle", { title: "生态圈概览" });
+    this.$store.commit("changeToolBarTitle", { title: "商圈概览" });
     this.initialize();
   },
   methods: {
@@ -128,13 +282,13 @@ export default {
             if (point.data.code == 500) {
               this.$store.commit(
                 "addSnackBar",
-                `生态圈信息查询失败 ${point.data.msg}`,
+                `商圈信息查询失败 ${point.data.msg}`,
                 "error"
               );
             } else if (pointData.data.code == 500) {
               this.$store.commit(
                 "addSnackBar",
-                `生态圈统计信息查询失败 ${pointData.data.msg}`,
+                `商圈统计信息查询失败 ${pointData.data.msg}`,
                 "error"
               );
             } else {
@@ -160,8 +314,8 @@ export default {
                   </span>`,
                 isBack: true,
                 crumbs: [
-                  { name: "生态圈概览", to: { name: "point-list" } },
-                  { name: "生态圈详情" }
+                  { name: "商圈概览", to: { name: "point-list" } },
+                  { name: "商圈详情" }
                 ]
               });
             }
@@ -170,7 +324,7 @@ export default {
         .catch(err => {
           this.networkLoading = false;
           this.networkError = true;
-          this.$store.commit("addSnackBar", `生态圈查询失败 ${err}`, "error");
+          this.$store.commit("addSnackBar", `商圈查询失败 ${err}`, "error");
         });
     },
     getAssets() {
@@ -285,12 +439,12 @@ export default {
           .then(res => {
             if (res.data.code != 500) {
               this.newPointClose(false);
-              this.$store.commit("addSnackBar", "生态圈添加成功", "success");
+              this.$store.commit("addSnackBar", "商圈添加成功", "success");
               this.initialize();
             } else {
               this.$store.commit(
                 "addSnackBar",
-                `生态圈添加失败 ${res.data.msg}`,
+                `商圈添加失败 ${res.data.msg}`,
                 "success"
               );
             }
@@ -298,7 +452,7 @@ export default {
           .catch(err => {
             this.networkLoading = false;
             this.networkError = true;
-            this.$store.commit("addSnackBar", `生态圈添加失败${err}`, "error");
+            this.$store.commit("addSnackBar", `商圈添加失败${err}`, "error");
           });
       }
     },
@@ -311,14 +465,14 @@ export default {
         )
         .then(res => {
           if (res.data.code != 500) {
-            this.$store.commit("addSnackBar", "生态圈删除成功", "success");
+            this.$store.commit("addSnackBar", "商圈删除成功", "success");
             this.$router.replace({
               name: "point-list"
             });
           }
         })
         .catch(err =>
-          this.$store.commit("addSnackBar", `生态圈删除失败${err}`, "error")
+          this.$store.commit("addSnackBar", `商圈删除失败${err}`, "error")
         );
     }
   }
@@ -330,5 +484,12 @@ export default {
   height: 400px;
   line-height: 400px;
   text-align: center;
+}
+
+.chart-legend-icon {
+  display: inline-block;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
 }
 </style>

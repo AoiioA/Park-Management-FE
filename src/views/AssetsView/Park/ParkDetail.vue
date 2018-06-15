@@ -9,7 +9,7 @@
             园区信息
             <v-spacer></v-spacer>
             <v-dialog v-model="menu.newDialog" max-width="500px" persistent>
-              <v-btn slot="activator" color="primary" small depressed class="mx-0">编辑园区</v-btn>
+              <v-btn slot="activator" @click="getProvince" color="primary" small depressed class="mx-0">编辑园区</v-btn>
               <v-form ref="newParkForm" v-model="newParkValid" lazy-validation>
                 <v-card>
                   <v-card-title>

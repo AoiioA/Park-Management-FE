@@ -13,6 +13,8 @@ import "vuetify/dist/vuetify.min.css";
 import Vuetify from "vuetify";
 
 import ECharts from "vue-echarts/components/ECharts";
+import "echarts/lib/chart/bar";
+import "echarts/lib/chart/pie";
 import "echarts/lib/chart/treemap";
 import "echarts/lib/component/tooltip";
 import "echarts/lib/component/title";

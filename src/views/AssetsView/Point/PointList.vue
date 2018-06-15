@@ -6,19 +6,19 @@
       <v-layout justify-center align-center>
         <v-flex xs12 lg10>
           <v-subheader>
-            您的全部生态圈项目
+            您的全部商圈项目
             <v-spacer></v-spacer>
             <v-dialog v-model="menu.newPoint" max-width="500px" persistent>
-              <!-- <v-btn slot="activator" color="primary" small depressed>添加生态圈</v-btn> -->
+              <!-- <v-btn slot="activator" color="primary" small depressed>添加商圈</v-btn> -->
               <v-form ref="newPointForm" v-model="newPointValid" lazy-validation>
                 <v-card>
                   <v-card-title>
-                    <span class="headline">新生态圈即将添加</span>
+                    <span class="headline">新商圈即将添加</span>
                   </v-card-title>
                   <v-card-text>
                     <v-container grid-list-xs>
                       <v-layout wrap>
-                        <v-flex xs12><v-text-field v-model="editedPoint.pointName" :rules="[$store.state.rules.required]" label="生态圈名称" hint="如 : 望京生态圈" persistent-hint required></v-text-field></v-flex>
+                        <v-flex xs12><v-text-field v-model="editedPoint.pointName" :rules="[$store.state.rules.required]" label="商圈名称" hint="如 : 望京商圈" persistent-hint required></v-text-field></v-flex>
                         <v-flex xs4><v-select @change="getCity" v-model="editedPoint.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" hint="创建后省市区县不可修改" persistent-hint autocomplete required></v-select></v-flex>
                         <v-flex xs4><v-select :disabled="!editedPoint.province" @change="getDistrict" v-model="editedPoint.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
                         <v-flex xs4><v-select :disabled="!editedPoint.city" v-model="editedPoint.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex>
@@ -54,7 +54,7 @@
                 >
                   <v-layout column justify-center>
                     <span><v-icon size="48">add</v-icon></span>
-                    <span>添加生态圈</span>
+                    <span>添加商圈</span>
                   </v-layout>
                 </v-btn>
                 <v-divider></v-divider>
@@ -71,7 +71,7 @@
                 </v-btn>
               </v-card>
             </v-flex>
-            <v-flex v-if="pointList.length==0" class="no-data">暂无生态圈记录 - <a @click="menu.newPoint=true;getProvince();">点击此处添加</a></v-flex>
+            <v-flex v-if="pointList.length==0" class="no-data">暂无商圈记录 - <a @click="menu.newPoint=true;getProvince();">点击此处添加</a></v-flex>
             <v-flex v-for="pointItem in pointList" :key="pointItem.pointNo" xs12 sm4 md3 xl2>
               <v-card height="200px" :to="{ name: 'point-detail', params: { pointNo: pointItem.pointNo } }" ripple>
                 <v-container fill-height fluid class="pt-2 pb-1">
@@ -138,7 +138,7 @@ export default {
     pointList: []
   }),
   created() {
-    this.$store.commit("changeToolBarTitle", { title: "生态圈概览" });
+    this.$store.commit("changeToolBarTitle", { title: "商圈概览" });
     this.initialize();
     this.getAssets();
   },
@@ -156,7 +156,7 @@ export default {
         .catch(err => {
           this.networkLoading = false;
           this.networkError = true;
-          this.$store.commit("addSnackBar", `生态圈查询失败${err}`, "error");
+          this.$store.commit("addSnackBar", `商圈查询失败${err}`, "error");
         });
     },
     getAssets() {
@@ -271,12 +271,12 @@ export default {
           .then(res => {
             if (res.data.code != 500) {
               this.newPointClose(false);
-              this.$store.commit("addSnackBar", "生态圈添加成功", "success");
+              this.$store.commit("addSnackBar", "商圈添加成功", "success");
               this.initialize();
             } else {
               this.$store.commit(
                 "addSnackBar",
-                `生态圈添加失败 ${res.data.msg}`,
+                `商圈添加失败 ${res.data.msg}`,
                 "success"
               );
             }
@@ -284,7 +284,7 @@ export default {
           .catch(err => {
             this.networkLoading = false;
             this.networkError = true;
-            this.$store.commit("addSnackBar", `生态圈添加失败${err}`, "error");
+            this.$store.commit("addSnackBar", `商圈添加失败${err}`, "error");
           });
       }
     }
