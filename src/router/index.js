@@ -70,10 +70,10 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   if (to.name != "login") {
-    if (window.localStorage.getItem("userInfo")) {
-      next();
-    } else {
+    if (!window.localStorage.getItem("userInfo")) {
       next({ name: "login" });
+    } else {
+      next();
     }
   } else {
     next();

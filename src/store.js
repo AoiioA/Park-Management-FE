@@ -6,7 +6,6 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     devBaseUrl: "http://122.115.50.65",
-    isLogin: false,
     rules: {
       required: val =>
         val instanceof Array
