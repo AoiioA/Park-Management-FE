@@ -5,8 +5,10 @@
       :isMini.sync="mini"
     ></nav-drawer>
     <tool-bar @toggleDrawer="drawer = !drawer"></tool-bar>
-    <v-content style="background: #ECEFF1">
-      <router-view></router-view>
+    <v-content>
+      <v-jumbotron height="100%" color="blue-grey lighten-5">
+        <router-view></router-view>
+      </v-jumbotron>
     </v-content>
     <v-footer app absolute inset height="auto" style="z-index:0">
       <v-layout row wrap justify-center>
@@ -15,14 +17,12 @@
         </v-flex>
       </v-layout>
     </v-footer>
-    <snack-bar></snack-bar>
   </v-app>
 </template>
 
 <script>
 import NavDrawer from "@/components/NavDrawer.vue";
 import ToolBar from "@/components/ToolBar.vue";
-import SnackBar from "@/components/SnackBar.vue";
 
 export default {
   name: "home",
@@ -32,8 +32,7 @@ export default {
   }),
   components: {
     NavDrawer,
-    ToolBar,
-    SnackBar
+    ToolBar
   }
 };
 </script>

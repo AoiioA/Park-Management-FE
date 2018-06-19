@@ -66,7 +66,7 @@
             <v-icon small>account_circle</v-icon>&nbsp;账号设置
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn small flat color="error" @click="menu = false">退出登录</v-btn>
+          <v-btn small flat color="error" @click="logout">退出登录</v-btn>
         </v-card-actions>
       </v-card>
     </v-menu>
@@ -83,6 +83,12 @@ export default {
   methods: {
     onScroll() {
       this.offsetTop = window.pageYOffset || document.documentElement.scrollTop;
+    },
+    logout() {
+      this.menu = false;
+      window.localStorage.setItem("userInfo", null);
+      this.$store.commit("addSnackBar", "用户已退出登录", "success");
+      this.$router.push({ name: "login" });
     }
   }
 };

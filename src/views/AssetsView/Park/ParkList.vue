@@ -246,14 +246,12 @@ export default {
               this.$store.commit(
                 "addSnackBar",
                 `园区添加失败 ${res.data.msg}`,
-                "success"
+                "error"
               );
             }
           })
           .catch(err => {
-            this.networkLoading = false;
-            this.networkError = true;
-            this.$store.commit("addSnackBar", `园区添加失败${err}`, "error");
+            this.$store.commit("addSnackBar", `园区添加失败 ${err}`, "error");
           });
       }
     }

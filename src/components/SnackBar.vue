@@ -22,7 +22,7 @@
       bottom
       right
     >
-      {{ snackItem.text }}<v-btn flat color="pink" @click.native="$store.commit('closeSnackBar', index)">Close</v-btn>
+      {{ snackItem.text }}<v-btn flat color="pink" @click.native="$store.commit('closeSnackBar', index)">关闭</v-btn>
     </v-snackbar>
   </div>
 </template>

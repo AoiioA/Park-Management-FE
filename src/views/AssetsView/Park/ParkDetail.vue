@@ -9,7 +9,7 @@
             园区信息
             <v-spacer></v-spacer>
             <v-dialog v-model="menu.newDialog" max-width="500px" persistent>
-              <v-btn slot="activator" @click="getProvince" color="primary" small depressed class="mx-0">编辑园区</v-btn>
+              <v-btn slot="activator" color="primary" small depressed class="mx-0">编辑园区</v-btn>
               <v-form ref="newParkForm" v-model="newParkValid" lazy-validation>
                 <v-card>
                   <v-card-title>
@@ -257,73 +257,11 @@ export default {
           this.$store.commit("addSnackBar", `园区查询失败 ${err}`, "error");
         });
     },
-    getProvince() {
-      this.select.provinceInfoArr = [];
-      this.$http
-        .get("/cms/administrativeDivision/province.json", {})
-        .then(res => {
-          let resData = res.data.data;
-          this.select.provinceInfoArr =
-            resData && resData.length ? resData : [];
-        })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `省级信息查询失败 ${err}`, "error")
-        );
-    },
-    getCity(province) {
-      if (province) {
-        this.select.cityInfoArr = [];
-        this.$http
-          .get("/cms/administrativeDivision/city.json", {
-            params: {
-              province: province
-            }
-          })
-          .then(res => {
-            let resData = res.data.data;
-            this.editedPark.city = "";
-            this.editedPark.district = "";
-            this.select.cityInfoArr = resData && resData.length ? resData : [];
-          })
-          .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `市级信息查询失败 ${err}`,
-              "error"
-            )
-          );
-      }
-    },
-    getDistrict(city) {
-      if (city) {
-        this.select.districtInfoArr = [];
-        this.$http
-          .get("/cms/administrativeDivision/county.json", {
-            params: {
-              province: this.editedPark.province,
-              city: city
-            }
-          })
-          .then(res => {
-            let resData = res.data.data;
-            this.editedPark.district = "";
-            this.select.districtInfoArr =
-              resData && resData.length ? resData : [];
-          })
-          .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `区县信息查询失败 ${err}`,
-              "error"
-            )
-          );
-      }
-    },
     newParkClose(isCancel) {
       if (!isCancel || confirm("取消后内容将不会保存")) {
-        this.editedPark = Object.assign({}, this.defaultPark);
         this.$refs.newParkForm.reset();
         this.menu.newDialog = false;
+        this.editedPark = Object.assign({}, this.defaultPark);
       }
     },
     newParkSave() {
@@ -361,14 +299,12 @@ export default {
               this.$store.commit(
                 "addSnackBar",
                 `园区编辑失败 ${res.data.msg}`,
-                "success"
+                "error"
               );
             }
           })
           .catch(err => {
-            this.networkLoading = false;
-            this.networkError = true;
-            this.$store.commit("addSnackBar", `园区编辑失败${err}`, "error");
+            this.$store.commit("addSnackBar", `园区编辑失败 ${err}`, "error");
           });
       }
     },

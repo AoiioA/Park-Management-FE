@@ -72,7 +72,7 @@
                 </v-tooltip>
                 <v-tooltip v-if="selected.length" bottom>
                   <v-btn @click="batchExportHouse" slot="activator" icon class="mx-0">
-                    <v-icon>vertical_align_bottom</v-icon>
+                    <v-icon>get_app</v-icon>
                   </v-btn>
                   <span>批量导出至Excel</span>
                 </v-tooltip>

@@ -9,7 +9,7 @@
             商圈信息
             <v-spacer></v-spacer>
             <v-dialog v-model="menu.newDialog" max-width="500px" persistent>
-              <v-btn slot="activator" @click="getProvince" color="primary" small depressed>编辑商圈</v-btn>
+              <v-btn slot="activator" @click="getAssets" color="primary" small depressed>编辑商圈</v-btn>
               <v-form ref="newPointForm" v-model="newPointValid" lazy-validation>
                 <v-card>
                   <v-card-title>
@@ -32,9 +32,6 @@
                     <v-container grid-list-xs>
                       <v-layout wrap>
                         <v-flex xs12><v-text-field v-model="editedPoint.pointName" :rules="[$store.state.rules.required]" label="商圈名称" hint="如 : 望京商圈" persistent-hint required></v-text-field></v-flex>
-                        <v-flex xs4><v-select @change="getCity" v-model="editedPoint.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" hint="创建后省市区县不可修改" persistent-hint autocomplete required></v-select></v-flex>
-                        <v-flex xs4><v-select :disabled="!editedPoint.province" @change="getDistrict" v-model="editedPoint.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
-                        <v-flex xs4><v-select :disabled="!editedPoint.city" v-model="editedPoint.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex>
                         <v-flex xs12><v-select :disabled="!select.parkArr.length" v-model="editedPoint.parkNos" :items="select.parkArr" item-text="parkName" item-value="parkNo" label="所含园区" no-data-text="暂无可添加的园区" hint="园区及楼宇可稍后重新选择或修改" persistent-hint multiple autocomplete></v-select></v-flex>
                         <v-flex xs12><v-select :disabled="!select.buildingArr.length" v-model="editedPoint.buildingNos" :items="select.buildingArr" item-text="buildingName" item-value="buildingNo" label="所含楼宇" no-data-text="暂无可添加的楼宇" hint="仅可选择未划分园区的楼宇" persistent-hint multiple autocomplete></v-select></v-flex>
                       </v-layout>
@@ -306,6 +303,12 @@ export default {
                   this.defaultPoint[key] = this.pointInfo[key];
                 }
               }
+              this.defaultPoint.parkNos = this.defaultPoint.parkNos
+                .split(",")
+                .map(item => Number(item));
+              this.defaultPoint.buildingNos = this.defaultPoint.buildingNos
+                .split(",")
+                .map(item => Number(item));
               this.editedPoint = Object.assign({}, this.defaultPoint);
               this.$store.commit("changeToolBarTitle", {
                 title: `${this.pointInfo.pointName}
@@ -356,73 +359,11 @@ export default {
           this.$store.commit("addSnackBar", `楼宇信息查询失败 ${err}`, "error")
         );
     },
-    getProvince() {
-      this.select.provinceInfoArr = [];
-      this.$http
-        .get("/cms/administrativeDivision/province.json", {})
-        .then(res => {
-          let resData = res.data.data;
-          this.select.provinceInfoArr =
-            resData && resData.length ? resData : [];
-        })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `省级信息查询失败 ${err}`, "error")
-        );
-    },
-    getCity(province) {
-      if (province) {
-        this.select.cityInfoArr = [];
-        this.$http
-          .get("/cms/administrativeDivision/city.json", {
-            params: {
-              province: province
-            }
-          })
-          .then(res => {
-            let resData = res.data.data;
-            this.editedPoint.city = "";
-            this.editedPoint.district = "";
-            this.select.cityInfoArr = resData && resData.length ? resData : [];
-          })
-          .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `市级信息查询失败 ${err}`,
-              "error"
-            )
-          );
-      }
-    },
-    getDistrict(city) {
-      if (city) {
-        this.select.districtInfoArr = [];
-        this.$http
-          .get("/cms/administrativeDivision/county.json", {
-            params: {
-              province: this.editedPoint.province,
-              city: city
-            }
-          })
-          .then(res => {
-            let resData = res.data.data;
-            this.editedPoint.district = "";
-            this.select.districtInfoArr =
-              resData && resData.length ? resData : [];
-          })
-          .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `区县信息查询失败 ${err}`,
-              "error"
-            )
-          );
-      }
-    },
     newPointClose(isCancel) {
       if (!isCancel || confirm("取消后内容将不会保存")) {
-        this.editedPoint = Object.assign({}, this.defaultPoint);
         this.$refs.newPointForm.reset();
         this.menu.newDialog = false;
+        this.editedPoint = Object.assign({}, this.defaultPoint);
       }
     },
     newPointSave() {
@@ -445,14 +386,12 @@ export default {
               this.$store.commit(
                 "addSnackBar",
                 `商圈添加失败 ${res.data.msg}`,
-                "success"
+                "error"
               );
             }
           })
           .catch(err => {
-            this.networkLoading = false;
-            this.networkError = true;
-            this.$store.commit("addSnackBar", `商圈添加失败${err}`, "error");
+            this.$store.commit("addSnackBar", `商圈添加失败 ${err}`, "error");
           });
       }
     },
