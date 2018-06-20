@@ -87,7 +87,7 @@ export default {
     logout() {
       this.menu = false;
       window.localStorage.removeItem("userInfo");
-      this.$store.commit("addSnackBar", "用户已退出登录", "success");
+      this.$store.commit("addSnackBar", "您已退出登录", "success");
       this.$router.push({ name: "login" });
     }
   }

@@ -3,7 +3,25 @@
     <v-container grid-list-xl fill-height>
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 xl10>
-          <v-subheader>新增过审合同</v-subheader>
+          <v-subheader>
+            <span>
+              <v-select
+                @change="val => initialize(val.urlParams)"
+                :items="contractViewArr"
+                v-model="contractView"
+                item-text="text"
+                item-value="value"
+                return-object
+                :hint="`切换合同类型`"
+                persistent-hint
+                single-line
+                class="pt-0"
+              ></v-select>
+            </span>
+            <v-spacer></v-spacer>
+          </v-subheader>
+        </v-flex>
+        <v-flex xs12 xl10>
           <v-card>
             <v-card-title class="py-2">
               <v-text-field
@@ -14,7 +32,7 @@
                 v-model="search"
               ></v-text-field>
               <v-tooltip bottom>
-                <v-btn icon @click="initialize" slot="activator">
+                <v-btn icon @click="initialize(contractView.urlParams)" slot="activator">
                   <v-icon>refresh</v-icon>
                 </v-btn>
                 <span>刷新数据</span>
@@ -40,7 +58,7 @@
                 <td>{{ props.item.startDate.slice(0, 10) }}</td>
                 <td>{{ props.item.endDate.slice(0, 10) }}</td>
                 <td class="px-3">
-                  <v-btn icon class="mx-0" :to="{ query: { detailType: $route.name, detailId: props.item.id } }">
+                  <v-btn icon class="mx-0" :to="{ query: { detailType: contractViewArr.find(item => item.urlParams == props.item.contractState).link, detailId: props.item.id } }">
                     <v-icon color="primary">visibility</v-icon>
                   </v-btn>
                 </td>
@@ -58,6 +76,38 @@ export default {
   data: () => ({
     networkLoading: false,
     networkError: false,
+    contractView: {
+      text: "签订待审",
+      value: "submitted",
+      urlParams: "待审核",
+      link: "submitted"
+    },
+    contractViewArr: [
+      {
+        text: "签订待审",
+        value: "submitted",
+        urlParams: "待审核",
+        link: "submitted"
+      },
+      {
+        text: "新签过审",
+        value: "new-success",
+        urlParams: "已签订",
+        link: "new-success"
+      },
+      {
+        text: "续签过审",
+        value: "renew-success",
+        urlParams: "已续签",
+        link: "renew-success"
+      },
+      {
+        text: "未过审",
+        value: "failed",
+        urlParams: "审核未通过",
+        link: "failed"
+      }
+    ],
     search: "",
     headers: [
       { text: "合同编号", value: "contractNo", sortable: false },
@@ -73,18 +123,20 @@ export default {
   }),
   watch: {
     $route(val) {
-      if (JSON.stringify(val.query) == "{}") this.initialize();
+      if (JSON.stringify(val.query) == "{}") {
+        this.initialize(this.contractView.urlParams);
+      }
     }
   },
   mounted() {
-    this.initialize();
+    this.initialize(this.contractView.urlParams);
   },
   methods: {
-    initialize() {
+    initialize(val) {
       this.networkLoading = true;
       this.$http
         .post("/cms/contractSub/queryByState.json", {
-          contractState: "已签订"
+          contractState: val
         })
         .then(res => {
           this.networkLoading = false;

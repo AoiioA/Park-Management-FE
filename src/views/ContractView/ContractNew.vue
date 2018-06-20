@@ -274,7 +274,7 @@ export default {
       editing: { title: "编辑待提交合同", to: "contractSub/queryOne" },
       failed: { title: "编辑未过审合同", to: "contractSub/queryOne" },
       fulfilling: { title: "续签生效合同", to: "contract/view" },
-      invalidated: { title: "续签作废合同", to: "contract/viewCancelContract" },
+      changed: { title: "续签作废合同", to: "contract/viewCancelContract" },
       refunded: { title: "续签退租合同", to: "contract/viewThrowALease" },
       expired: { title: "续签到期合同", to: "contract/view" }
     },

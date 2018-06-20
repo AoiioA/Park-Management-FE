@@ -5,10 +5,8 @@
       :isMini.sync="mini"
     ></nav-drawer>
     <tool-bar @toggleDrawer="drawer = !drawer"></tool-bar>
-    <v-content>
-      <v-jumbotron height="100%" color="blue-grey lighten-5">
-        <router-view></router-view>
-      </v-jumbotron>
+    <v-content style="background: #ECEFF1">
+      <router-view></router-view>
     </v-content>
     <v-footer app absolute inset height="auto" style="z-index:0">
       <v-layout row wrap justify-center>

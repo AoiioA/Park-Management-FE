@@ -2,15 +2,14 @@ import Contract from "@/views/ContractView/Contract.vue";
 
 import ContractList from "@/views/ContractView/ContractList.vue";
 
-import Submitted from "@/views/ContractView/ContractExamine/Submitted.vue";
-import NewSuccess from "@/views/ContractView/ContractExamine/NewSuccess.vue";
-import RenewSuccess from "@/views/ContractView/ContractExamine/RenewSuccess.vue";
-import Failed from "@/views/ContractView/ContractExamine/Failed.vue";
+import ExamineNew from "@/views/ContractView/ContractExamine/ExamineNew.vue";
+import ExamineRefunded from "@/views/ContractView/ContractExamine/ExamineRefunded.vue";
+import ExamineChanged from "@/views/ContractView/ContractExamine/ExamineChanged.vue";
 
 import Editing from "@/views/ContractView/ContractList/Editing.vue";
 import Fulfilling from "@/views/ContractView/ContractList/Fulfilling.vue";
 import Refunded from "@/views/ContractView/ContractList/Refunded.vue";
-import Invalidated from "@/views/ContractView/ContractList/Invalidated.vue";
+import Changed from "@/views/ContractView/ContractList/Changed.vue";
 import Expired from "@/views/ContractView/ContractList/Expired.vue";
 
 export default [
@@ -28,27 +27,22 @@ export default [
         children: [
           {
             path: "",
-            redirect: { name: "submitted" }
+            redirect: { name: "examine-new" }
           },
           {
-            path: "submitted",
-            name: "submitted",
-            component: Submitted
+            path: "examine-new",
+            name: "examine-new",
+            component: ExamineNew
           },
           {
-            path: "failed",
-            name: "failed",
-            component: Failed
+            path: "examine-changed",
+            name: "examine-changed",
+            component: ExamineChanged
           },
           {
-            path: "new-success",
-            name: "new-success",
-            component: NewSuccess
-          },
-          {
-            path: "renew-success",
-            name: "renew-success",
-            component: RenewSuccess
+            path: "examine-refunded",
+            name: "examine-refunded",
+            component: ExamineRefunded
           }
         ]
       },
@@ -76,9 +70,9 @@ export default [
             component: Refunded
           },
           {
-            path: "invalidated",
-            name: "invalidated",
-            component: Invalidated
+            path: "changed",
+            name: "changed",
+            component: Changed
           },
           {
             path: "expired",

@@ -10,11 +10,15 @@
             </v-subheader>
             <v-card>
               <v-container fluid grid-list-xl>
-                <v-card-title>
+                <v-card-title primary-title>
                   <v-layout column>
                     <v-flex class="headline">
                       欢迎登录
                     </v-flex>
+                  </v-layout>
+                </v-card-title>
+                <v-card-text>
+                  <v-layout column>
                     <v-flex>
                       <v-form ref="userForm" v-model="userValid" lazy-validation>
                         <v-text-field
@@ -38,7 +42,7 @@
                       </v-form>
                     </v-flex>
                   </v-layout>
-                </v-card-title>
+                </v-card-text>
                 <v-card-actions>
                   <v-btn @click="1" color="primary" flat class="mx-0">忘记您的密码？</v-btn>
                   <v-spacer></v-spacer>

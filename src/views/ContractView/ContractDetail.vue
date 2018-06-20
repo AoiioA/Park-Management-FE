@@ -242,7 +242,7 @@
               </v-btn>
               <span>展开操作</span>
             </v-tooltip>
-            <v-dialog v-if="['fulfilling'].indexOf($route.query.detailType)>=0" v-model="dialog.invalidatedDialog" persistent max-width="480">
+            <v-dialog v-if="['fulfilling'].indexOf($route.query.detailType)>=0" v-model="dialog.changedDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>delete_sweep</v-icon>
@@ -251,10 +251,10 @@
               </v-tooltip>
               <v-card>
                 <v-card-title class="headline">即将进行作废处理</v-card-title>
-                <v-form ref="invalidatedForm" v-model="formValid.invalidatedValid" lazy-validation>
+                <v-form ref="changedForm" v-model="formValid.changedValid" lazy-validation>
                   <v-divider></v-divider>
                   <v-text-field
-                    v-model="invalidatedInfo"
+                    v-model="changedInfo"
                     :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']"
                     label="作废理由"
                     counter="240"
@@ -267,12 +267,12 @@
                 </v-form>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn @click.native="closeInvalidated" flat>取消操作</v-btn>
-                  <v-btn :disabled="!formValid.invalidatedValid" @click.native="saveInvalidated" color="error" depressed>确认作废</v-btn>
+                  <v-btn @click.native="closeChanged" flat>取消操作</v-btn>
+                  <v-btn :disabled="!formValid.changedValid" @click.native="saveChanged" color="error" depressed>确认作废</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-if="['fulfilling'].indexOf($route.query.detailType)>=0" v-model="dialog.refundDialog" persistent max-width="480">
+            <v-dialog v-if="['fulfilling'].indexOf($route.query.detailType)>=0" v-model="dialog.refundedDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>money_off</v-icon>
@@ -281,10 +281,10 @@
               </v-tooltip>
               <v-card>
                 <v-card-title class="headline">即将进行退租处理</v-card-title>
-                <v-form ref="refundForm" v-model="formValid.refundValid" lazy-validation>
+                <v-form ref="refundedForm" v-model="formValid.refundedValid" lazy-validation>
                   <v-divider></v-divider>
                   <v-text-field
-                    v-model="refundInfo"
+                    v-model="refundedInfo"
                     :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']"
                     label="退租理由"
                     counter="240"
@@ -297,8 +297,8 @@
                 </v-form>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn @click.native="closeRefund" flat>取消操作</v-btn>
-                  <v-btn :disabled="!formValid.refundValid" @click.native="saveRefund" color="error" depressed>确认退租</v-btn>
+                  <v-btn @click.native="closeRefunded" flat>取消操作</v-btn>
+                  <v-btn :disabled="!formValid.refundedValid" @click.native="saveRefunded" color="error" depressed>确认退租</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -375,20 +375,20 @@ export default {
       failed: { name: "未过审", to: "contractSub/queryOne" },
       editing: { name: "待提交", to: "contractSub/queryOne" },
       fulfilling: { name: "生效中", to: "contract/view" },
-      invalidated: { name: "已作废", to: "contract/viewCancelContract" },
+      changed: { name: "已作废", to: "contract/viewCancelContract" },
       refunded: { name: "已退租", to: "contract/viewThrowALease" },
       expired: { name: "已到期", to: "contract/view" }
     },
     dialog: {
       fab: false,
       examineDialog: false,
-      refundDialog: false,
-      invalidatedDialog: false
+      refundedDialog: false,
+      changedDialog: false
     },
     formValid: {
       examineValid: false,
-      refundValid: false,
-      invalidatedValid: false
+      refundedValid: false,
+      changedValid: false
     },
     CTRTInfo: {},
     rentPreHeaders: [
@@ -406,8 +406,10 @@ export default {
       { text: "应缴金额", value: "totalRent", sortable: false },
       { text: "费用状态", value: "state", sortable: false }
     ],
-    invalidatedInfo: "",
-    refundInfo: "",
+    changedInfo: "",
+    defaultChanged: "",
+    refundedInfo: "",
+    defaultRefunded: "",
     examineInfo: {
       reason: "",
       result: ""
@@ -456,19 +458,19 @@ export default {
           );
         });
     },
-    closeInvalidated() {
-      this.dialog.invalidatedDialog = false;
+    closeChanged() {
+      this.dialog.changedDialog = false;
       setTimeout(() => {
-        this.invalidatedInfo = Object.assign({}, this.defaultInvalidated);
-        this.$refs.invalidatedForm.reset();
+        this.changedInfo = Object.assign({}, this.defaultChanged);
+        this.$refs.changedForm.reset();
       }, 300);
     },
-    saveInvalidated() {
-      if (this.$refs.invalidatedForm.validate()) {
+    saveChanged() {
+      if (this.$refs.changedForm.validate()) {
         this.$http
           .post("/cms/contract/cancel.json", {
             id: this.CTRTInfo.id,
-            reason: this.invalidatedInfo
+            reason: this.changedInfo
           })
           .then(res => {
             if (res.data.code == 0) {
@@ -491,19 +493,19 @@ export default {
           );
       }
     },
-    closeRefund() {
-      this.dialog.refundDialog = false;
+    closeRefunded() {
+      this.dialog.refundedDialog = false;
       setTimeout(() => {
-        this.refundInfo = Object.assign({}, this.defaultRefund);
-        this.$refs.refundForm.reset();
+        this.refundedInfo = Object.assign({}, this.defaultRefunded);
+        this.$refs.refundedForm.reset();
       }, 300);
     },
-    saveRefund() {
-      if (this.$refs.refundForm.validate()) {
+    saveRefunded() {
+      if (this.$refs.refundedForm.validate()) {
         this.$http
           .post("/cms/contract/throwALease.json", {
             id: this.CTRTInfo.id,
-            reason: this.refundInfo
+            reason: this.refundedInfo
           })
           .then(res => {
             if (res.data.code == 0) {

@@ -25,10 +25,9 @@ export default {
       examine: {
         title: "合同审核",
         tabs: [
-          { name: "待审核", to: "submitted" },
-          { name: "新增过审", to: "new-success" },
-          { name: "续签过审", to: "renew-success" },
-          { name: "未过审", to: "failed" }
+          { name: "签订审核", to: "examine-new" },
+          { name: "变更审核", to: "examine-changed" },
+          { name: "作废审核", to: "examine-refunded" }
         ]
       },
       list: {
@@ -37,7 +36,7 @@ export default {
           { name: "待提交", to: "editing" },
           { name: "生效中", to: "fulfilling" },
           { name: "已退租", to: "refunded" },
-          { name: "已作废", to: "invalidated" },
+          { name: "已作废", to: "changed" },
           { name: "已到期", to: "expired" }
         ]
       }
