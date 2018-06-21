@@ -3,7 +3,7 @@
     <v-container grid-list-xl fill-height>
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 xl10>
-          <v-subheader>到期合同</v-subheader>
+          <v-subheader>已到期合同</v-subheader>
           <v-card>
             <v-card-title class="py-2">
               <v-text-field

@@ -27,7 +27,7 @@ export default {
         tabs: [
           { name: "签订审核", to: "examine-new" },
           { name: "变更审核", to: "examine-changed" },
-          { name: "作废审核", to: "examine-refunded" }
+          { name: "退租审核", to: "examine-refunded" }
         ]
       },
       list: {
@@ -35,9 +35,9 @@ export default {
         tabs: [
           { name: "待提交", to: "editing" },
           { name: "生效中", to: "fulfilling" },
+          { name: "已到期", to: "expired" },
           { name: "已退租", to: "refunded" },
-          { name: "已作废", to: "changed" },
-          { name: "已到期", to: "expired" }
+          { name: "已变更", to: "changed" }
         ]
       }
     }

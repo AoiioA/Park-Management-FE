@@ -247,32 +247,28 @@
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>delete_sweep</v-icon>
                 </v-btn>
-                <span>作废</span>
+                <span>变更</span>
               </v-tooltip>
               <v-card>
-                <v-card-title class="headline">即将进行作废处理</v-card-title>
+                <v-card-title class="headline">即将提交变更申请</v-card-title>
                 <v-form ref="changedForm" v-model="formValid.changedValid" lazy-validation>
                   <v-divider></v-divider>
-                  <v-text-field
-                    v-model="changedInfo"
-                    :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']"
-                    label="作废理由"
-                    counter="240"
-                    full-width
-                    multi-line
-                    single-line
-                    required
-                  ></v-text-field>
+                  <v-dialog v-model="changedInfo.modal" lazy full-width width="290px">
+                    <v-text-field slot="activator" v-model="changedInfo.cancelDate" :rules="[$store.state.rules.required]" label="变更时间" hide-details full-width single-line required readonly></v-text-field>
+                    <v-date-picker v-model="changedInfo.cancelDate" :min="CTRTInfo.startDate" :max="CTRTInfo.endDate" :first-day-of-week="0" show-current locale="zh-cn" @input="changedInfo.modal = false;"></v-date-picker>
+                  </v-dialog>
+                  <v-divider></v-divider>
+                  <v-text-field v-model="changedInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="变更理由" counter="240" full-width multi-line single-line required></v-text-field>
                   <v-divider></v-divider>
                 </v-form>
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn @click.native="closeChanged" flat>取消操作</v-btn>
-                  <v-btn :disabled="!formValid.changedValid" @click.native="saveChanged" color="error" depressed>确认作废</v-btn>
+                  <v-btn :disabled="!formValid.changedValid" @click.native="saveChanged" color="error" depressed>确认变更</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-if="['fulfilling'].indexOf($route.query.detailType)>=0" v-model="dialog.refundedDialog" persistent max-width="480">
+            <v-dialog v-if="['fulfilling', 'expired'].indexOf($route.query.detailType)>=0" v-model="dialog.refundedDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>money_off</v-icon>
@@ -280,19 +276,15 @@
                 <span>退租</span>
               </v-tooltip>
               <v-card>
-                <v-card-title class="headline">即将进行退租处理</v-card-title>
+                <v-card-title class="headline">即将提交退租申请</v-card-title>
                 <v-form ref="refundedForm" v-model="formValid.refundedValid" lazy-validation>
                   <v-divider></v-divider>
-                  <v-text-field
-                    v-model="refundedInfo"
-                    :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']"
-                    label="退租理由"
-                    counter="240"
-                    full-width
-                    multi-line
-                    single-line
-                    required
-                  ></v-text-field>
+                  <v-dialog v-model="refundedInfo.modal" lazy full-width width="290px">
+                    <v-text-field slot="activator" v-model="refundedInfo.throwALeaseDate" :rules="[$store.state.rules.required]" label="退租时间" hide-details full-width single-line required readonly></v-text-field>
+                    <v-date-picker v-model="refundedInfo.throwALeaseDate" :min="CTRTInfo.startDate" :max="CTRTInfo.endDate" :first-day-of-week="0" show-current locale="zh-cn" @input="refundedInfo.modal = false;"></v-date-picker>
+                  </v-dialog>
+                  <v-divider></v-divider>
+                  <v-text-field v-model="refundedInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="退租理由" counter="240" full-width multi-line single-line required></v-text-field>
                   <v-divider></v-divider>
                 </v-form>
                 <v-card-actions>
@@ -311,8 +303,19 @@
               </v-tooltip>
               <v-card>
                 <v-card-title class="headline">提交审核结果</v-card-title>
-                <v-form ref="examineForm" v-model="formValid.examineValid" lazy-validation>
-                  <v-divider></v-divider>
+                <v-form ref="examineForm" v-model="formValid.examineValid" lazy-validation style="overflow: hidden">
+                  <v-select
+                    v-model="examineInfo.result"
+                    :items="examineSelect"
+                    item-text="text"
+                    item-value="value"
+                    :rules="[$store.state.rules.required]"
+                    label="审核结果"
+                    overflow
+                    single-line
+                    required
+                    hide-details
+                  ></v-select>
                   <v-text-field
                     v-model="examineInfo.reason"
                     :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']"
@@ -323,16 +326,7 @@
                     single-line
                     required
                   ></v-text-field>
-                  <v-select
-                    v-model="examineInfo.result"
-                    :items="examineSelect"
-                    item-text="text"
-                    item-value="value"
-                    :rules="[$store.state.rules.required]"
-                    overflow
-                    label="审核结果"
-                    required
-                  ></v-select>
+                  <v-divider></v-divider>
                 </v-form>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -375,7 +369,7 @@ export default {
       failed: { name: "未过审", to: "contractSub/queryOne" },
       editing: { name: "待提交", to: "contractSub/queryOne" },
       fulfilling: { name: "生效中", to: "contract/view" },
-      changed: { name: "已作废", to: "contract/viewCancelContract" },
+      changed: { name: "已变更", to: "contract/viewCancelContract" },
       refunded: { name: "已退租", to: "contract/viewThrowALease" },
       expired: { name: "已到期", to: "contract/view" }
     },
@@ -406,17 +400,29 @@ export default {
       { text: "应缴金额", value: "totalRent", sortable: false },
       { text: "费用状态", value: "state", sortable: false }
     ],
-    changedInfo: "",
-    defaultChanged: "",
-    refundedInfo: "",
-    defaultRefunded: "",
+    changedInfo: {
+      time: "",
+      reason: ""
+    },
+    defaultChanged: {
+      time: "",
+      reason: ""
+    },
+    refundedInfo: {
+      time: "",
+      reason: ""
+    },
+    defaultRefunded: {
+      time: "",
+      reason: ""
+    },
     examineInfo: {
       reason: "",
-      result: ""
+      result: 0
     },
     defaultExamine: {
       reason: "",
-      result: ""
+      result: 0
     },
     examineSelect: [
       {
@@ -458,6 +464,15 @@ export default {
           );
         });
     },
+    getDay(date, day) {
+      let t = new Date(
+        new Date(date).getTime() + parseInt(day) * 24 * 60 * 60 * 1000
+      );
+      return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(
+        2,
+        0
+      )}-${String(t.getDate()).padStart(2, 0)}`;
+    },
     closeChanged() {
       this.dialog.changedDialog = false;
       setTimeout(() => {
@@ -470,16 +485,17 @@ export default {
         this.$http
           .post("/cms/contract/cancel.json", {
             id: this.CTRTInfo.id,
-            reason: this.changedInfo
+            cancelDate: this.changedInfo.cancelDate,
+            reason: this.changedInfo.reason
           })
           .then(res => {
             if (res.data.code == 0) {
-              this.$store.commit("addSnackBar", "合同已作废成功", "success");
+              this.$store.commit("addSnackBar", "合同变更成功", "success");
               this.$router.push({});
             } else {
               this.$store.commit(
                 "addSnackBar",
-                `合同作废错误: ${res.data.meg}`,
+                `合同变更错误: ${res.data.meg}`,
                 "error"
               );
             }
@@ -487,7 +503,7 @@ export default {
           .catch(() =>
             this.$store.commit(
               "addSnackBar",
-              "合同作废出现错误 请检查网络后重试",
+              "合同变更出现错误 请检查网络后重试",
               "error"
             )
           );
@@ -505,7 +521,8 @@ export default {
         this.$http
           .post("/cms/contract/throwALease.json", {
             id: this.CTRTInfo.id,
-            reason: this.refundedInfo
+            throwALeaseDate: this.refundedInfo.throwALeaseDate,
+            reason: this.refundedInfo.reason
           })
           .then(res => {
             if (res.data.code == 0) {

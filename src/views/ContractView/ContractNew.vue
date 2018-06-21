@@ -207,7 +207,7 @@
             </v-stepper-content>
             <v-stepper-step step="4">
               请确认信息无误并提交申请
-              <small>未通过的申请将出现在作废合同列表中供重新填写</small>
+              <small>未通过的申请将在审核未通过列表中供重新填写提交</small>
             </v-stepper-step>
             <v-stepper-content step="4">
               <v-container grid-list-md>
@@ -274,7 +274,7 @@ export default {
       editing: { title: "编辑待提交合同", to: "contractSub/queryOne" },
       failed: { title: "编辑未过审合同", to: "contractSub/queryOne" },
       fulfilling: { title: "续签生效合同", to: "contract/view" },
-      changed: { title: "续签作废合同", to: "contract/viewCancelContract" },
+      changed: { title: "续签变更合同", to: "contract/viewCancelContract" },
       refunded: { title: "续签退租合同", to: "contract/viewThrowALease" },
       expired: { title: "续签到期合同", to: "contract/view" }
     },
@@ -708,14 +708,13 @@ export default {
       this.newAssets.splice(index, 1);
     },
     getDay(date, day) {
-      let time = new Date(
+      let t = new Date(
         new Date(date).getTime() + parseInt(day) * 24 * 60 * 60 * 1000
       );
-      return `${time.getFullYear()}-${_.padStart(
-        time.getMonth() + 1,
+      return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(
         2,
         0
-      )}-${_.padStart(time.getDate(), 2, 0)}`;
+      )}-${String(t.getDate()).padStart(2, 0)}`;
     },
     getRentDetail() {
       if (this.formValid.reduce((all, el) => all && el)) {
