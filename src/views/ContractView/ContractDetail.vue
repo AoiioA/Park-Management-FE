@@ -255,7 +255,7 @@
                   <v-divider></v-divider>
                   <v-dialog v-model="changedInfo.modal" lazy full-width width="290px">
                     <v-text-field slot="activator" v-model="changedInfo.cancelDate" :rules="[$store.state.rules.required]" label="变更时间" hide-details full-width single-line required readonly></v-text-field>
-                    <v-date-picker v-model="changedInfo.cancelDate" :min="CTRTInfo.startDate" :max="CTRTInfo.endDate" :first-day-of-week="0" show-current locale="zh-cn" @input="changedInfo.modal = false;"></v-date-picker>
+                    <v-date-picker v-model="changedInfo.cancelDate" :min="getDay(new Date(), 0)" :max="getDay(CTRTInfo.endDate, -1)" :first-day-of-week="0" show-current locale="zh-cn" @input="changedInfo.modal = false;"></v-date-picker>
                   </v-dialog>
                   <v-divider></v-divider>
                   <v-text-field v-model="changedInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="变更理由" counter="240" full-width multi-line single-line required></v-text-field>

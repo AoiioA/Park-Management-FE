@@ -538,6 +538,14 @@ export default {
         });
       });
 
+      let totalArea = 0;
+      floorData.forEach(item => (totalArea += parseFloat(item.value[0])));
+      floorData.forEach(
+        item =>
+          (item.value[2] =
+            ~~((parseFloat(item.value[0]) / totalArea) * 10000) / 100)
+      );
+
       return {
         title: {
           text: `房源 - ${(n => {
@@ -555,7 +563,8 @@ export default {
           formatter: a => `
             <div style="min-width: 120px;">
               <div>${a.name}</div>
-              面积 : <h4 style="float: right">${a.value[0]}m²<h4>
+              <div>面积 : <h4 style="float: right">${a.value[0]}m²<h4></div>
+              <div>占比 : <h4 style="float: right">${a.value[2]}%<h4></div>
             </div>
           `,
           textStyle: {
