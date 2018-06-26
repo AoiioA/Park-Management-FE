@@ -1,6 +1,6 @@
 <template>
   <div class="fill-height point">
-    <view-tool-bar :barTab="viewToolBarTab">
+    <view-tool-bar>
       <span slot="bar-menu">
         <v-btn icon>
           <v-icon>help</v-icon>
@@ -18,10 +18,7 @@ export default {
   components: {
     ViewToolBar
   },
-  data: () => ({
-    // viewToolBarTab: [{ name: "商圈概览", to: "point-list" }]
-    viewToolBarTab: []
-  }),
+  data: () => ({}),
   created() {
     this.$store.commit("changeToolBarTitle", { title: "商圈概览" });
   }

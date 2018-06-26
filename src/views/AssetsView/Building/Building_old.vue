@@ -1,6 +1,6 @@
 <template>
   <div class="fill-height building">
-    <view-tool-bar :barTab="viewToolBarTab">
+    <view-tool-bar>
       <span slot="bar-menu">
         <v-dialog v-model="newBuildingDialog" max-width="500px" persistent>
           <v-btn flat slot="activator" @click="getPark();getProvince();">添加楼宇</v-btn>
@@ -34,6 +34,11 @@
         <v-btn icon>
           <v-icon>help</v-icon>
         </v-btn>
+      </span>
+      <span slot="bar-extend">
+        <v-tabs color="primary" class="px-4" show-arrows>
+          <v-tab v-for="tab in viewToolBarTab" :key="tab.value" :to="tab.to">{{ tab.name }}</v-tab>
+        </v-tabs>
       </span>
     </view-tool-bar>
     <v-progress-linear v-if="networkLoading" :size="48" indeterminate class="my-0"></v-progress-linear>

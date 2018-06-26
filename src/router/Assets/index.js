@@ -7,8 +7,8 @@ import ParkList from "@/views/AssetsView/Park/ParkList.vue";
 import ParkDetail from "@/views/AssetsView/Park/ParkDetail.vue";
 
 import Building from "@/views/AssetsView/Building/Building.vue";
+import BuildingList from "@/views/AssetsView/Building/BuildingList.vue";
 import BuildingDetail from "@/views/AssetsView/Building/BuildingDetail.vue";
-import BuildingAll from "@/views/AssetsView/Building/BuildingAll.vue";
 
 import House from "@/views/AssetsView/House/House.vue";
 import HouseNew from "@/views/AssetsView/House/HouseNew.vue";
@@ -63,14 +63,18 @@ export default [
     component: Building,
     children: [
       {
-        path: "building-detail/:buildingNo/:buildingDetailType",
-        name: "building-detail",
-        component: BuildingDetail
+        path: "",
+        redirect: { name: "building-list" }
       },
       {
-        path: "building-all",
-        name: "building-all",
-        component: BuildingAll
+        path: "building-list",
+        name: "building-list",
+        component: BuildingList
+      },
+      {
+        path: "building-detail/:buildingNo",
+        name: "building-detail",
+        component: BuildingDetail
       }
     ]
   },

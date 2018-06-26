@@ -27,29 +27,13 @@
       </v-flex>
       <slot name="bar-menu"></slot>
     </v-layout>
-    <v-tabs
-      v-if="barTab&&barTab.length"
-      color="primary"
-      show-arrows
-      class="mx-4 bar-tab"
-    >
-      <v-tab
-        v-for="tab in barTab"
-        :key="tab.name"
-        :to="tab.to"
-      >
-        {{ tab.name }}
-      </v-tab>
-    </v-tabs>
+    <slot name="bar-extend"></slot>
   </v-jumbotron>
 </template>
 
 <script>
 export default {
-  name: "ViewToolBar",
-  props: {
-    barTab: Array
-  }
+  name: "ViewToolBar"
 };
 </script>
 

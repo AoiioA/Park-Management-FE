@@ -1,11 +1,16 @@
 <template>
   <div class="fill-height contract-list">
-    <view-tool-bar :barTab="viewToolBarTab">
+    <view-tool-bar>
       <span slot="bar-menu">
         <slot name="newContractBtn"></slot>
         <v-btn icon>
           <v-icon>help</v-icon>
         </v-btn>
+      </span>
+      <span slot="bar-extend">
+        <v-tabs color="primary" class="px-4" show-arrows>
+          <v-tab v-for="tab in viewToolBarTab" :key="tab.value" :to="tab.to">{{ tab.name }}</v-tab>
+        </v-tabs>
       </span>
     </view-tool-bar>
     <router-view></router-view>

@@ -1,6 +1,6 @@
 <template>
   <div class="fill-height park">
-    <view-tool-bar :barTab="viewToolBarTab">
+    <view-tool-bar>
       <span slot="bar-menu">
         <v-btn icon>
           <v-icon>help</v-icon>
@@ -15,10 +15,7 @@
 import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
-  data: () => ({
-    // viewToolBarTab: [{ name: "园区概览", to: "park-list" }]
-    viewToolBarTab: []
-  }),
+  data: () => ({}),
   created() {
     this.$store.commit("changeToolBarTitle", { title: "园区概览" });
   },
