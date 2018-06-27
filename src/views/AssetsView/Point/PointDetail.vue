@@ -41,79 +41,77 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn depressed @click="newPointClose(true)">取消操作</v-btn>
-                    <v-btn :disabled="!newPointValid" @click="newPointSave" depressed color="primary">确认添加</v-btn>
+                    <v-btn :disabled="!newPointValid" @click="newPointSave" depressed color="primary">确认修改</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-form>
             </v-dialog>
           </v-subheader>
-          <v-container fluid grid-list-xs>
-            <v-layout justify-center wrap>
-              <v-flex xs12 sm6>
-                <v-card>
-                  <v-card-title>房源租赁情况(数量)</v-card-title>
-                  <!-- <v-divider></v-divider> -->
-                  <v-container fluid fill-height>
-                    <v-layout>
-                      <v-flex>
-                        <chart
-                          :options="assetsNumberOption"
-                          auto-resize
-                          theme="light"
-                          style="height:240px;width:100%;"
-                        ></chart>
-                      </v-flex>
-                    </v-layout>
-                  </v-container>
-                </v-card>
-              </v-flex>
-              <v-flex xs12 sm6>
-                <v-card>
-                  <v-card-title>房源租赁情况(面积)</v-card-title>
-                  <!-- <v-divider></v-divider> -->
-                  <v-container fluid fill-height>
-                    <v-layout wrap>
-                      <v-flex xs12 sm8>
-                        <chart
-                          :options="assetsAreaOption"
-                          auto-resize
-                          theme="light"
-                          style="height:240px;width:100%;"
-                        ></chart>
-                      </v-flex>
-                      <v-flex xs12 sm4>
-                        <v-container fluid fill-height>
-                          <v-layout column>
-                            <v-flex>
-                              <div class="mb-1 grey--text text--darken-1">
-                                <span class="chart-legend-icon" style="background: #29B6F6"></span>
-                                空置房源
-                              </div>
-                              <div class="title">{{ pointDataInfo.emptyHouseArea }}m²</div>
-                            </v-flex>
-                            <v-flex>
-                              <div class="mb-1 grey--text text--darken-1">
-                                <span class="chart-legend-icon" style="background: #1976d2"></span>
-                                出租房源
-                              </div>
-                              <div class="title">{{ pointDataInfo.rentHouseArea }}m²</div>
-                            </v-flex>
-                            <v-flex>
-                              <div class="mb-1 grey--text text--darken-1">
-                                <span class="chart-legend-icon" style="background: #90A4AE"></span>
-                                其他房源
-                              </div>
-                              <div class="title">{{ pointDataInfo.totalHouseArea - pointDataInfo.emptyHouseArea - pointDataInfo.rentHouseArea }}m²</div>
-                            </v-flex>
-                          </v-layout>
-                        </v-container>
-                      </v-flex>
-                    </v-layout>
-                  </v-container>
-                </v-card>
-              </v-flex>
-            </v-layout>
-          </v-container>
+          <v-layout justify-center wrap>
+            <v-flex xs12 sm6>
+              <v-card>
+                <v-card-title>房源租赁情况(数量)</v-card-title>
+                <!-- <v-divider></v-divider> -->
+                <v-container fluid fill-height>
+                  <v-layout>
+                    <v-flex>
+                      <chart
+                        :options="assetsNumberOption"
+                        auto-resize
+                        theme="light"
+                        style="height:240px;width:100%;"
+                      ></chart>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card>
+            </v-flex>
+            <v-flex xs12 sm6>
+              <v-card>
+                <v-card-title>房源租赁情况(面积)</v-card-title>
+                <!-- <v-divider></v-divider> -->
+                <v-container fluid fill-height>
+                  <v-layout wrap>
+                    <v-flex xs12 sm8>
+                      <chart
+                        :options="assetsAreaOption"
+                        auto-resize
+                        theme="light"
+                        style="height:240px;width:100%;"
+                      ></chart>
+                    </v-flex>
+                    <v-flex xs12 sm4>
+                      <v-container fluid fill-height>
+                        <v-layout column>
+                          <v-flex>
+                            <div class="mb-1 grey--text text--darken-1">
+                              <span class="chart-legend-icon" style="background: #29B6F6"></span>
+                              空置房源
+                            </div>
+                            <div class="title">{{ pointDataInfo.emptyHouseArea }}m²</div>
+                          </v-flex>
+                          <v-flex>
+                            <div class="mb-1 grey--text text--darken-1">
+                              <span class="chart-legend-icon" style="background: #1976d2"></span>
+                              出租房源
+                            </div>
+                            <div class="title">{{ pointDataInfo.rentHouseArea }}m²</div>
+                          </v-flex>
+                          <v-flex>
+                            <div class="mb-1 grey--text text--darken-1">
+                              <span class="chart-legend-icon" style="background: #90A4AE"></span>
+                              其他房源
+                            </div>
+                            <div class="title">{{ pointDataInfo.totalHouseArea - pointDataInfo.emptyHouseArea - pointDataInfo.rentHouseArea }}m²</div>
+                          </v-flex>
+                        </v-layout>
+                      </v-container>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card>
+            </v-flex>
+          </v-layout>
         </v-flex>
       </v-layout>
 		</v-container>
@@ -184,7 +182,7 @@ export default {
         legend: {
           data: optLegend
         },
-        grid: [{ left: 20, right: 0, top: 6, bottom: 0, containLabel: true }],
+        grid: [{ left: 20, right: 0, top: 20, bottom: 0, containLabel: true }],
         xAxis: {
           type: "category",
           data: optLegend,
@@ -238,7 +236,8 @@ export default {
           extraCssText: `
             border-radius: 3px;
             box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
-          `
+          `,
+          formatter: "<strong>{b}</strong><br />面积 : {c}m²<br />占比 : {d}%"
         },
         grid: [{ left: 0, right: 0, top: 0, bottom: 0, containLabel: true }],
         series: [
@@ -369,7 +368,8 @@ export default {
     newPointSave() {
       if (this.$refs.newPointForm.validate()) {
         this.$http
-          .post("/cms/pointInfo/addPointInfo.json", {
+          .post("/cms/pointInfo/updatePointInfo.json", {
+            pointNo: this.pointInfo.pointNo,
             pointName: this.editedPoint.pointName,
             province: this.editedPoint.province,
             city: this.editedPoint.city,
@@ -378,20 +378,20 @@ export default {
             buildingNos: String(this.editedPoint.buildingNos)
           })
           .then(res => {
-            if (res.data.code != 500) {
+            // if (res.data.code != 500) {
               this.newPointClose(false);
-              this.$store.commit("addSnackBar", "商圈添加成功", "success");
+              this.$store.commit("addSnackBar", "商圈编辑成功", "success");
               this.initialize();
-            } else {
-              this.$store.commit(
-                "addSnackBar",
-                `商圈添加失败 ${res.data.msg}`,
-                "error"
-              );
-            }
+            // } else {
+            //   this.$store.commit(
+            //     "addSnackBar",
+            //     `商圈编辑失败 ${res.data.msg}`,
+            //     "error"
+            //   );
+            // }
           })
           .catch(err => {
-            this.$store.commit("addSnackBar", `商圈添加失败 ${err}`, "error");
+            this.$store.commit("addSnackBar", `商圈编辑失败 ${err}`, "error");
           });
       }
     },

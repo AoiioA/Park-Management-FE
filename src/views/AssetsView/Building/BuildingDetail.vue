@@ -38,42 +38,111 @@
         </v-btn>
       </span>
       <span slot="bar-extend">
-        <v-tabs color="primary" class="px-4" show-arrows>
+        <v-tabs v-model="activeTab" color="primary" class="px-4" show-arrows>
           <v-tab v-for="tab in viewToolBarTab" :key="tab.value">{{ tab.name }}</v-tab>
         </v-tabs>
       </span>
     </view-tool-bar>
-    <v-container grid-list-xl>
-      <v-layout justify-center align-center>
-        <v-flex xs12 xl10>
+    <v-tabs-items v-model="activeTab">
+      <v-tab-item>
+        <v-container grid-list-xl>
+          <v-layout justify-center wrap>
+            <v-flex xs12 sm6>
+              <v-card>
+                <v-card-title>房源租赁情况(数量)</v-card-title>
+                <!-- <v-divider></v-divider> -->
+                <v-container fluid fill-height>
+                  <v-layout>
+                    <v-flex>
+                      <chart
+                        :options="assetsNumberOption"
+                        auto-resize
+                        theme="light"
+                        style="height:240px;width:100%;"
+                      ></chart>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card>
+            </v-flex>
+            <v-flex xs12 sm6>
+              <v-card>
+                <v-card-title>房源租赁情况(面积)</v-card-title>
+                <!-- <v-divider></v-divider> -->
+                <v-container fluid fill-height>
+                  <v-layout wrap>
+                    <v-flex xs12 sm8>
+                      <chart
+                        :options="assetsAreaOption"
+                        auto-resize
+                        theme="light"
+                        style="height:240px;width:100%;"
+                      ></chart>
+                    </v-flex>
+                    <v-flex xs12 sm4>
+                      <v-container fluid fill-height>
+                        <v-layout column>
+                          <v-flex>
+                            <div class="mb-1 grey--text text--darken-1">
+                              <span class="chart-legend-icon" style="background: #29B6F6"></span>
+                              空置房源
+                            </div>
+                            <div class="title">{{ buildingDataInfo.emptyHouseArea }}m²</div>
+                          </v-flex>
+                          <v-flex>
+                            <div class="mb-1 grey--text text--darken-1">
+                              <span class="chart-legend-icon" style="background: #1976d2"></span>
+                              出租房源
+                            </div>
+                            <div class="title">{{ buildingDataInfo.rentHouseArea }}m²</div>
+                          </v-flex>
+                          <v-flex>
+                            <div class="mb-1 grey--text text--darken-1">
+                              <span class="chart-legend-icon" style="background: #90A4AE"></span>
+                              其他房源
+                            </div>
+                            <div class="title">{{ buildingDataInfo.totalHouseArea - buildingDataInfo.emptyHouseArea - buildingDataInfo.rentHouseArea }}m²</div>
+                          </v-flex>
+                        </v-layout>
+                      </v-container>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-tab-item>
+      <v-tab-item>
+        <v-container grid-list-xl>
           <v-subheader>楼内房源租赁情况</v-subheader>
-        </v-flex>
-      </v-layout>
-      <v-data-iterator
-        :items="houseInfoArr"
-        :rows-per-page-items="['']"
-        :pagination.sync="pagination"
-        content-tag="v-layout"
-        row
-        wrap
-        justify-center
-      >
-        <v-flex slot="item" slot-scope="props" xs12 xl10>
-          <chart
-            :options="getOption(props)"
-            @click="clickHouse"
-            auto-resize
-            theme="light"
-            style="height:240px;width:100%;"
-          ></chart>
-        </v-flex>
-        <v-flex slot="no-data" class="no-data">
-          <v-progress-circular indeterminate color="primary" v-if="networkLoading"></v-progress-circular>
-          <span v-else-if="networkError">网络出现异常 - 检查网络后刷新重试</span>
-          <span v-else>暂无房源记录</span>
-        </v-flex>
-      </v-data-iterator>
-    </v-container>
+          <v-data-iterator
+            :items="houseInfoArr"
+            :rows-per-page-items="['']"
+            :pagination.sync="pagination"
+            content-tag="v-layout"
+            row
+            wrap
+            justify-center
+          >
+            <v-flex slot="item" slot-scope="props" xs12 xl10>
+              <chart
+                :options="getOption(props)"
+                @click="clickHouse"
+                auto-resize
+                theme="light"
+                style="height:240px;width:100%;"
+              ></chart>
+            </v-flex>
+            <v-flex slot="no-data" class="no-data">
+              <v-progress-circular indeterminate color="primary" v-if="networkLoading"></v-progress-circular>
+              <span v-else-if="networkError">网络出现异常 - 检查网络后刷新重试</span>
+              <span v-else>暂无房源记录</span>
+            </v-flex>
+          </v-data-iterator>
+        </v-container>
+      </v-tab-item>
+    </v-tabs-items>
   </div>
 </template>
 <script>
@@ -88,6 +157,17 @@ export default {
   data: () => ({
     networkLoading: false,
     networkError: false,
+    activeTab: null,
+    viewToolBarTab: [
+      {
+        name: "楼宇信息",
+        value: "info"
+      },
+      {
+        name: "楼内房源",
+        value: "assets"
+      }
+    ],
     // 修改房源相关
     newBuildingDialog: false,
     newBuildingValid: true,
@@ -117,6 +197,7 @@ export default {
     },
     // 详情等相关
     buildingInfo: {},
+    buildingDataInfo: {},
     houseInfoArr: [],
     resourceStatus: [
       "空置房源",
@@ -127,17 +208,7 @@ export default {
     ],
     pagination: {
       rowsPerPage: 3
-    },
-    viewToolBarTab: [
-      {
-        name: "楼宇信息",
-        value: "info"
-      },
-      {
-        name: "楼内房源状况",
-        value: "assets"
-      }
-    ]
+    }
   }),
   computed: {
     fullBuildingName() {
@@ -151,6 +222,102 @@ export default {
         return `${parkName.parkName} ${this.editedBuilding.buildingName}`;
       }
       return this.editedBuilding.buildingName;
+    },
+    assetsNumberOption() {
+      let optLegend = ["空置房源", "出租房源", "其他房源"];
+      let optData = [
+        this.buildingDataInfo.emptyHouseCount,
+        this.buildingDataInfo.rentHouseCount
+      ];
+      optData.push(
+        this.buildingDataInfo.totalHouseCount -
+          optData.reduce((all, item) => all + item)
+      );
+      return {
+        color: ["#1976d2", "#29B6F6", "#5C6BC0", "#90A4AE", "#90A4AE"],
+        tooltip: {
+          textStyle: {
+            color: "rgba(0,0,0,0.87)"
+          },
+          backgroundColor: "#ECEFF1",
+          padding: [8, 12],
+          extraCssText: `
+            border-radius: 3px;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+          `
+        },
+        legend: {
+          data: optLegend
+        },
+        grid: [{ left: 20, right: 0, top: 20, bottom: 0, containLabel: true }],
+        xAxis: {
+          type: "category",
+          data: optLegend,
+          axisLine: { show: false },
+          axisTick: { show: false }
+        },
+        yAxis: {
+          name: "房源数量",
+          nameLocation: "middle",
+          nameGap: "60",
+          type: "value",
+          axisLine: { show: false },
+          axisTick: { show: false }
+        },
+        series: [
+          {
+            data: optData,
+            type: "bar",
+            barWidth: "50%",
+            label: {
+              show: true,
+              position: "top",
+              fontSize: "16"
+            }
+          }
+        ]
+      };
+    },
+    assetsAreaOption() {
+      let optLegend = ["空置房源", "出租房源", "其他房源"];
+      let optData = [
+        this.buildingDataInfo.emptyHouseArea,
+        this.buildingDataInfo.rentHouseArea
+      ];
+      optData.push(
+        this.buildingDataInfo.totalHouseArea -
+          optData.reduce((all, item) => all + item)
+      );
+      optData = optData.map((item, index) => ({
+        value: item,
+        name: optLegend[index]
+      }));
+      return {
+        color: ["#29B6F6", "#1976d2", "#90A4AE"],
+        tooltip: {
+          textStyle: {
+            color: "rgba(0,0,0,0.87)"
+          },
+          backgroundColor: "#ECEFF1",
+          padding: [8, 12],
+          extraCssText: `
+            border-radius: 3px;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+          `,
+          formatter: "<strong>{b}</strong><br />面积 : {c}m²<br />占比 : {d}%"
+        },
+        grid: [{ left: 0, right: 0, top: 0, bottom: 0, containLabel: true }],
+        series: [
+          {
+            type: "pie",
+            radius: ["70%", "90%"],
+            label: {
+              show: false
+            },
+            data: optData
+          }
+        ]
+      };
     }
   },
   created() {
@@ -169,24 +336,35 @@ export default {
       this.networkLoading = true;
       this.networkError = null;
       this.buildingInfo = {};
+      this.buildingDataInfo = {};
       this.houseInfoArr = [];
       this.$http
         .all([
           this.$http.post("/cms/buildingInfo/listBuildingInfo.json", {
             buildingNo: Number(this.$route.params.buildingNo)
           }),
+          this.$http.post("/cms/AssetsInfo/queryBuildingAssetsStatistics.json", {
+            buildingNos: String(this.$route.params.buildingNo)
+          }),
           this.$http.post("/cms/houseInfo/listHouseInfoByFloor.json", {
             buildingNo: Number(this.$route.params.buildingNo)
           })
         ])
         .then(
-          this.$http.spread((building, house) => {
+          this.$http.spread((building, buildingData, house) => {
             this.networkLoading = false;
             if (building.data.code == 500) {
               this.networkError = true;
               this.$store.commit(
                 "addSnackBar",
                 `楼宇信息查询失败 ${building.data.msg}`,
+                "error"
+              );
+            } else if (buildingData.data.code == 500) {
+              this.networkError = true;
+              this.$store.commit(
+                "addSnackBar",
+                `楼宇统计信息查询失败 ${buildingData.data.msg}`,
                 "error"
               );
             } else if (house.data.code == 500) {
@@ -200,6 +378,7 @@ export default {
               let bData = building.data.data;
               let hData = house.data.data;
               this.buildingInfo = bData && bData.length ? bData[0] : {};
+              this.buildingDataInfo = buildingData.data.data;
               this.houseInfoArr =
                 hData && hData.length
                   ? hData.sort((x, y) => x.floorNo > y.floorNo)
@@ -407,7 +586,7 @@ export default {
       floorData.forEach(
         item =>
           (item.value[2] =
-            ~~((parseFloat(item.value[0]) / totalArea) * 10000) / 100)
+            Math.round((parseFloat(item.value[0]) / totalArea) * 10000) / 100)
       );
 
       return {
@@ -428,7 +607,13 @@ export default {
             <div style="min-width: 120px;">
               <div>${a.name}</div>
               <div>面积 : <h4 style="float: right">${a.value[0]}m²<h4></div>
-              <div>占比 : <h4 style="float: right">${a.value[2]}%<h4></div>
+              ${
+                a.value[2]
+                  ? "<div>占比 : <h4 style='float: right'>" +
+                    a.value[2] +
+                    "%<h4></div>"
+                  : ""
+              }
             </div>
           `,
           textStyle: {

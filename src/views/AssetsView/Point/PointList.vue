@@ -292,8 +292,8 @@ export default {
 
 <style lang="stylus" scoped>
 .no-data {
-  height: 400px;
-  line-height: 400px;
+  height: 225px;
+  line-height: 225px;
   text-align: center;
 }
 </style>
