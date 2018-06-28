@@ -28,7 +28,7 @@
                           <v-text-field slot="activator" :disabled="editHouse.resourceStatus===0" :rules="[$store.state.rules.required]" :value="assetsOfNewHouse.buildingName" label="签约楼宇" :hint="assetsOfNewHouse.parkName" persistent-hint box required readonly></v-text-field>
                           <v-list style="max-height: 200px; overflow-y: auto;">
                             <v-list-tile v-if="!assetsInfo.length">
-                              <v-list-tile-title>暂无房源可以添加</v-list-tile-title>
+                              <v-list-tile-title>暂无楼宇可选</v-list-tile-title>
                             </v-list-tile>
                             <v-menu v-else v-for="(assetsPark, i) in assetsInfo" :key="i" offset-x style="display:block">
                               <v-list-tile slot="activator" @click="1">

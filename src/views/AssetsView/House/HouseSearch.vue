@@ -21,6 +21,32 @@
             </v-subheader>
 						<v-form ref="searchHouseForm" v-model="searchHouseValid" lazy-validation>
               <v-layout row wrap align-center>
+                <v-flex xs6 sm3 lg2 style="min-width: 160px;">
+                  <v-menu v-model="menu.buildingMenu" :close-on-content-click="false" offset-y>
+                    <v-text-field slot="activator" :value="searchFilterData.buildingName" label="所属楼宇" flat solo readonly class="elevation-1"></v-text-field>
+                    <v-list style="max-height: 200px; overflow-y: auto;">
+                      <v-list-tile v-if="!assetsInfo.length">
+                        <v-list-tile-title>暂无楼宇可选择</v-list-tile-title>
+                      </v-list-tile>
+                      <div v-else>
+                        <v-list-tile @click="changeBuilding('', '全部楼宇')">
+                          <v-list-tile-title>全部楼宇</v-list-tile-title>
+                        </v-list-tile>
+                        <v-menu v-for="(assetsPark, i) in assetsInfo" :key="i" offset-x style="display:block">
+                          <v-list-tile slot="activator" @click="1">
+                            <v-list-tile-title>{{ assetsPark.parkName }}</v-list-tile-title>
+                          </v-list-tile>
+                          <v-list style="max-height: 200px; overflow-y: auto;">
+                            <v-list-tile v-for="(assetsBuilding, j) in assetsPark.building" :key="j" @click="changeBuilding(assetsBuilding.buildingNo, assetsBuilding.buildingName)">
+                              <v-list-tile-title>{{ assetsBuilding.buildingName }}</v-list-tile-title>
+                            </v-list-tile>
+                          </v-list>
+                        </v-menu>
+                      </div>
+                    </v-list>
+                  </v-menu>
+                </v-flex>
+                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.resourceStatus" :items="searchFilterData.resourceStatus" solo hide-details single-line class="elevation-1"></v-select></v-flex>
                 <v-flex xs12 sm6 lg4>
                   <v-container fill-height fluid grid-list-xs>
                     <v-layout row no-wrap align-center>
@@ -30,10 +56,9 @@
                     </v-layout>
                   </v-container>
                 </v-flex>
-                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.resourceStatus" :items="searchFilterArr.resourceStatus" solo hide-details single-line class="elevation-1"></v-select></v-flex>
-                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.decorationSituation" :items="searchFilterArr.decorationSituation" solo hide-details single-line class="elevation-1"></v-select></v-flex>
-                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.isRegister" :items="searchFilterArr.isRegister" solo hide-details single-line class="elevation-1"></v-select></v-flex>
-                <!-- <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.idleLevel" :items="searchFilterArr.idleLevel" solo hide-details single-line class="elevation-1"></v-select></v-flex> -->
+                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.decorationSituation" :items="searchFilterData.decorationSituation" solo hide-details single-line class="elevation-1"></v-select></v-flex>
+                <!-- <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.isRegister" :items="searchFilterData.isRegister" solo hide-details single-line class="elevation-1"></v-select></v-flex> -->
+                <!-- <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.idleLevel" :items="searchFilterData.idleLevel" solo hide-details single-line class="elevation-1"></v-select></v-flex> -->
                 <v-spacer></v-spacer>
                 <v-flex xs12 sm3 lg2><v-btn :disabled="!searchHouseValid||(searchFilter.buildAreaMin>searchFilter.buildAreaMax)" @click="initialize" block large color="primary">开始搜索</v-btn></v-flex>
               </v-layout>
@@ -49,15 +74,121 @@
                   label="在筛选结果中继续搜索..."
                   v-model="search"
                 ></v-text-field>
-                <v-tooltip bottom>
-                  <v-btn @click="initialize" slot="activator" icon class="mx-0">
-                    <v-icon>refresh</v-icon>
+                <v-menu v-if="tableActionMode=='view'" v-model="menu.tableMoreDialog" :close-on-content-click="false" offset-y left :nudge-bottom="10">
+                  <v-btn transition="fade-transition" slot="activator" icon>
+                    <v-icon>more_vert</v-icon>
                   </v-btn>
-                  <span>刷新数据</span>
+                  <v-list two-line dense>
+                    <v-menu offset-x left style="display:block">
+                      <v-list-tile slot="activator" @click="1">
+                        <v-list-tile-content>
+                          <v-list-tile-title>批量导入房源</v-list-tile-title>
+                          <v-list-tile-sub-title>每次可导入一栋楼宇所含房源</v-list-tile-sub-title>
+                        </v-list-tile-content>
+                      </v-list-tile>
+                      <v-list dense>
+                        <!-- <v-list-tile :href="`${$store.getters.getBaseUrl}/cms/houseInfo/downloadTemplate.do`"> -->
+                        <v-list-tile @click="downloadExcel">
+                          <v-list-tile-title>下载Excel模板</v-list-tile-title>
+                        </v-list-tile>
+                        <v-list-tile @click="menu.uploadDialog=true">
+                          <v-list-tile-title>上传Excel文件</v-list-tile-title>
+                        </v-list-tile>
+                        <v-dialog v-model="menu.uploadDialog" persistent max-width="290">
+                          <v-card>
+                            <v-card-title class="headline">选择房源所属楼宇</v-card-title>
+                            <v-card-text>
+                              <v-menu v-model="menu.uploadMenu" :close-on-content-click="false" offset-y nudge-top="20">
+                                <v-text-field slot="activator" :value="uploadInfo.buildingName" label="所属楼宇" readonly></v-text-field>
+                                <v-list style="max-height: 200px; overflow-y: auto;">
+                                  <v-list-tile v-if="!assetsInfo.length">
+                                    <v-list-tile-title>暂无楼宇可选择</v-list-tile-title>
+                                  </v-list-tile>
+                                  <v-menu v-else v-for="(assetsPark, i) in assetsInfo" :key="i" offset-x style="display:block">
+                                    <v-list-tile slot="activator" @click="1">
+                                      <v-list-tile-title>{{ assetsPark.parkName }}</v-list-tile-title>
+                                    </v-list-tile>
+                                    <v-list style="max-height: 200px; overflow-y: auto;">
+                                      <v-list-tile v-for="(assetsBuilding, j) in assetsPark.building" :key="j" @click="changeUploadInfo(assetsBuilding.buildingNo, assetsBuilding.buildingName)">
+                                        <v-list-tile-title>{{ assetsBuilding.buildingName }}</v-list-tile-title>
+                                      </v-list-tile>
+                                    </v-list>
+                                  </v-menu>
+                                </v-list>
+                              </v-menu>
+                              <file-upload
+                                ref="uploadEl"
+                                v-model="newFileList"
+                                :post-action="`${$store.getters.getBaseUrl}${upload.postAction}`"
+                                :accept="upload.accept"
+                                :extensions="upload.extensions"
+                                :size="upload.size || 0"
+                                :multiple="upload.multiple"
+                                :thread="upload.thread < 1 ? 1 : (upload.thread > 5 ? 5 : upload.thread)"
+                                :directory="upload.directory"
+                                :drop-directory="upload.dropDirectory"
+                                @input-filter="inputFilter"
+                                @input-file="inputFile"
+                              >
+                                <v-btn color="primary" depressed>选择文件</v-btn>
+                              </file-upload>
+                            </v-card-text>
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn flat @click.native="menu.uploadDialog = false">取消操作</v-btn>
+                              <v-btn color="primary" flat @click.native="1">确认上传</v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </v-list>
+                    </v-menu>
+                    <v-list-tile @click="menu.tableMoreDialog=false;tableActionMode='export';">
+                      <v-list-tile-content>
+                        <v-list-tile-title>导出房源</v-list-tile-title>
+                        <v-list-tile-sub-title>批量导出至Excel</v-list-tile-sub-title>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile @click="menu.tableMoreDialog=false;tableActionMode='delete';">
+                      <v-list-tile-content>
+                        <v-list-tile-title>删除房源</v-list-tile-title>
+                        <v-list-tile-sub-title>批量删除房源</v-list-tile-sub-title>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                  </v-list>
+                </v-menu>
+                <v-tooltip bottom v-if="tableActionMode=='export'">
+                  <v-btn slot="activator" :disabled="!selected.length" @click="batchExportHouse" icon flat color="primary">
+                    <v-icon>get_app</v-icon>
+                  </v-btn>
+                  <span>确认导出</span>
+                </v-tooltip>
+                <v-tooltip bottom v-if="tableActionMode=='delete'">
+                  <v-dialog slot="activator" :disabled="!selected.length" v-model="menu.delDialog" persistent max-width="290">
+                    <v-btn slot="activator" :disabled="!selected.length" icon flat color="error">
+                      <v-icon>delete_outline</v-icon>
+                    </v-btn>
+                    <v-card>
+                      <v-card-title class="headline">确认删除房源?</v-card-title>
+                      <v-card-text>请谨慎操作。</v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" flat @click.native="menu.delDialog = false">再看看</v-btn>
+                        <v-btn color="error" flat @click.native="batchDeleteHouse">我确认</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                  <span>确认删除</span>
+                </v-tooltip>
+                <v-tooltip bottom v-if="tableActionMode!='view'">
+                  <v-btn slot="activator" @click="tableActionMode='view';selected = [];" icon>
+                    <v-icon>clear</v-icon>
+                  </v-btn>
+                  <span>取消操作</span>
                 </v-tooltip>
               </v-card-title>
               <v-divider></v-divider>
               <v-data-table
+                v-model="selected"
                 :search="search"
                 :headers="headers"
                 :items="getTableData(houseInfoArr)"
@@ -65,8 +196,16 @@
                 :loading="networkLoading"
                 :no-data-text="networkError?`网络出现异常 - 检查网络后刷新重试`:`暂无记录`"
                 :no-results-text="`没能找到“${ search }”的结果...`"
+                :select-all="tableActionMode!='view'"
               >
                 <template slot="items" slot-scope="props">
+                  <td v-if="tableActionMode!='view'">
+                    <v-checkbox
+                      v-model="props.selected"
+                      color="primary"
+                      hide-details
+                    ></v-checkbox>
+                  </td>
                   <td>{{ props.item.buildingName }}</td>
                   <td>{{ props.item.floorNumber }}</td>
                   <td>{{ props.item.doorNumber }}</td>
@@ -91,24 +230,18 @@
 </template>
 
 <script>
+import FileUpload from "vue-upload-component";
 import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
   components: {
+    FileUpload,
     ViewToolBar
   },
   data: () => ({
-    houseType: ["整租", "工位"],
-    resourceStatus: [
-      "空置房源",
-      "租赁中房源",
-      "预定房源",
-      "维护房源",
-      "租赁审核房源"
-    ],
-    decorationSituation: ["毛坯", "简装修", "中等装修", "豪华装修", "精装修"],
     searchHouseValid: true,
     searchFilter: {
+      buildingNo: "",
       buildAreaMin: "",
       buildAreaMax: "",
       resourceStatus: "",
@@ -116,7 +249,8 @@ export default {
       isRegister: "",
       idleLevel: ""
     },
-    searchFilterArr: {
+    searchFilterData: {
+      buildingName: "",
       resourceStatus: [
         { text: "租赁情况", value: "" },
         { text: "空置中", value: 0 },
@@ -145,7 +279,28 @@ export default {
         { text: "60-90天", value: 3 }
       ]
     },
-    search: "",
+    menu: {
+      buildingMenu: false,
+      tableMoreDialog: false,
+      uploadDialog: false,
+      uploadMenu: false,
+      delDialog: false
+    },
+    assetsInfo: [],
+    // 表格相关
+    houseInfoArr: [],
+    houseType: ["整租", "工位"],
+    resourceStatus: [
+      "空置房源",
+      "租赁中房源",
+      "预定房源",
+      "维护房源",
+      "租赁审核房源"
+    ],
+    decorationSituation: ["毛坯", "简装修", "中等装修", "豪华装修", "精装修"],
+    networkLoading: false,
+    networkError: null,
+    tableActionMode: "view",
     headers: [
       { text: "楼宇", value: "buildingName" },
       { text: "楼层", value: "floorNumber" },
@@ -157,9 +312,23 @@ export default {
       { text: "空置天数", value: "idleDays" },
       { text: "操作", value: "houseNo", sortable: false }
     ],
-    networkLoading: false,
-    networkError: null,
-    houseInfoArr: []
+    search: "",
+    selected: [],
+    upload: {
+      postAction: "/cms/houseInfo/excelImport",
+      accept: "",
+      extensions: /\.(xls?x)$/i,
+      size: 1024 * 1024 * 2,
+      multiple: false,
+      thread: 1,
+      directory: false,
+      dropDirectory: false
+    },
+    uploadInfo: {
+      buildingName: "",
+      buildingNo: ""
+    },
+    newFileList: []
   }),
   created() {
     this.$store.commit("changeToolBarTitle", { title: "房源概览" });
@@ -210,6 +379,7 @@ export default {
                 let hData = house.data.data;
                 this.buildingInfoArr = bData && bData.length ? bData : [];
                 this.houseInfoArr = hData && hData.length ? hData : [];
+                this.assetsInfo = this.translateAssets(this.buildingInfoArr);
               }
             })
           )
@@ -220,10 +390,39 @@ export default {
           });
       }
     },
+    translateAssets(assetsData) {
+      // 将List形式的数据转换为Tree形式并存入assetsInfo
+      let parkInfo = [];
+      assetsData.forEach(item => {
+        if (item.parkNo === null) {
+          item.parkNo = 0;
+          item.parkName = "无归属楼宇";
+        }
+        if (!parkInfo[item.parkNo]) {
+          parkInfo[item.parkNo] = {
+            parkNo: item.parkNo,
+            parkName: item.parkName,
+            building: []
+          };
+        }
+        parkInfo[item.parkNo].building.push({
+          buildingNo: item.buildingNo,
+          buildingName: item.buildingName
+        });
+      });
+      return parkInfo.filter(el => el);
+    },
+    changeBuilding(buildingNo, buildingName) {
+      // 关闭菜单
+      this.menu.buildingMenu = false;
+      this.searchFilterData.buildingName = buildingName;
+      this.searchFilter.buildingNo = buildingNo;
+    },
     getTableData(houseInfoArr) {
       let houseList = [];
       houseInfoArr.map(house =>
         houseList.push({
+          houseId: house.houseId,
           houseNo: house.houseNo,
           buildingName: this.buildingInfoArr.find(
             item => item.buildingNo == house.buildingNo
@@ -243,11 +442,146 @@ export default {
       );
       return houseList;
     },
-    linkToDetail(houseId) {
-      this.$router.push({
-        path: "/house/house-info-detail",
-        params: { houseId: houseId }
-      });
+    changeUploadInfo(buildingNo, buildingName) {
+      this.menu.uploadMenu = false;
+      this.uploadInfo.buildingNo = buildingNo;
+      this.uploadInfo.buildingName = buildingName;
+    },
+    batchDeleteHouse() {
+      if (this.selected.length) {
+        this.$http
+          .post(
+            `/cms/houseInfo/batchDelHouseInfoByHouseNo.json?houseNos=` +
+              `${this.selected.map(item => item.houseNo).toString()}`
+          )
+          .then(res => {
+            if (res.data.code != 500) {
+              this.$store.commit("addSnackBar", "批量删除成功", "success");
+              this.initialize();
+              this.selected = [];
+              this.tableActionMode = "view";
+            } else {
+              this.$store.commit(
+                "addSnackBar",
+                `批量删除失败 ${res.data.msg}`,
+                "error"
+              );
+            }
+          })
+          .catch(err =>
+            this.$store.commit("addSnackBar", `批量删除失败${err}`, "error")
+          );
+      }
+    },
+    batchExportHouse() {
+      if (this.selected.length) {
+        this.$http
+          .post(
+            "/cms/houseInfo/excelExport",
+            { ids: this.selected.map(item => item.houseId).toString() },
+            { responseType: "blob" }
+          )
+          .then(res => {
+            if (res.data.code != 500) {
+              this.createDownloadEl(res);
+              this.selected = [];
+              this.tableActionMode = "view";
+            } else {
+              this.$store.commit(
+                "addSnackBar",
+                `批量导出失败 ${res.data.msg}`,
+                "error"
+              );
+            }
+          })
+          .catch(err =>
+            this.$store.commit("addSnackBar", `批量导出失败 ${err}`, "error")
+          );
+      }
+    },
+    downloadExcel() {
+      this.$http
+        .get("/cms/houseInfo/downloadTemplate.do", { responseType: "blob" })
+        .then(res => {
+          if (res.data.code != 500) this.createDownloadEl(res);
+        })
+        .catch(err =>
+          this.$store.commit("addSnackBar", `Excel模板下载失败${err}`, "error")
+        );
+    },
+    createDownloadEl(res) {
+      const fileName = "房源excel.xlsx";
+      // const fileName = res.headers['content-disposition'].split('filename=')[1].split(';')[0] || "";
+      const blob = new Blob([res.data]);
+      // if ("download" in document.createElement("a")) {
+      const imgUrl = window.URL.createObjectURL(blob);
+      let link = document.createElement("a");
+      link.style.display = "none";
+      link.href = imgUrl;
+      link.setAttribute("download", fileName);
+
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blob);
+      // } else {
+      //   navigator.msSaveBlob(blob, fileName);
+      // }
+    },
+    inputFilter(newFile, oldFile, prevent) {
+      if (newFile && !oldFile) {
+        // 添加文件前
+        // 过滤系统文件 和隐藏文件
+        if (/(\/|^)(Thumbs\.db|desktop\.ini|\..+)$/.test(newFile.name)) {
+          return prevent();
+        }
+        // 过滤 php html js 文件
+        if (/\.(php5?|html?|jsx?)$/i.test(newFile.name)) {
+          return prevent();
+        }
+      }
+    },
+    inputFile(newFile, oldFile) {
+      if (newFile) {
+        // 上传错误
+        if (newFile.error && !oldFile.error) {
+          // console.log("error", newFile.error, newFile, newFile.xhr.response);
+          this.$store.commit(
+            "addSnackBar",
+            `Excel上传失败 ${newFile.error}`,
+            "error"
+          );
+        }
+
+        // 上传成功
+        if (newFile.success && !oldFile.success) {
+          let res = JSON.parse(newFile.xhr.response);
+          if (res.code == 0) {
+            this.$store.commit(
+              "addSnackBar",
+              `Excel上传成功 ${res.data}`,
+              "success"
+            );
+            this.initialize();
+          } else {
+            this.$store.commit(
+              "addSnackBar",
+              `Excel上传失败 ${res.msg}`,
+              "error"
+            );
+          }
+        }
+      }
+      // 自动上传
+      if (
+        Boolean(newFile) !== Boolean(oldFile) ||
+        oldFile.error !== newFile.error
+      ) {
+        if (!this.$refs.uploadEl.active) {
+          this.$refs.uploadEl.active = true;
+        }
+      }
     }
   }
 };

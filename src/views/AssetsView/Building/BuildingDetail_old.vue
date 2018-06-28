@@ -101,13 +101,12 @@
                         </v-list-tile-content>
                       </v-list-tile>
                       <v-list dense>
-                        <v-list-tile :href="`${$store.getters.getBaseUrl}/cms/houseInfo/downloadTemplate.do`">
-                        <!-- <v-list-tile @click="downloadExcel"> -->
+                        <!-- <v-list-tile :href="`${$store.getters.getBaseUrl}/cms/houseInfo/downloadTemplate.do`"> -->
+                        <v-list-tile @click="downloadExcel">
                           <v-list-tile-title>下载Excel模板</v-list-tile-title>
                         </v-list-tile>
-
                         <file-upload
-                          ref="upload"
+                          ref="uploadEl"
                           v-model="newFileList"
                           :data="{ buildingId: buildingInfo.buildingId, buildingNo: buildingInfo.buildingNo }"
                           :post-action="`${$store.getters.getBaseUrl}${upload.postAction}`"
@@ -133,11 +132,11 @@
               </v-card-title>
               <v-divider></v-divider>
               <v-data-table
+                v-model="selected"
                 :search="search"
                 :headers="headers"
                 :items="getTableData(houseInfoArr)"
                 item-key="houseNo"
-                v-model="selected"
                 :loading="networkLoading"
                 :no-data-text="networkError?`网络出现异常 - 检查网络后刷新重试`:`暂无记录`"
                 :no-results-text="`没能找到“${ search }”的结果...`"
@@ -277,7 +276,6 @@ export default {
       accept: "",
       extensions: /\.(xls?x)$/i,
       size: 1024 * 1024 * 2,
-      minSize: 128 * 1024,
       multiple: false,
       thread: 1,
       directory: false,
@@ -693,9 +691,8 @@ export default {
     },
     downloadExcel() {
       this.$http
-        .post(
+        .get(
           "/cms/houseInfo/downloadTemplate.do",
-          {},
           { responseType: "blob" }
         )
         .then(res => {
@@ -774,8 +771,8 @@ export default {
         Boolean(newFile) !== Boolean(oldFile) ||
         oldFile.error !== newFile.error
       ) {
-        if (!this.$refs.upload.active) {
-          this.$refs.upload.active = true;
+        if (!this.$refs.uploadEl.active) {
+          this.$refs.uploadEl.active = true;
         }
       }
     }

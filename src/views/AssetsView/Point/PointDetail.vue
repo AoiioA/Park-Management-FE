@@ -378,17 +378,17 @@ export default {
             buildingNos: String(this.editedPoint.buildingNos)
           })
           .then(res => {
-            // if (res.data.code != 500) {
+            if (res.data.code) {
               this.newPointClose(false);
               this.$store.commit("addSnackBar", "商圈编辑成功", "success");
               this.initialize();
-            // } else {
-            //   this.$store.commit(
-            //     "addSnackBar",
-            //     `商圈编辑失败 ${res.data.msg}`,
-            //     "error"
-            //   );
-            // }
+              // } else {
+              //   this.$store.commit(
+              //     "addSnackBar",
+              //     `商圈编辑失败 ${res.data.msg}`,
+              //     "error"
+              //   );
+            }
           })
           .catch(err => {
             this.$store.commit("addSnackBar", `商圈编辑失败 ${err}`, "error");

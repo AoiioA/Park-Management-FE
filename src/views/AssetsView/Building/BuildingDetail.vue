@@ -343,9 +343,12 @@ export default {
           this.$http.post("/cms/buildingInfo/listBuildingInfo.json", {
             buildingNo: Number(this.$route.params.buildingNo)
           }),
-          this.$http.post("/cms/AssetsInfo/queryBuildingAssetsStatistics.json", {
-            buildingNos: String(this.$route.params.buildingNo)
-          }),
+          this.$http.post(
+            "/cms/AssetsInfo/queryBuildingAssetsStatistics.json",
+            {
+              buildingNos: String(this.$route.params.buildingNo)
+            }
+          ),
           this.$http.post("/cms/houseInfo/listHouseInfoByFloor.json", {
             buildingNo: Number(this.$route.params.buildingNo)
           })
