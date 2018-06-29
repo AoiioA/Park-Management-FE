@@ -1,125 +1,182 @@
 <template>
-	<v-jumbotron height="auto">
-		<v-progress-linear v-if="networkLoading" indeterminate class="my-0"></v-progress-linear>
-		<v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
-		<v-container v-else grid-list-xl>
-      <v-layout justify-center align-center>
-        <v-flex xs12 xl10>
-          <v-subheader>
-            商圈信息
-            <v-spacer></v-spacer>
-            <v-dialog v-model="menu.newDialog" max-width="500px" persistent>
-              <v-btn slot="activator" @click="getAssets" color="primary" small depressed>编辑商圈</v-btn>
-              <v-form ref="newPointForm" v-model="newPointValid" lazy-validation>
-                <v-card>
-                  <v-card-title>
-                    <span class="headline">编辑商圈</span>
-                      <v-spacer></v-spacer>
-                      <v-dialog v-model="menu.delDialog" persistent max-width="290">
-                        <v-btn slot="activator" flat color="error">删除商圈</v-btn>
-                        <v-card>
-                          <v-card-title class="headline">确认删除商圈?</v-card-title>
-                          <v-card-text>删除商圈并不会影响该商圈所含资源。</v-card-text>
-                          <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="primary" flat @click.native="menu.delDialog = false">再看看</v-btn>
-                            <v-btn color="error" flat @click.native="delPoint">我确认</v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-dialog>
-                  </v-card-title>
-                  <v-card-text>
-                    <v-container grid-list-xs>
-                      <v-layout wrap>
-                        <v-flex xs12><v-text-field v-model="editedPoint.pointName" :rules="[$store.state.rules.required]" label="商圈名称" hint="如 : 望京商圈" persistent-hint required></v-text-field></v-flex>
-                        <v-flex xs12><v-select :disabled="!select.parkArr.length" v-model="editedPoint.parkNos" :items="select.parkArr" item-text="parkName" item-value="parkNo" label="所含园区" no-data-text="暂无可添加的园区" hint="园区及楼宇可稍后重新选择或修改" persistent-hint multiple autocomplete></v-select></v-flex>
-                        <v-flex xs12><v-select :disabled="!select.buildingArr.length" v-model="editedPoint.buildingNos" :items="select.buildingArr" item-text="buildingName" item-value="buildingNo" label="所含楼宇" no-data-text="暂无可添加的楼宇" hint="仅可选择未划分园区的楼宇" persistent-hint multiple autocomplete></v-select></v-flex>
-                      </v-layout>
-                    </v-container>
-                    <small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn depressed @click="newPointClose(true)">取消操作</v-btn>
-                    <v-btn :disabled="!newPointValid" @click="newPointSave" depressed color="primary">确认修改</v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-form>
-            </v-dialog>
-          </v-subheader>
-          <v-layout justify-center wrap>
-            <v-flex xs12 sm6>
-              <v-card>
-                <v-card-title>房源租赁情况(数量)</v-card-title>
-                <!-- <v-divider></v-divider> -->
-                <v-container fluid fill-height>
-                  <v-layout>
-                    <v-flex>
-                      <chart
-                        :options="assetsNumberOption"
-                        auto-resize
-                        theme="light"
-                        style="height:240px;width:100%;"
-                      ></chart>
-                    </v-flex>
-                  </v-layout>
-                </v-container>
-              </v-card>
-            </v-flex>
-            <v-flex xs12 sm6>
-              <v-card>
-                <v-card-title>房源租赁情况(面积)</v-card-title>
-                <!-- <v-divider></v-divider> -->
-                <v-container fluid fill-height>
+  <div class="fill-height point-detail">
+    <view-tool-bar>
+      <span slot="bar-menu">
+        <v-dialog :disabled="networkLoading || networkError || !pointInfo" v-model="menu.newDialog" max-width="500px" persistent>
+          <v-btn slot="activator" :disabled="networkLoading || networkError || !pointInfo" @click="getAssets" color="primary" depressed>编辑商圈</v-btn>
+          <v-form ref="newPointForm" v-model="newPointValid" lazy-validation>
+            <v-card>
+              <v-card-title>
+                <span class="headline">编辑商圈</span>
+                  <v-spacer></v-spacer>
+                  <v-dialog v-model="menu.delDialog" persistent max-width="290">
+                    <v-btn slot="activator" flat color="error">删除商圈</v-btn>
+                    <v-card>
+                      <v-card-title class="headline">确认删除商圈?</v-card-title>
+                      <v-card-text>删除商圈并不会影响该商圈所含资源。</v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" flat @click.native="menu.delDialog = false">再看看</v-btn>
+                        <v-btn color="error" flat @click.native="delPoint">我确认</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+              </v-card-title>
+              <v-card-text>
+                <v-container grid-list-xs>
                   <v-layout wrap>
-                    <v-flex xs12 sm8>
-                      <chart
-                        :options="assetsAreaOption"
-                        auto-resize
-                        theme="light"
-                        style="height:240px;width:100%;"
-                      ></chart>
-                    </v-flex>
-                    <v-flex xs12 sm4>
-                      <v-container fluid fill-height>
-                        <v-layout column>
-                          <v-flex>
-                            <div class="mb-1 grey--text text--darken-1">
-                              <span class="chart-legend-icon" style="background: #29B6F6"></span>
-                              空置房源
-                            </div>
-                            <div class="title">{{ pointDataInfo.emptyHouseArea }}m²</div>
-                          </v-flex>
-                          <v-flex>
-                            <div class="mb-1 grey--text text--darken-1">
-                              <span class="chart-legend-icon" style="background: #1976d2"></span>
-                              出租房源
-                            </div>
-                            <div class="title">{{ pointDataInfo.rentHouseArea }}m²</div>
-                          </v-flex>
-                          <v-flex>
-                            <div class="mb-1 grey--text text--darken-1">
-                              <span class="chart-legend-icon" style="background: #90A4AE"></span>
-                              其他房源
-                            </div>
-                            <div class="title">{{ pointDataInfo.totalHouseArea - pointDataInfo.emptyHouseArea - pointDataInfo.rentHouseArea }}m²</div>
-                          </v-flex>
-                        </v-layout>
-                      </v-container>
-                    </v-flex>
+                    <v-flex xs12><v-text-field v-model="editedPoint.pointName" :rules="[$store.state.rules.required]" label="商圈名称" hint="如 : 望京商圈" persistent-hint required></v-text-field></v-flex>
+                    <v-flex xs12><v-select :disabled="!select.parkArr.length" v-model="editedPoint.parkNos" :items="select.parkArr" item-text="parkName" item-value="parkNo" label="所含园区" no-data-text="暂无可添加的园区" hint="园区及楼宇可稍后重新选择或修改" persistent-hint multiple autocomplete></v-select></v-flex>
+                    <v-flex xs12><v-select :disabled="!select.buildingArr.length" v-model="editedPoint.buildingNos" :items="select.buildingArr" item-text="buildingName" item-value="buildingNo" label="所含楼宇" no-data-text="暂无可添加的楼宇" hint="仅可选择未划分园区的楼宇" persistent-hint multiple autocomplete></v-select></v-flex>
                   </v-layout>
                 </v-container>
-              </v-card>
-            </v-flex>
-          </v-layout>
-        </v-flex>
-      </v-layout>
-		</v-container>
-	</v-jumbotron>
+                <small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn depressed @click="newPointClose(true)">取消操作</v-btn>
+                <v-btn :disabled="!newPointValid" @click="newPointSave" depressed color="primary">确认修改</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
+        </v-dialog>
+        <v-btn icon>
+          <v-icon>help</v-icon>
+        </v-btn>
+      </span>
+    </view-tool-bar>
+    <v-jumbotron height="auto">
+      <v-progress-linear v-if="networkLoading" indeterminate class="my-0"></v-progress-linear>
+      <v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
+      <v-container v-else grid-list-xl>
+        <v-layout justify-center align-center>
+          <v-flex xs12 xl10>
+            <v-layout wrap>
+              <v-flex xs12 sm6>
+                <v-subheader>房源租赁情况如何？</v-subheader>
+                <v-card>
+                  <v-subheader>房源租赁统计(数量)</v-subheader>
+                  <!-- <v-divider></v-divider> -->
+                  <v-container fluid fill-height>
+                    <v-layout>
+                      <v-flex xs12>
+                        <chart
+                          :options="assetsNumberOption"
+                          auto-resize
+                          theme="light"
+                          style="height:240px;width:100%;"
+                        ></chart>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-card>
+              </v-flex>
+              <v-flex xs12 sm6>
+                <v-subheader></v-subheader>
+                <v-card>
+                  <v-subheader>房源租赁统计(面积)</v-subheader>
+                  <!-- <v-divider></v-divider> -->
+                  <v-container fluid fill-height>
+                    <v-layout wrap>
+                      <v-flex xs12 sm8>
+                        <chart
+                          :options="assetsAreaOption"
+                          auto-resize
+                          theme="light"
+                          style="height:240px;width:100%;"
+                        ></chart>
+                      </v-flex>
+                      <v-flex xs12 sm4>
+                        <v-container fluid fill-height>
+                          <v-layout column>
+                            <v-flex>
+                              <div class="mb-1 grey--text text--darken-1">
+                                <span class="chart-legend-icon" style="background: #29B6F6"></span>
+                                空置房源
+                              </div>
+                              <div class="title">{{ pointDataInfo.emptyHouseArea }}m²</div>
+                            </v-flex>
+                            <v-flex>
+                              <div class="mb-1 grey--text text--darken-1">
+                                <span class="chart-legend-icon" style="background: #1976d2"></span>
+                                出租房源
+                              </div>
+                              <div class="title">{{ pointDataInfo.rentHouseArea }}m²</div>
+                            </v-flex>
+                            <v-flex>
+                              <div class="mb-1 grey--text text--darken-1">
+                                <span class="chart-legend-icon" style="background: #90A4AE"></span>
+                                其他房源
+                              </div>
+                              <div class="title">{{ pointDataInfo.totalHouseArea - pointDataInfo.emptyHouseArea - pointDataInfo.rentHouseArea }}m²</div>
+                            </v-flex>
+                          </v-layout>
+                        </v-container>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-card>
+              </v-flex>
+              <v-flex xs12 sm6>
+                <v-subheader>租赁房源的用途分布？</v-subheader>
+                <v-card>
+                  <v-subheader>房源资源去向</v-subheader>
+                  <v-container fluid fill-height>
+                    <v-layout wrap>
+                      <v-flex xs12 sm8>
+                        <chart
+                          :options="assetsAreaOption"
+                          auto-resize
+                          theme="light"
+                          style="height:240px;width:100%;"
+                        ></chart>
+                      </v-flex>
+                      <v-flex xs12 sm4>
+                        <v-container fluid fill-height>
+                          <v-layout column>
+                            <v-flex>
+                              <div class="mb-1 grey--text text--darken-1">
+                                <span class="chart-legend-icon" style="background: #29B6F6"></span>
+                                空置房源
+                              </div>
+                              <div class="title">{{ pointDataInfo.emptyHouseArea }}m²</div>
+                            </v-flex>
+                            <v-flex>
+                              <div class="mb-1 grey--text text--darken-1">
+                                <span class="chart-legend-icon" style="background: #1976d2"></span>
+                                出租房源
+                              </div>
+                              <div class="title">{{ pointDataInfo.rentHouseArea }}m²</div>
+                            </v-flex>
+                            <v-flex>
+                              <div class="mb-1 grey--text text--darken-1">
+                                <span class="chart-legend-icon" style="background: #90A4AE"></span>
+                                其他房源
+                              </div>
+                              <div class="title">{{ pointDataInfo.totalHouseArea - pointDataInfo.emptyHouseArea - pointDataInfo.rentHouseArea }}m²</div>
+                            </v-flex>
+                          </v-layout>
+                        </v-container>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-card>
+              </v-flex>
+            </v-layout>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-jumbotron>
+  </div>
 </template>
 
 <script>
+import ViewToolBar from "@/components/ViewToolBar.vue";
+
 export default {
+  components: {
+    ViewToolBar
+  },
   data: () => ({
     networkLoading: false,
     networkError: null,
@@ -182,7 +239,7 @@ export default {
         legend: {
           data: optLegend
         },
-        grid: [{ left: 20, right: 0, top: 20, bottom: 0, containLabel: true }],
+        grid: [{ left: 20, right: 20, top: 20, bottom: 0, containLabel: true }],
         xAxis: {
           type: "category",
           data: optLegend,
@@ -254,7 +311,14 @@ export default {
     }
   },
   created() {
-    this.$store.commit("changeToolBarTitle", { title: "商圈概览" });
+    this.$store.commit("changeToolBarTitle", {
+      title: "商圈详情",
+      isBack: true,
+      crumbs: [
+        { name: "商圈概览", to: { name: "point-list" } },
+        { name: "商圈详情" }
+      ]
+    });
     this.initialize();
   },
   methods: {

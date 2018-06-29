@@ -86,22 +86,6 @@
         <v-flex xs12 sm10 md8 xl8>
           <v-subheader>园区所含楼宇</v-subheader>
           <v-card>
-            <!-- <v-card-title class="py-2">
-              <v-text-field
-                flat
-                solo
-                prepend-icon="search"
-                label="在列表中搜索..."
-                v-model="search"
-              ></v-text-field>
-              <v-tooltip bottom>
-                <v-btn @click="initialize" slot="activator" icon class="mx-0">
-                  <v-icon>refresh</v-icon>
-                </v-btn>
-                <span>刷新数据</span>
-              </v-tooltip>
-            </v-card-title>
-            <v-divider></v-divider> -->
             <v-data-table
               :search="search"
               :headers="headers"
@@ -113,11 +97,10 @@
             >
               <template slot="items" slot-scope="props">
                 <td>{{ props.item.buildingName }}</td>
+                <td>{{ `${props.item.province} ${props.item.city} ${props.item.district}` }}</td>
                 <td>{{ props.item.constructionArea }}m²</td>
-                <td>{{ props.item.city }}</td>
-                <td>{{ props.item.district }}</td>
-                <td>{{ props.item.address }}</td>
-                <td>{{ props.item.createDate.slice(0, 10) }}</td>
+                <td>{{ props.item.vacancyRate }}%</td>
+                <!-- <td>{{ props.item.createDate.slice(0, 10) }}</td> -->
                 <td class="px-3">
                   <v-btn icon class="mx-0" :to="{ name: 'building-detail', params: { buildingNo: props.item.buildingNo, buildingDetailType: 'area' } }">
                     <v-icon color="primary">visibility</v-icon>
@@ -177,11 +160,10 @@ export default {
     search: "",
     headers: [
       { text: "楼宇名称", value: "buildingName" },
+      { text: "省市区", value: "city" },
       { text: "建筑面积", value: "constructionArea" },
-      { text: "市", value: "city" },
-      { text: "区县", value: "district" },
-      { text: "详细地址", value: "address" },
-      { text: "创建日期", value: "createDate" },
+      { text: "空置率", value: "vacancyRate" },
+      // { text: "创建日期", value: "createDate" },
       { text: "操作", value: "houseNo", sortable: false }
     ]
   }),
@@ -200,7 +182,7 @@ export default {
           this.$http.post("/cms/parkInfo/listParkInfo.json", {
             parkNo: Number(this.$route.params.parkNo)
           }),
-          this.$http.post("/cms/buildingInfo/listBuildingInfo.json", {
+          this.$http.post("/cms/parkInfo/listBuildingInfoByParkNo.json", {
             parkNo: Number(this.$route.params.parkNo)
           }),
           this.$http.post("/cms/AssetsInfo/queryParkAssetsStatistics.json", {

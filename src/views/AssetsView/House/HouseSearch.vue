@@ -75,7 +75,7 @@
                   v-model="search"
                 ></v-text-field>
                 <v-menu v-if="tableActionMode=='view'" v-model="menu.tableMoreDialog" :close-on-content-click="false" offset-y left :nudge-bottom="10">
-                  <v-btn transition="fade-transition" slot="activator" icon>
+                  <v-btn slot="activator" icon>
                     <v-icon>more_vert</v-icon>
                   </v-btn>
                   <v-list two-line dense>
@@ -83,60 +83,67 @@
                       <v-list-tile slot="activator" @click="1">
                         <v-list-tile-content>
                           <v-list-tile-title>批量导入房源</v-list-tile-title>
-                          <v-list-tile-sub-title>每次可导入一栋楼宇所含房源</v-list-tile-sub-title>
+                          <v-list-tile-sub-title>下载模板并上传单楼宇房源</v-list-tile-sub-title>
                         </v-list-tile-content>
                       </v-list-tile>
                       <v-list dense>
                         <!-- <v-list-tile :href="`${$store.getters.getBaseUrl}/cms/houseInfo/downloadTemplate.do`"> -->
-                        <v-list-tile @click="downloadExcel">
+                        <v-list-tile @click="menu.tableMoreDialog=false;downloadExcel()">
                           <v-list-tile-title>下载Excel模板</v-list-tile-title>
                         </v-list-tile>
-                        <v-list-tile @click="menu.uploadDialog=true">
+                        <v-list-tile @click="menu.tableMoreDialog=false;menu.uploadDialog=true;">
                           <v-list-tile-title>上传Excel文件</v-list-tile-title>
                         </v-list-tile>
                         <v-dialog v-model="menu.uploadDialog" persistent max-width="290">
                           <v-card>
                             <v-card-title class="headline">选择房源所属楼宇</v-card-title>
                             <v-card-text>
-                              <v-menu v-model="menu.uploadMenu" :close-on-content-click="false" offset-y nudge-top="20">
-                                <v-text-field slot="activator" :value="uploadInfo.buildingName" label="所属楼宇" readonly></v-text-field>
-                                <v-list style="max-height: 200px; overflow-y: auto;">
-                                  <v-list-tile v-if="!assetsInfo.length">
-                                    <v-list-tile-title>暂无楼宇可选择</v-list-tile-title>
-                                  </v-list-tile>
-                                  <v-menu v-else v-for="(assetsPark, i) in assetsInfo" :key="i" offset-x style="display:block">
-                                    <v-list-tile slot="activator" @click="1">
-                                      <v-list-tile-title>{{ assetsPark.parkName }}</v-list-tile-title>
-                                    </v-list-tile>
-                                    <v-list style="max-height: 200px; overflow-y: auto;">
-                                      <v-list-tile v-for="(assetsBuilding, j) in assetsPark.building" :key="j" @click="changeUploadInfo(assetsBuilding.buildingNo, assetsBuilding.buildingName)">
-                                        <v-list-tile-title>{{ assetsBuilding.buildingName }}</v-list-tile-title>
-                                      </v-list-tile>
-                                    </v-list>
-                                  </v-menu>
-                                </v-list>
-                              </v-menu>
-                              <file-upload
-                                ref="uploadEl"
-                                v-model="newFileList"
-                                :post-action="`${$store.getters.getBaseUrl}${upload.postAction}`"
-                                :accept="upload.accept"
-                                :extensions="upload.extensions"
-                                :size="upload.size || 0"
-                                :multiple="upload.multiple"
-                                :thread="upload.thread < 1 ? 1 : (upload.thread > 5 ? 5 : upload.thread)"
-                                :directory="upload.directory"
-                                :drop-directory="upload.dropDirectory"
-                                @input-filter="inputFilter"
-                                @input-file="inputFile"
-                              >
-                                <v-btn color="primary" depressed>选择文件</v-btn>
-                              </file-upload>
+                              <v-layout column>
+                                <v-flex xs12>
+                                  <v-form ref="uploadForm" v-model="uploadValid" lazy-validation>
+                                    <v-menu v-model="menu.uploadMenu" :close-on-content-click="false" offset-y nudge-top="20" style="display:block;">
+                                      <v-text-field slot="activator" :value="uploadInfo.buildingName" :rules="[$store.state.rules.required]" label="所属楼宇" readonly required></v-text-field>
+                                      <v-list style="max-height: 200px; overflow-y: auto;">
+                                        <v-list-tile v-if="!assetsInfo.length">
+                                          <v-list-tile-title>暂无楼宇可选择</v-list-tile-title>
+                                        </v-list-tile>
+                                        <v-menu v-else v-for="(assetsPark, i) in assetsInfo" :key="i" offset-x style="display:block">
+                                          <v-list-tile slot="activator" @click="1">
+                                            <v-list-tile-title>{{ assetsPark.parkName }}</v-list-tile-title>
+                                          </v-list-tile>
+                                          <v-list style="max-height: 200px; overflow-y: auto;">
+                                            <v-list-tile v-for="(assetsBuilding, j) in assetsPark.building" :key="j" @click="changeUploadInfo(assetsBuilding.buildingNo, assetsBuilding.buildingName)">
+                                              <v-list-tile-title>{{ assetsBuilding.buildingName }}</v-list-tile-title>
+                                            </v-list-tile>
+                                          </v-list>
+                                        </v-menu>
+                                      </v-list>
+                                    </v-menu>
+                                    <v-text-field @click="$refs.uploadEl.$el.click()" :value="uploadInfo.fileList[0]&&uploadInfo.fileList[0].name" :rules="[$store.state.rules.required]" label="选择文件" readonly required></v-text-field>
+                                    <file-upload
+                                      ref="uploadEl"
+                                      v-model="uploadInfo.fileList"
+                                      :post-action="`${$store.getters.getBaseUrl}${upload.postAction}`"
+                                      :data="{ buildingNo: uploadInfo.buildingNo }"
+                                      :accept="upload.accept"
+                                      :extensions="upload.extensions"
+                                      :size="upload.size || 0"
+                                      :multiple="upload.multiple"
+                                      :thread="upload.thread < 1 ? 1 : (upload.thread > 5 ? 5 : upload.thread)"
+                                      :directory="upload.directory"
+                                      :drop-directory="upload.dropDirectory"
+                                      @input-filter="inputFilter"
+                                      @input-file="inputFile"
+                                    >
+                                    </file-upload>
+                                  </v-form>
+                                </v-flex>
+                              </v-layout>
                             </v-card-text>
                             <v-card-actions>
                               <v-spacer></v-spacer>
                               <v-btn flat @click.native="menu.uploadDialog = false">取消操作</v-btn>
-                              <v-btn color="primary" flat @click.native="1">确认上传</v-btn>
+                              <v-btn :disabled="!uploadValid||!uploadInfo.fileList.length" @click.native="uploadFile" :loading="$refs.uploadEl && $refs.uploadEl.active" color="primary" flat>确认上传</v-btn>
                             </v-card-actions>
                           </v-card>
                         </v-dialog>
@@ -144,14 +151,14 @@
                     </v-menu>
                     <v-list-tile @click="menu.tableMoreDialog=false;tableActionMode='export';">
                       <v-list-tile-content>
-                        <v-list-tile-title>导出房源</v-list-tile-title>
-                        <v-list-tile-sub-title>批量导出至Excel</v-list-tile-sub-title>
+                        <v-list-tile-title>批量导出房源</v-list-tile-title>
+                        <v-list-tile-sub-title>选择房源并导出至Excel</v-list-tile-sub-title>
                       </v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile @click="menu.tableMoreDialog=false;tableActionMode='delete';">
                       <v-list-tile-content>
-                        <v-list-tile-title>删除房源</v-list-tile-title>
-                        <v-list-tile-sub-title>批量删除房源</v-list-tile-sub-title>
+                        <v-list-tile-title>批量删除房源</v-list-tile-title>
+                        <v-list-tile-sub-title>选择房源并删除记录</v-list-tile-sub-title>
                       </v-list-tile-content>
                     </v-list-tile>
                   </v-list>
@@ -324,11 +331,12 @@ export default {
       directory: false,
       dropDirectory: false
     },
+    uploadValid: true,
     uploadInfo: {
       buildingName: "",
-      buildingNo: ""
-    },
-    newFileList: []
+      buildingNo: "",
+      fileList: []
+    }
   }),
   created() {
     this.$store.commit("changeToolBarTitle", { title: "房源概览" });
@@ -447,6 +455,66 @@ export default {
       this.uploadInfo.buildingNo = buildingNo;
       this.uploadInfo.buildingName = buildingName;
     },
+    uploadFile() {
+      if (this.$refs.uploadForm.validate()) {
+        this.$refs.uploadEl.active = true;
+      }
+    },
+    inputFilter(newFile, oldFile, prevent) {
+      if (newFile && !oldFile) {
+        // 添加文件前
+        // 过滤系统文件 和隐藏文件
+        if (/(\/|^)(Thumbs\.db|desktop\.ini|\..+)$/.test(newFile.name)) {
+          return prevent();
+        }
+        // 过滤 php html js 文件
+        if (/\.(php5?|html?|jsx?)$/i.test(newFile.name)) {
+          return prevent();
+        }
+      }
+    },
+    inputFile(newFile, oldFile) {
+      if (newFile) {
+        // 上传错误
+        if (newFile.error && !oldFile.error) {
+          // console.log("error", newFile.error, newFile, newFile.xhr.response);
+          this.$store.commit(
+            "addSnackBar",
+            `Excel上传失败 ${newFile.error}`,
+            "error"
+          );
+        }
+
+        // 上传成功
+        if (newFile.success && !oldFile.success) {
+          let res = JSON.parse(newFile.xhr.response);
+          if (res.code == 0) {
+            this.menu.uploadDialog = false;
+            this.$store.commit(
+              "addSnackBar",
+              `Excel上传成功 ${res.data}`,
+              "success"
+            );
+            this.initialize();
+          } else {
+            this.$store.commit(
+              "addSnackBar",
+              `Excel上传失败 ${res.msg}`,
+              "error"
+            );
+          }
+        }
+      }
+      // 自动上传
+      // if (
+      //   Boolean(newFile) !== Boolean(oldFile) ||
+      //   oldFile.error !== newFile.error
+      // ) {
+      //   if (!this.$refs.uploadEl.active) {
+      //     this.$refs.uploadEl.active = true;
+      //   }
+      // }
+    },
     batchDeleteHouse() {
       if (this.selected.length) {
         this.$http
@@ -528,60 +596,6 @@ export default {
       // } else {
       //   navigator.msSaveBlob(blob, fileName);
       // }
-    },
-    inputFilter(newFile, oldFile, prevent) {
-      if (newFile && !oldFile) {
-        // 添加文件前
-        // 过滤系统文件 和隐藏文件
-        if (/(\/|^)(Thumbs\.db|desktop\.ini|\..+)$/.test(newFile.name)) {
-          return prevent();
-        }
-        // 过滤 php html js 文件
-        if (/\.(php5?|html?|jsx?)$/i.test(newFile.name)) {
-          return prevent();
-        }
-      }
-    },
-    inputFile(newFile, oldFile) {
-      if (newFile) {
-        // 上传错误
-        if (newFile.error && !oldFile.error) {
-          // console.log("error", newFile.error, newFile, newFile.xhr.response);
-          this.$store.commit(
-            "addSnackBar",
-            `Excel上传失败 ${newFile.error}`,
-            "error"
-          );
-        }
-
-        // 上传成功
-        if (newFile.success && !oldFile.success) {
-          let res = JSON.parse(newFile.xhr.response);
-          if (res.code == 0) {
-            this.$store.commit(
-              "addSnackBar",
-              `Excel上传成功 ${res.data}`,
-              "success"
-            );
-            this.initialize();
-          } else {
-            this.$store.commit(
-              "addSnackBar",
-              `Excel上传失败 ${res.msg}`,
-              "error"
-            );
-          }
-        }
-      }
-      // 自动上传
-      if (
-        Boolean(newFile) !== Boolean(oldFile) ||
-        oldFile.error !== newFile.error
-      ) {
-        if (!this.$refs.uploadEl.active) {
-          this.$refs.uploadEl.active = true;
-        }
-      }
     }
   }
 };

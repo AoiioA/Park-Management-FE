@@ -19,7 +19,7 @@
     </v-toolbar-title> -->
     <v-toolbar-side-icon v-if="!$vuetify.breakpoint.lgAndUp" @click.stop="$emit('toggleDrawer')"></v-toolbar-side-icon>
     <transition name="fade">
-      <v-toolbar-title :class="{ 'ml-0': $vuetify.breakpoint.mdAndDown }" v-if="offsetTop>=56">{{ $store.state.toolBarTitle }}</v-toolbar-title>
+      <v-toolbar-title :class="{ 'ml-0': $vuetify.breakpoint.mdAndDown }" v-if="offsetTop>=56" v-html="$store.state.toolBarTitle"></v-toolbar-title>
     </transition>
     <!-- <v-text-field
       flat
