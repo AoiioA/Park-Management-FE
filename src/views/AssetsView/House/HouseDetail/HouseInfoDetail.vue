@@ -17,13 +17,14 @@
                 slot="activator"
                 :disabled="houseInfo.resourceStatus!==0"
                 :to="{ 'name': 'house-new', 'query': { 'editHouseNo': $route.params.houseNo } }"
-                depressed
+                flat
                 color="primary"
+                class="mx-0"
               >编辑房源</v-btn>
               <span>空置状态才可编辑</span>
             </v-tooltip>
             <v-dialog :disabled="houseInfo.resourceStatus!==0" v-model="menu.delDialog" persistent max-width="290">
-              <v-btn slot="activator" :disabled="houseInfo.resourceStatus!==0" flat color="error">删除房源</v-btn>
+              <v-btn slot="activator" :disabled="houseInfo.resourceStatus!==0" flat color="error" class="mx-0">删除房源</v-btn>
               <v-card>
                 <v-card-title class="headline">确认删除房源?</v-card-title>
                 <v-card-text>请您谨慎进行此操作。</v-card-text>
@@ -201,6 +202,14 @@ export default {
   }),
   created() {
     this.initialize();
+    this.$store.commit("changeToolBarTitle", {
+      title: "房源详情",
+      isBack: true,
+      crumbs: [
+        { name: "房源概览", to: { name: "house-search" } },
+        { name: "房源详情" }
+      ]
+    });
   },
   methods: {
     initialize() {

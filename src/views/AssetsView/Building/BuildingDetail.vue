@@ -2,8 +2,8 @@
   <div class="building-detail building">
     <view-tool-bar>
       <span slot="bar-menu">
-        <v-dialog :disabled="networkLoading || networkError || buildingInfo.delFlag === 0" v-model="newBuildingDialog" max-width="500px" persistent>
-          <v-btn slot="activator" :disabled="buildingInfo.delFlag === 0" @click="getPark();getProvince();" depressed color="primary">编辑楼宇</v-btn>
+        <v-dialog :disabled="networkLoading || networkError || !buildingInfo.delFlag === 1" v-model="newBuildingDialog" max-width="500px" persistent>
+          <v-btn slot="activator" :disabled="networkLoading || networkError || !buildingInfo.delFlag === 1" @click="getPark();getProvince();" depressed color="primary">编辑楼宇</v-btn>
           <v-form ref="editBuildingForm" v-model="newBuildingValid" lazy-validation>
             <v-card>
               <v-card-title>

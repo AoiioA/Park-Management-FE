@@ -55,7 +55,7 @@
               <v-flex xs12 sm6>
                 <v-subheader>房源租赁情况如何？</v-subheader>
                 <v-card>
-                  <v-subheader>房源租赁统计(数量)</v-subheader>
+                  <v-subheader>租赁统计(数量)</v-subheader>
                   <!-- <v-divider></v-divider> -->
                   <v-container fluid fill-height>
                     <v-layout>
@@ -74,7 +74,7 @@
               <v-flex xs12 sm6>
                 <v-subheader></v-subheader>
                 <v-card>
-                  <v-subheader>房源租赁统计(面积)</v-subheader>
+                  <v-subheader>租赁统计(面积)</v-subheader>
                   <!-- <v-divider></v-divider> -->
                   <v-container fluid fill-height>
                     <v-layout wrap>
@@ -120,7 +120,7 @@
               <v-flex xs12 sm6>
                 <v-subheader>租赁房源的用途分布？</v-subheader>
                 <v-card>
-                  <v-subheader>房源资源去向</v-subheader>
+                  <v-subheader>资源去向</v-subheader>
                   <v-container fluid fill-height>
                     <v-layout wrap>
                       <v-flex xs12 sm8>
