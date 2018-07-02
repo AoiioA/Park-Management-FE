@@ -2,7 +2,7 @@
   <div class="fill-height contract-list">
     <view-tool-bar>
       <span slot="bar-menu">
-        <slot name="newContractBtn"></slot>
+        <v-btn flat :to="{ query: { newType: 'new' } }">添加合同</v-btn>
         <v-btn icon>
           <v-icon>help</v-icon>
         </v-btn>

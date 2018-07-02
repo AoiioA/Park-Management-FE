@@ -112,10 +112,14 @@ export default {
           action: "business",
           title: "资产管理",
           child: [
-            { action: "business", title: "商圈", url: "/home/point" },
-            { action: "business", title: "园区管理", url: "/home/park" },
-            { action: "business", title: "楼宇管理", url: "/home/building" },
-            { action: "business", title: "房源管理", url: "/home/house" }
+            { action: "business", title: "商圈", url: "/home/assets/point" },
+            { action: "business", title: "园区管理", url: "/home/assets/park" },
+            {
+              action: "business",
+              title: "楼宇管理",
+              url: "/home/assets/building"
+            },
+            { action: "business", title: "房源管理", url: "/home/assets/house" }
           ]
         },
         {
@@ -155,9 +159,12 @@ export default {
           action: "build",
           title: "物业管理",
           child: [
-            { action: "build", title: "资产维护", url: "/home/property" },
-            { action: "build", title: "水电管理", url: "/home/404" },
-            { action: "build", title: "卫生管理", url: "/home/404" }
+            { action: "build", title: "水费管理", url: "/home/property/water" },
+            {
+              action: "build",
+              title: "电费管理",
+              url: "/home/property/electricity"
+            }
           ]
         },
         {
@@ -212,6 +219,7 @@ export default {
       .expansion-panel {
         .expansion-panel__container {
           border-top: 1px solid #424242;
+
           &.expansion-panel__container--active {
             background: rgba(0, 0, 0, 0.3);
           }

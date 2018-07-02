@@ -1,5 +1,5 @@
 <template>
-<div class="fill-height house-new">
+  <div class="fill-height house-new">
     <view-tool-bar>
       <span slot="bar-menu">
         <v-btn icon>
@@ -55,7 +55,7 @@
                           </v-list>
                         </v-menu>
                       </v-flex>
-                      <v-flex xs12 sm3><v-text-field v-model.number="newHouse.orientation" :rules="[$store.state.rules.required]" label="房源朝向" hint="" persistent-hint box required></v-text-field></v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model="newHouse.orientation" :rules="[$store.state.rules.required]" label="房源朝向" hint="" persistent-hint box required></v-text-field></v-flex>
                       <v-flex xs12 sm3><v-text-field v-model.number="newHouse.buildArea" :rules="[$store.state.rules.required, $store.state.rules.noZero]" label="建筑面积(m²)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
                       <v-flex xs12 sm3><v-text-field v-model.number="newHouse.usageRate" :rules="[$store.state.rules.required, $store.state.rules.noZero, rules.lessThanHundred]" label="使用率(%)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
                       <v-flex xs12 sm3><v-text-field v-model.number="newHouse.accommodatingNumber" mask="####" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="容纳人数" hint="" persistent-hint box required></v-text-field></v-flex>

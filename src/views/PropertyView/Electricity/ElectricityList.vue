@@ -1,5 +1,5 @@
 <template>
-  <v-layout column class="fill-height property-home">
+  <div class="fill-height electricity-list">
     <view-tool-bar>
       <span slot="bar-menu">
         <v-btn icon>
@@ -8,22 +8,22 @@
       </span>
     </view-tool-bar>
     <not-find></not-find>
-    <!-- <router-view></router-view> -->
-  </v-layout>
+    <!-- <router-view /> -->
+  </div>
 </template>
 
 <script>
-import ViewToolBar from "@/components/ViewToolBar.vue";
 import NotFind from "@/views/NotFind.vue";
+import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
+  components: {
+    NotFind,
+    ViewToolBar
+  },
   data: () => ({}),
   created() {
-    this.$store.commit("changeToolBarTitle", { title: "资产维护" });
-  },
-  components: {
-    ViewToolBar,
-    NotFind
+    this.$store.commit("changeToolBarTitle", { title: "电费管理" });
   }
 };
 </script>
