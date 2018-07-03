@@ -30,7 +30,7 @@ export default [
             component: WaterList
           },
           {
-            path: "water-detail",
+            path: "water-detail/:waterNo",
             name: "water-detail",
             component: WaterDetail
           },

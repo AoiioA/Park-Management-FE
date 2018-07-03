@@ -22,7 +22,27 @@
                   <v-container grid-list-md>
                     <v-subheader>建筑信息</v-subheader>
                     <v-layout row wrap>
-                      <v-flex xs12 sm3><v-text-field v-model="newWater.orientation" :rules="[$store.state.rules.required]" label="房源朝向" hint="" persistent-hint box required></v-text-field></v-flex>
+                      <v-flex xs12 sm4>
+                        <v-menu v-model="menu.companyMenu" offset-y nudge-top="20">
+                          <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="selectedCompany.companyName" label="客户名称" :hint="selectedCompany.businessLicense" persistent-hint box required readonly></v-text-field>
+                          <v-list style="max-height: 200px; overflow-y: auto;">
+                            <v-list-tile v-for="(company, companyIndex) in companyList" :key="companyIndex" @click="selectedCompany = company;getContract(company.id)">
+                              <v-list-tile-title>{{ company.companyName }}</v-list-tile-title>
+                            </v-list-tile>
+                          </v-list>
+                        </v-menu>
+                      </v-flex>
+                      <v-flex xs12 sm4>
+                        <v-menu :disabled="!selectedCompany.id" v-model="menu.contractMenu" offset-y nudge-top="20">
+                          <v-text-field :disabled="!selectedCompany.id" slot="activator" :rules="[$store.state.rules.required]" :value="selectedContract.contractName" label="客户名称" :hint="selectedContract.contractNo" persistent-hint box required readonly></v-text-field>
+                          <v-list style="max-height: 200px; overflow-y: auto;">
+                            <v-list-tile v-for="(contract, contractIndex) in contractList" :key="contractIndex" @click="selectedContract = contract;">
+                              <v-list-tile-title>{{ contract.contractName }}</v-list-tile-title>
+                            </v-list-tile>
+                          </v-list>
+                        </v-menu>
+                      </v-flex>
+                      <v-flex xs12 sm4><v-text-field v-model="newWater.orientation" :rules="[$store.state.rules.required]" label="房源朝向" hint="" persistent-hint box required></v-text-field></v-flex>
                     </v-layout>
                     <v-divider class="my-3"></v-divider>
                   </v-container>
@@ -53,19 +73,34 @@ export default {
   data: () => ({
     networkLoading: false,
     networkError: false,
-    menu: {},
+    menu: {
+      companyMenu: false,
+      contractMenu: false
+    },
     stepNum: 1,
     formValid: true,
     editWater: {},
     newWater: {
-			orientation: ""
-		},
+      orientation: ""
+    },
+    companyList: [],
+    contractList: [],
+    selectedCompany: {
+      id: "",
+      companyName: "",
+      businessLicense: ""
+    },
+    selectedContract: {
+      id: "",
+      ContractName: "",
+      contractNo: ""
+    },
+    isSubmitWater: false,
     rules: {
       testFloorNumber: val =>
         !new RegExp(/[^(\-?)\d+]/gi).test(val) || "该项需为整数",
       lessThanHundred: val => val <= 100 || "该项需小于一百"
-    },
-    isSubmitWater: false
+    }
   }),
   created() {
     this.$store.commit("changeToolBarTitle", { title: "水费管理" });
@@ -73,6 +108,7 @@ export default {
   },
   methods: {
     initialize() {
+      this.getCompany();
       // this.networkLoading = true;
       // this.$http
       //   .post("/cms/contract/cancelList.json")
@@ -85,6 +121,33 @@ export default {
       //     this.networkLoading = false;
       //     this.networkError = true;
       //   });
+    },
+    getCompany() {
+      this.$http
+        .get("/cms/companyInfo/companyNameList.json")
+        .then(
+          res =>
+            (this.companyList = res.data && res.data.length ? res.data : [])
+        )
+        .catch(err =>
+          this.$store.commit("addSnackBar", `客户名称查询失败 ${err}`, "error")
+        );
+    },
+    getContract(companyId) {
+      this.contractList = [];
+      this.$http
+        .get("/cms/contract/queryContractNameById", {
+          params: {
+            id: companyId
+          }
+        })
+        .then(
+          res =>
+            (this.contractList = res.data && res.data.length ? res.data : [])
+        )
+        .catch(err =>
+          this.$store.commit("addSnackBar", `客户合同查询失败 ${err}`, "error")
+        );
     },
     submitWater() {
       // console.log(this.newWater);
@@ -116,21 +179,21 @@ export default {
         //         this.editWater.waterNo = res.data.data.waterNo;
         //       }
         //       this.$store.commit("addSnackBar", "水费账单添加成功", "success");
-              this.stepNum++;
-              // this.getWaterImage();
-          //   } else {
-          //     this.$store.commit(
-          //       "addSnackBar",
-          //       `水费账单添加失败 ${res.data.msg}`,
-          //       "error"
-          //     );
-          //   }
-          // })
-          // .catch(err =>
-          //   this.$store.commit("addSnackBar", `水费账单添加失败: ${err}`, "error")
-          // );
+        this.stepNum++;
+        // this.getWaterImage();
+        //   } else {
+        //     this.$store.commit(
+        //       "addSnackBar",
+        //       `水费账单添加失败 ${res.data.msg}`,
+        //       "error"
+        //     );
+        //   }
+        // })
+        // .catch(err =>
+        //   this.$store.commit("addSnackBar", `水费账单添加失败: ${err}`, "error")
+        // );
       }
-    },
+    }
   }
 };
 </script>
