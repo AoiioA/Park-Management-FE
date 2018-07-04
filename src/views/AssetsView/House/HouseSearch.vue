@@ -67,13 +67,15 @@
           <v-flex xs12 xl10>
             <v-card>
               <v-card-title class="py-2">
-                <v-text-field
+                <!-- <v-text-field
                   flat
                   solo
                   prepend-icon="search"
                   label="在筛选结果中继续搜索..."
                   v-model="search"
-                ></v-text-field>
+                ></v-text-field> -->
+                <span class="subheading px-2">发现{{ totalItems }}处房源</span>
+                <v-spacer></v-spacer>
                 <v-menu v-if="tableActionMode=='view'" v-model="menu.tableMoreDialog" :close-on-content-click="false" offset-y left :nudge-bottom="10">
                   <v-btn slot="activator" icon>
                     <v-icon>more_vert</v-icon>
@@ -196,13 +198,13 @@
               <v-divider></v-divider>
               <v-data-table
                 v-model="selected"
-                :search="search"
                 :headers="headers"
                 :items="getTableData(houseInfoArr)"
                 item-key="houseNo"
+                :pagination.sync="pagination"
+                :total-items="totalItems"
                 :loading="networkLoading"
                 :no-data-text="networkError?`网络出现异常 - 检查网络后刷新重试`:`暂无记录`"
-                :no-results-text="`没能找到“${ search }”的结果...`"
                 :select-all="tableActionMode!='view'"
               >
                 <template slot="items" slot-scope="props">
@@ -307,6 +309,8 @@ export default {
     decorationSituation: ["毛坯", "简装修", "中等装修", "豪华装修", "精装修"],
     networkLoading: false,
     networkError: null,
+    pagination: {},
+    totalItems: 0,
     tableActionMode: "view",
     headers: [
       { text: "楼宇", value: "buildingName" },
@@ -338,6 +342,14 @@ export default {
       fileList: []
     }
   }),
+  watch: {
+    pagination: {
+      handler() {
+        this.initialize();
+      },
+      deep: true
+    }
+  },
   created() {
     this.$store.commit("changeToolBarTitle", { title: "房源概览" });
   },
@@ -349,12 +361,7 @@ export default {
       if (this.$refs.searchHouseForm.validate()) {
         this.networkLoading = true;
         this.networkError = null;
-        this.buildingInfoArr = [];
-        this.houseInfoArr = [];
-        let paramsData = {
-          limit: 9999,
-          page: 1
-        };
+        let paramsData = {};
         for (const key in this.searchFilter) {
           if (this.searchFilter.hasOwnProperty(key)) {
             if (this.searchFilter[key] !== "") {
@@ -362,6 +369,10 @@ export default {
             }
           }
         }
+        paramsData = Object.assign(paramsData, {
+          limit: this.pagination.rowsPerPage,
+          page: this.pagination.page
+        });
         this.$http
           .all([
             this.$http.post("/cms/AssetsInfo/park.json"),
@@ -371,18 +382,11 @@ export default {
             this.$http.spread((building, house) => {
               this.networkLoading = false;
               if (building.data.code == 500) {
-                this.$store.commit(
-                  "addSnackBar",
-                  `楼宇信息查询失败 ${building.data.msg}`,
-                  "error"
-                );
+                throw new Error(building.data.msg);
               } else if (house.data.code == 500) {
-                this.$store.commit(
-                  "addSnackBar",
-                  `房源信息搜索失败 ${house.data.msg}`,
-                  "error"
-                );
+                throw new Error(house.data.msg);
               } else {
+                this.totalItems = house.data.count;
                 let bData = building.data.data;
                 let hData = house.data.data;
                 this.buildingInfoArr = bData && bData.length ? bData : [];
