@@ -6,22 +6,22 @@
           <v-btn flat slot="activator" @click="getPark();getProvince();">添加楼宇</v-btn>
           <v-form ref="newBuildingForm" v-model="newBuildingValid" lazy-validation>
             <v-card>
-              <v-card-title>
+              <v-card-title primary-title>
                 <span class="headline">新楼宇即将添加</span>
               </v-card-title>
-              <v-card-text>
-                <v-container grid-list-xs>
+              <v-card-text class="pt-0">
+                <v-container grid-list-md class="pa-0">
                   <v-layout wrap>
-                    <v-flex xs4><v-select v-model="editedBuilding.parkNo" :items="select.parkInfoArr" item-text="parkName" item-value="parkNo" label="所属园区" :hint="editedBuilding.parkNo!==0?`楼宇将继承省市区县信息`:''" persistent-hint autocomplete required></v-select></v-flex>
+                    <v-flex xs4><v-autocomplete dense v-model="editedBuilding.parkNo" :items="select.parkInfoArr" item-text="parkName" item-value="parkNo" label="所属园区" :hint="editedBuilding.parkNo!==0?`楼宇将继承省市区县信息`:''" persistent-hint required></v-autocomplete></v-flex>
                     <v-flex xs4><v-text-field v-model="editedBuilding.buildingName" :rules="[$store.state.rules.required]" label="楼宇名称" :hint="editedBuilding.buildingName?`全称为 : ${fullBuildingName}`:''" persistent-hint required></v-text-field></v-flex>
         						<v-flex xs4><v-text-field v-model="editedBuilding.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number" required></v-text-field></v-flex>
-                    <v-flex xs4><v-select v-if="editedBuilding.parkNo==0" @change="getCity" v-model="editedBuilding.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" autocomplete required></v-select></v-flex>
-                    <v-flex xs4><v-select v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.province" @change="getDistrict" v-model="editedBuilding.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
-                    <v-flex xs4><v-select v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.city" v-model="editedBuilding.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex>
+                    <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" @change="getCity" v-model="editedBuilding.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" required></v-autocomplete></v-flex>
+                    <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.province" @change="getDistrict" v-model="editedBuilding.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" required></v-autocomplete></v-flex>
+                    <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.city" v-model="editedBuilding.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" required></v-autocomplete></v-flex>
                     <v-flex xs12><v-text-field v-model="editedBuilding.address" :rules="[$store.state.rules.required]" label="详细地址" required></v-text-field></v-flex>
                   </v-layout>
+                  <!-- <small class="red--text text--accent-2">*&nbsp;标记为必填项</small> -->
                 </v-container>
-                <small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -57,7 +57,7 @@
                       </div>
                       <div>
                         <v-icon small>access_time</v-icon>&nbsp;
-                        创建于 {{ buildingItem.createDate.slice(0, 10) }}
+                        编辑于 {{ buildingItem.createDate.slice(0, 10) }}
                       </div>
                     </v-flex>
                   </v-layout>
@@ -259,11 +259,7 @@ export default {
               this.initialize();
               this.$store.commit("addSnackBar", "楼宇添加成功", "success");
             } else {
-              this.$store.commit(
-                "addSnackBar",
-                `楼宇添加失败 ${res.data.msg}`,
-                "success"
-              );
+              throw new Error(res.data.msg);
             }
           })
           .catch(err =>

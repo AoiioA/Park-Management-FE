@@ -31,10 +31,11 @@
                           :disabled="loginLoading"
                           v-model="userInfo.password"
                           @input="passwordHint=[]"
+                          @keyup.enter="userLogin"
                           :rules="[$store.state.rules.required]"
                           :type="showPassword ? 'text' : 'password'"
                           :append-icon="showPassword ? 'visibility_off' : 'visibility'"
-                          :append-icon-cb="() => (showPassword = !showPassword)"
+                          @click:append="() => (showPassword = !showPassword)"
                           label="您的密码"
                           :error-messages="passwordHint"
                           persistent-hint

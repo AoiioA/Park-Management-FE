@@ -216,16 +216,16 @@ export default {
       overflow-x: hidden;
       overflow-y: auto;
 
-      .expansion-panel {
-        .expansion-panel__container {
+      .v-expansion-panel {
+        .v-expansion-panel__container {
           border-top: 1px solid #424242;
 
-          &.expansion-panel__container--active {
+          &.v-expansion-panel__container--active {
             background: rgba(0, 0, 0, 0.3);
           }
 
           .nav-list-header {
-            .list__tile__sub-title {
+            .v-list__tile__sub-title {
               text-overflow: ellipsis;
               overflow: hidden;
               max-width: 150px;
@@ -233,11 +233,10 @@ export default {
           }
 
           .nav-sublist {
-            .list__tile__action {
+            .v-list__tile__action {
               text-align: center;
               display: inline-block;
               line-height: 40px;
-              font-size: 0;
             }
           }
         }
@@ -247,21 +246,21 @@ export default {
 }
 
 .nav-drawer {
-  & /deep/ .expansion-panel__container {
+  & /deep/ .v-expansion-panel__container {
     border-top: 0;
   }
 
-  & /deep/ .expansion-panel__header {
+  & /deep/ .v-expansion-panel__header {
     padding: 0 16px 0 0;
   }
 
-  & /deep/ .expansion-panel__header {
+  & /deep/ .v-expansion-panel__header {
     transition: height 0.3s ease;
     height: 68px;
     overflow: hidden;
   }
 
-  &.navigation-drawer--mini-variant /deep/ .expansion-panel__container--active .expansion-panel__header {
+  &.v-navigation-drawer--mini-variant /deep/ .v-expansion-panel__container--active .v-expansion-panel__header {
     height: 0;
   }
 }

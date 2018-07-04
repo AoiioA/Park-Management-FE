@@ -4,7 +4,7 @@
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 xl10>
           <v-subheader>
-            <span>
+            <span style="width: 120px">
               <v-select
                 @change="val => initialize(val.urlParams)"
                 :items="contractViewArr"
@@ -23,13 +23,14 @@
         </v-flex>
         <v-flex xs12 xl10>
           <v-card>
-            <v-card-title class="py-2">
+            <v-toolbar flat color="white">
               <v-text-field
                 flat
                 solo
                 prepend-icon="search"
                 label="在合同中检索..."
                 v-model="search"
+                hide-details
               ></v-text-field>
               <v-tooltip bottom>
                 <v-btn icon @click="initialize(contractView.urlParams)" slot="activator">
@@ -37,7 +38,7 @@
                 </v-btn>
                 <span>刷新数据</span>
               </v-tooltip>
-            </v-card-title>
+            </v-toolbar>
             <v-divider></v-divider>
             <v-data-table
               :no-data-text="networkError?`网络出现异常 - 检查网络后刷新重试`:`暂无记录`"

@@ -27,7 +27,7 @@
                     <v-flex xs12 sm6><v-text-field v-model="newCTRT.partyA" :rules="[$store.state.rules.required]" label="甲方公司" hint="" box required></v-text-field></v-flex>
                     <v-flex xs12 sm6><v-text-field v-model="newCTRT.signedPersonA" :rules="[$store.state.rules.required]" label="甲方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
                   </v-layout>
-                  <v-divider class="mt-3"></v-divider>
+                  <v-divider class="my-4"></v-divider>
                   <!-- <v-flex xs12 sm6>
                     <v-radio-group v-model="newCTRT.customerType" :rules="[$store.state.rules.required]" required hint="切换承租方类型" persistent-hint row>
                       <v-radio label="企业承租" value="企业"></v-radio>

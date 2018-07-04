@@ -6,31 +6,31 @@
           <v-btn slot="activator" :disabled="networkLoading || networkError || !pointInfo" @click="getAssets" color="primary" depressed>编辑商圈</v-btn>
           <v-form ref="newPointForm" v-model="newPointValid" lazy-validation>
             <v-card>
-              <v-card-title>
+              <v-card-title primary-title>
                 <span class="headline">编辑商圈</span>
-                  <v-spacer></v-spacer>
-                  <v-dialog v-model="menu.delDialog" persistent max-width="290">
-                    <v-btn slot="activator" flat color="error">删除商圈</v-btn>
-                    <v-card>
-                      <v-card-title class="headline">确认删除商圈?</v-card-title>
-                      <v-card-text>删除商圈并不会影响该商圈所含资源。</v-card-text>
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="primary" flat @click.native="menu.delDialog = false">再看看</v-btn>
-                        <v-btn color="error" flat @click.native="delPoint">我确认</v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
+                <v-spacer></v-spacer>
+                <v-dialog v-model="menu.delDialog" persistent max-width="290">
+                  <v-btn slot="activator" flat color="error">删除商圈</v-btn>
+                  <v-card>
+                    <v-card-title class="headline">确认删除商圈?</v-card-title>
+                    <v-card-text>删除商圈并不会影响该商圈所含资源。</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="primary" flat @click.native="menu.delDialog = false">再看看</v-btn>
+                      <v-btn color="error" flat @click.native="delPoint">我确认</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
               </v-card-title>
-              <v-card-text>
-                <v-container grid-list-xs>
+              <v-card-text class="pt-0">
+                <v-container grid-list-md class="pa-0">
                   <v-layout wrap>
                     <v-flex xs12><v-text-field v-model="editedPoint.pointName" :rules="[$store.state.rules.required]" label="商圈名称" hint="如 : 望京商圈" persistent-hint required></v-text-field></v-flex>
-                    <v-flex xs12><v-select :disabled="!select.parkArr.length" v-model="editedPoint.parkNos" :items="select.parkArr" item-text="parkName" item-value="parkNo" label="所含园区" no-data-text="暂无可添加的园区" hint="园区及楼宇可稍后重新选择或修改" persistent-hint multiple autocomplete></v-select></v-flex>
-                    <v-flex xs12><v-select :disabled="!select.buildingArr.length" v-model="editedPoint.buildingNos" :items="select.buildingArr" item-text="buildingName" item-value="buildingNo" label="所含楼宇" no-data-text="暂无可添加的楼宇" hint="仅可选择未划分园区的楼宇" persistent-hint multiple autocomplete></v-select></v-flex>
+                    <v-flex xs12><v-autocomplete dense :disabled="!select.parkArr.length" v-model="editedPoint.parkNos" :items="select.parkArr" item-text="parkName" item-value="parkNo" label="所含园区" no-data-text="暂无可添加的园区" hint="可稍后重新选择或修改" persistent-hint multiple></v-autocomplete></v-flex>
+                    <v-flex xs12><v-autocomplete dense :disabled="!select.buildingArr.length" v-model="editedPoint.buildingNos" :items="select.buildingArr" item-text="buildingName" item-value="buildingNo" label="所含楼宇" no-data-text="暂无可添加的楼宇" hint="可选择未划分园区的楼宇" persistent-hint multiple></v-autocomplete></v-flex>
                   </v-layout>
+                  <!-- <small class="red--text text--accent-2">*&nbsp;标记为必填项</small> -->
                 </v-container>
-                <small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -40,9 +40,6 @@
             </v-card>
           </v-form>
         </v-dialog>
-        <v-btn icon>
-          <v-icon>help</v-icon>
-        </v-btn>
       </span>
     </view-tool-bar>
     <v-jumbotron height="auto">
@@ -340,51 +337,41 @@ export default {
           this.$http.spread((point, pointData) => {
             this.networkLoading = false;
             if (point.data.code == 500) {
-              this.$store.commit(
-                "addSnackBar",
-                `商圈信息查询失败 ${point.data.msg}`,
-                "error"
-              );
-            } else if (pointData.data.code == 500) {
-              this.$store.commit(
-                "addSnackBar",
-                `商圈统计信息查询失败 ${pointData.data.msg}`,
-                "error"
-              );
-            } else {
-              let pData = point.data.data;
-              this.pointInfo =
-                pData && pData.length
-                  ? pData.find(
-                      item => item.pointNo == this.$route.params.pointNo
-                    )
-                  : {};
-              if (!this.pointInfo) throw new Error();
-              this.pointDataInfo = pointData.data.data;
-              for (let key in this.pointInfo) {
-                if (this.defaultPoint.hasOwnProperty(key)) {
-                  this.defaultPoint[key] = this.pointInfo[key];
-                }
-              }
-              this.defaultPoint.parkNos = this.defaultPoint.parkNos
-                .split(",")
-                .map(item => Number(item));
-              this.defaultPoint.buildingNos = this.defaultPoint.buildingNos
-                .split(",")
-                .map(item => Number(item));
-              this.editedPoint = Object.assign({}, this.defaultPoint);
-              this.$store.commit("changeToolBarTitle", {
-                title: `${this.pointInfo.pointName}
-                  <span class="subheading">
-                    ${this.pointInfo.city} ${this.pointInfo.district}
-                  </span>`,
-                isBack: true,
-                crumbs: [
-                  { name: "商圈概览", to: { name: "point-list" } },
-                  { name: "商圈详情" }
-                ]
-              });
+              throw new Error(point.data.msg);
             }
+            if (pointData.data.code == 500) {
+              throw new Error(pointData.data.msg);
+            }
+            let pData = point.data.data;
+            this.pointInfo =
+              pData && pData.length
+                ? pData.find(item => item.pointNo == this.$route.params.pointNo)
+                : {};
+            if (!this.pointInfo) throw new Error();
+            this.pointDataInfo = pointData.data.data;
+            for (let key in this.pointInfo) {
+              if (this.defaultPoint.hasOwnProperty(key)) {
+                this.defaultPoint[key] = this.pointInfo[key];
+              }
+            }
+            this.defaultPoint.parkNos = this.defaultPoint.parkNos
+              .split(",")
+              .map(item => Number(item));
+            this.defaultPoint.buildingNos = this.defaultPoint.buildingNos
+              .split(",")
+              .map(item => Number(item));
+            this.editedPoint = Object.assign({}, this.defaultPoint);
+            this.$store.commit("changeToolBarTitle", {
+              title: `${this.pointInfo.pointName}
+                <span class="subheading">
+                  ${this.pointInfo.city} ${this.pointInfo.district}
+                </span>`,
+              isBack: true,
+              crumbs: [
+                { name: "商圈概览", to: { name: "point-list" } },
+                { name: "商圈详情" }
+              ]
+            });
           })
         )
         .catch(err => {
@@ -424,9 +411,9 @@ export default {
     },
     newPointClose(isCancel) {
       if (!isCancel || confirm("取消后内容将不会保存")) {
-        this.$refs.newPointForm.reset();
         this.menu.newDialog = false;
         this.editedPoint = Object.assign({}, this.defaultPoint);
+        // this.$refs.newPointForm.reset();
       }
     },
     newPointSave() {
@@ -447,11 +434,7 @@ export default {
               this.$store.commit("addSnackBar", "商圈编辑成功", "success");
               this.initialize();
               // } else {
-              //   this.$store.commit(
-              //     "addSnackBar",
-              //     `商圈编辑失败 ${res.data.msg}`,
-              //     "error"
-              //   );
+              //   throw new Error(res.data.msg);
             }
           })
           .catch(err => {
@@ -472,10 +455,12 @@ export default {
             this.$router.replace({
               name: "point-list"
             });
+          } else {
+            throw new Error(res.data.msg);
           }
         })
         .catch(err =>
-          this.$store.commit("addSnackBar", `商圈删除失败${err}`, "error")
+          this.$store.commit("addSnackBar", `商圈删除失败 ${err}`, "error")
         );
     }
   }

@@ -6,24 +6,24 @@
           <v-btn slot="activator" :disabled="networkLoading || networkError || !buildingInfo.delFlag === 1" @click="getPark();getProvince();" depressed color="primary">编辑楼宇</v-btn>
           <v-form ref="editBuildingForm" v-model="newBuildingValid" lazy-validation>
             <v-card>
-              <v-card-title>
+              <v-card-title primary-title>
                 <span class="headline">修改楼宇信息</span>
                 <v-spacer></v-spacer>
                 <v-btn flat @click="delBuilding" color="error">删除楼宇</v-btn>
               </v-card-title>
-              <v-card-text>
-                <v-container grid-list-xs>
+              <v-card-text class="pt-0">
+                <v-container grid-list-md class="pa-0">
                   <v-layout wrap>
-                    <v-flex xs4><v-select v-model="editedBuilding.parkNo" :items="select.parkInfoArr" item-text="parkName" item-value="parkNo" label="所属园区" :hint="editedBuilding.parkNo!==0?`楼宇将继承省市区县信息`:''" persistent-hint autocomplete required></v-select></v-flex>
+                    <v-flex xs4><v-autocomplete dense v-model="editedBuilding.parkNo" :items="select.parkInfoArr" item-text="parkName" item-value="parkNo" label="所属园区" :hint="editedBuilding.parkNo!==0?`楼宇将继承省市区县信息`:''" persistent-hint required></v-autocomplete></v-flex>
                     <v-flex xs4><v-text-field v-model="editedBuilding.buildingName" :rules="[$store.state.rules.required]" label="楼宇名称" :hint="editedBuilding.buildingName?`全称为 : ${fullBuildingName}`:''" persistent-hint required></v-text-field></v-flex>
                     <v-flex xs4><v-text-field v-model="editedBuilding.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number" required></v-text-field></v-flex>
-                    <v-flex xs4><v-select v-if="editedBuilding.parkNo==0" @change="getCity" v-model="editedBuilding.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" autocomplete required></v-select></v-flex>
-                    <v-flex xs4><v-select v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.province" @change="getDistrict" v-model="editedBuilding.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
-                    <v-flex xs4><v-select v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.city" v-model="editedBuilding.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex>
+                    <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" @change="getCity" v-model="editedBuilding.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" required></v-autocomplete></v-flex>
+                    <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.province" @change="getDistrict" v-model="editedBuilding.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" required></v-autocomplete></v-flex>
+                    <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.city" v-model="editedBuilding.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" required></v-autocomplete></v-flex>
                     <v-flex xs12><v-text-field v-model="editedBuilding.address" :rules="[$store.state.rules.required]" label="详细地址" required></v-text-field></v-flex>
                   </v-layout>
+                  <!-- <small class="red--text text--accent-2">*&nbsp;标记为必填项</small> -->
                 </v-container>
-                <small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -33,9 +33,6 @@
             </v-card>
           </v-form>
         </v-dialog>
-        <v-btn icon>
-          <v-icon>help</v-icon>
-        </v-btn>
       </span>
       <span slot="bar-extend">
         <v-tabs v-model="activeTab" color="primary" class="px-4" show-arrows>
@@ -249,7 +246,7 @@ export default {
         legend: {
           data: optLegend
         },
-        grid: [{ left: 20, right: 0, top: 20, bottom: 0, containLabel: true }],
+        grid: [{ left: 20, right: 20, top: 20, bottom: 0, containLabel: true }],
         xAxis: {
           type: "category",
           data: optLegend,
@@ -357,57 +354,43 @@ export default {
           this.$http.spread((building, buildingData, house) => {
             this.networkLoading = false;
             if (building.data.code == 500) {
-              this.networkError = true;
-              this.$store.commit(
-                "addSnackBar",
-                `楼宇信息查询失败 ${building.data.msg}`,
-                "error"
-              );
-            } else if (buildingData.data.code == 500) {
-              this.networkError = true;
-              this.$store.commit(
-                "addSnackBar",
-                `楼宇统计信息查询失败 ${buildingData.data.msg}`,
-                "error"
-              );
-            } else if (house.data.code == 500) {
-              this.networkError = true;
-              this.$store.commit(
-                "addSnackBar",
-                `房源信息查询失败 ${house.data.msg}`,
-                "error"
-              );
-            } else {
-              let bData = building.data.data;
-              let hData = house.data.data;
-              this.buildingInfo = bData && bData.length ? bData[0] : {};
-              this.buildingDataInfo = buildingData.data.data;
-              this.houseInfoArr =
-                hData && hData.length
-                  ? hData.sort((x, y) => x.floorNo > y.floorNo)
-                  : [];
-              for (let key in this.buildingInfo) {
-                if (this.defaultBuilding.hasOwnProperty(key)) {
-                  this.defaultBuilding[key] = this.buildingInfo[key];
-                }
-              }
-              if (this.buildingInfo.parkNo) {
-                this.defaultBuilding.buildingName = this.defaultBuilding.buildingName.split(
-                  " "
-                )[1];
-              } else {
-                this.defaultBuilding.parkNo = 0;
-              }
-              this.editedBuilding = Object.assign({}, this.defaultBuilding);
-              this.$store.commit("changeToolBarTitle", {
-                title: this.buildingInfo.buildingName,
-                isBack: true,
-                crumbs: [
-                  { name: "楼宇概览", to: { name: "building-list" } },
-                  { name: "楼宇详情" }
-                ]
-              });
+              throw new Error(building.data.msg);
             }
+            if (buildingData.data.code == 500) {
+              throw new Error(buildingData.data.msg);
+            }
+            if (house.data.code == 500) {
+              throw new Error(house.data.msg);
+            }
+            let bData = building.data.data;
+            let hData = house.data.data;
+            this.buildingInfo = bData && bData.length ? bData[0] : {};
+            this.buildingDataInfo = buildingData.data.data;
+            this.houseInfoArr =
+              hData && hData.length
+                ? hData.sort((x, y) => x.floorNo > y.floorNo)
+                : [];
+            for (let key in this.buildingInfo) {
+              if (this.defaultBuilding.hasOwnProperty(key)) {
+                this.defaultBuilding[key] = this.buildingInfo[key];
+              }
+            }
+            if (this.buildingInfo.parkNo) {
+              this.defaultBuilding.buildingName = this.defaultBuilding.buildingName.split(
+                " "
+              )[1];
+            } else {
+              this.defaultBuilding.parkNo = 0;
+            }
+            this.editedBuilding = Object.assign({}, this.defaultBuilding);
+            this.$store.commit("changeToolBarTitle", {
+              title: this.buildingInfo.buildingName,
+              isBack: true,
+              crumbs: [
+                { name: "楼宇概览", to: { name: "building-list" } },
+                { name: "楼宇详情" }
+              ]
+            });
           })
         )
         .catch(err => {
@@ -502,6 +485,8 @@ export default {
           if (res.data.code != 500) {
             this.$store.commit("addSnackBar", "楼宇删除成功", "success");
             this.$router.go(0);
+          } else {
+            throw new Error(res.data.msg);
           }
         })
         .catch(err =>
@@ -549,11 +534,7 @@ export default {
               this.initialize();
               this.$store.commit("addSnackBar", "楼宇修改成功", "success");
             } else {
-              this.$store.commit(
-                "addSnackBar",
-                `楼宇修改失败 ${res.data.msg}`,
-                "success"
-              );
+              throw new Error(res.data.msg);
             }
           })
           .catch(err =>

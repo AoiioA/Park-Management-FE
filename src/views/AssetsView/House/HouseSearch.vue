@@ -22,8 +22,8 @@
 						<v-form ref="searchHouseForm" v-model="searchHouseValid" lazy-validation>
               <v-layout row wrap align-center>
                 <v-flex xs6 sm3 lg2 style="min-width: 160px;">
-                  <v-menu v-model="menu.buildingMenu" :close-on-content-click="false" offset-y>
-                    <v-text-field slot="activator" :value="searchFilterData.buildingName" label="所属楼宇" flat solo readonly class="elevation-1"></v-text-field>
+                  <v-menu v-model="menu.buildingMenu" :close-on-content-click="false">
+                    <v-text-field slot="activator" :value="searchFilterData.buildingName" label="所属楼宇" solo readonly hide-details></v-text-field>
                     <v-list style="max-height: 200px; overflow-y: auto;">
                       <v-list-tile v-if="!assetsInfo.length">
                         <v-list-tile-title>暂无楼宇可选择</v-list-tile-title>
@@ -46,19 +46,19 @@
                     </v-list>
                   </v-menu>
                 </v-flex>
-                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.resourceStatus" :items="searchFilterData.resourceStatus" solo hide-details single-line class="elevation-1"></v-select></v-flex>
+                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.resourceStatus" :items="searchFilterData.resourceStatus" solo hide-details></v-select></v-flex>
                 <v-flex xs12 sm6 lg4>
-                  <v-container fill-height fluid grid-list-xs>
+                  <v-container fill-height fluid grid-list-xs class="pa-0">
                     <v-layout row no-wrap align-center>
-                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMin" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最小面积" flat solo class="elevation-1"></v-text-field></v-flex>
+                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMin" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最小面积" solo hide-details></v-text-field></v-flex>
                       <v-flex class="text-xs-center" style="flex:none">至</v-flex>
-                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMax" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最大面积" flat solo class="elevation-1"></v-text-field></v-flex>
+                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMax" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最大面积" solo hide-details></v-text-field></v-flex>
                     </v-layout>
                   </v-container>
                 </v-flex>
-                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.decorationSituation" :items="searchFilterData.decorationSituation" solo hide-details single-line class="elevation-1"></v-select></v-flex>
-                <!-- <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.isRegister" :items="searchFilterData.isRegister" solo hide-details single-line class="elevation-1"></v-select></v-flex> -->
-                <!-- <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.idleLevel" :items="searchFilterData.idleLevel" solo hide-details single-line class="elevation-1"></v-select></v-flex> -->
+                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.decorationSituation" :items="searchFilterData.decorationSituation" solo hide-details></v-select></v-flex>
+                <!-- <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.isRegister" :items="searchFilterData.isRegister" solo hide-details></v-select></v-flex> -->
+                <!-- <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.idleLevel" :items="searchFilterData.idleLevel" solo hide-details></v-select></v-flex> -->
                 <v-spacer></v-spacer>
                 <v-flex xs12 sm3 lg2><v-btn :disabled="!searchHouseValid||(searchFilter.buildAreaMin>searchFilter.buildAreaMax)" @click="initialize" block large color="primary">开始搜索</v-btn></v-flex>
               </v-layout>

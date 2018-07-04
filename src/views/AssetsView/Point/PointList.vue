@@ -20,21 +20,21 @@
                 <!-- <v-btn slot="activator" color="primary" small depressed>添加商圈</v-btn> -->
                 <v-form ref="newPointForm" v-model="newPointValid" lazy-validation>
                   <v-card>
-                    <v-card-title>
+                    <v-card-title primary-title>
                       <span class="headline">新商圈即将添加</span>
                     </v-card-title>
-                    <v-card-text>
-                      <v-container grid-list-xs>
+                    <v-card-text class="pt-0">
+                      <v-container grid-list-md class="pa-0">
                         <v-layout wrap>
                           <v-flex xs12><v-text-field v-model="editedPoint.pointName" :rules="[$store.state.rules.required]" label="商圈名称" hint="如 : 望京商圈" persistent-hint required></v-text-field></v-flex>
-                          <v-flex xs4><v-select @change="getCity" v-model="editedPoint.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" hint="创建后省市区县不可修改" persistent-hint autocomplete required></v-select></v-flex>
-                          <v-flex xs4><v-select :disabled="!editedPoint.province" @change="getDistrict" v-model="editedPoint.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
-                          <v-flex xs4><v-select :disabled="!editedPoint.city" v-model="editedPoint.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex>
-                          <v-flex xs12><v-select :disabled="!select.parkArr.length" v-model="editedPoint.parkNos" :items="select.parkArr" item-text="parkName" item-value="parkNo" label="所含园区" no-data-text="暂无可添加的园区" hint="园区及楼宇可稍后重新选择或修改" persistent-hint multiple autocomplete></v-select></v-flex>
-                          <v-flex xs12><v-select :disabled="!select.buildingArr.length" v-model="editedPoint.buildingNos" :items="select.buildingArr" item-text="buildingName" item-value="buildingNo" label="所含楼宇" no-data-text="暂无可添加的楼宇" hint="仅可选择未划分园区的楼宇" persistent-hint multiple autocomplete></v-select></v-flex>
+                          <v-flex xs4><v-autocomplete dense @change="getCity" v-model="editedPoint.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" hint="创建后省市区县不可修改" persistent-hint required></v-autocomplete></v-flex>
+                          <v-flex xs4><v-autocomplete dense :disabled="!editedPoint.province" @change="getDistrict" v-model="editedPoint.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" required></v-autocomplete></v-flex>
+                          <v-flex xs4><v-autocomplete dense :disabled="!editedPoint.city" v-model="editedPoint.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" required></v-autocomplete></v-flex>
+                          <v-flex xs12><v-autocomplete dense :disabled="!select.parkArr.length" v-model="editedPoint.parkNos" :items="select.parkArr" item-text="parkName" item-value="parkNo" label="所含园区" no-data-text="暂无可添加的园区" hint="园区及楼宇可稍后重新选择或修改" persistent-hint multiple></v-autocomplete></v-flex>
+                          <v-flex xs12><v-autocomplete dense :disabled="!select.buildingArr.length" v-model="editedPoint.buildingNos" :items="select.buildingArr" item-text="buildingName" item-value="buildingNo" label="所含楼宇" no-data-text="暂无可添加的楼宇" hint="仅可选择未划分园区的楼宇" persistent-hint multiple></v-autocomplete></v-flex>
                         </v-layout>
+                        <!-- <small class="red--text text--accent-2">*&nbsp;标记为必填项</small> -->
                       </v-container>
-                      <small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
                     </v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
@@ -97,7 +97,7 @@
                         </div>
                         <div>
                           <v-icon small>access_time</v-icon>&nbsp;
-                          创建于 {{ pointItem.createDate.slice(0, 10) }}
+                          编辑于 {{ pointItem.createDate.slice(0, 10) }}
                         </div>
                       </v-flex>
                     </v-layout>
@@ -288,11 +288,7 @@ export default {
               this.$store.commit("addSnackBar", "商圈添加成功", "success");
               this.initialize();
             } else {
-              this.$store.commit(
-                "addSnackBar",
-                `商圈添加失败 ${res.data.msg}`,
-                "error"
-              );
+              throw new Error(res.data.msg);
             }
           })
           .catch(err => {

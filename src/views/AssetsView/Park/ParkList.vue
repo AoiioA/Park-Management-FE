@@ -20,25 +20,25 @@
                 <!-- <v-btn slot="activator" color="primary" small depressed>添加园区</v-btn> -->
                 <v-form ref="newParkForm" v-model="newParkValid" lazy-validation>
                   <v-card>
-                    <v-card-title>
+                    <v-card-title primary-title>
                       <span class="headline">新园区即将添加</span>
                     </v-card-title>
-                    <v-card-text>
-                      <v-container grid-list-xs>
+                    <v-card-text class="pt-0">
+                      <v-container grid-list-md class="pa-0">
                         <v-layout wrap>
                           <v-flex xs12><v-text-field v-model="editedPark.parkName" :rules="[$store.state.rules.required]" label="园区名称" hint="如 : 望京园区" persistent-hint required></v-text-field></v-flex>
-                          <v-flex xs4><v-select @change="getCity" v-model="editedPark.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" hint="创建后省市区县不可修改" persistent-hint autocomplete required></v-select></v-flex>
-                          <v-flex xs4><v-select :disabled="!editedPark.province" @change="getDistrict" v-model="editedPark.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" autocomplete required></v-select></v-flex>
-                          <v-flex xs4><v-select :disabled="!editedPark.city" v-model="editedPark.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" autocomplete required></v-select></v-flex>
+                          <v-flex xs4><v-autocomplete dense @change="getCity" v-model="editedPark.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" hint="创建后省市区县不可修改" persistent-hint required></v-autocomplete></v-flex>
+                          <v-flex xs4><v-autocomplete dense :disabled="!editedPark.province" @change="getDistrict" v-model="editedPark.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" required></v-autocomplete></v-flex>
+                          <v-flex xs4><v-autocomplete dense :disabled="!editedPark.city" v-model="editedPark.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" required></v-autocomplete></v-flex>
                           <v-flex xs12><v-text-field v-model="editedPark.address" :rules="[$store.state.rules.required]" label="详细地址" required></v-text-field></v-flex>
-                          <v-flex xs3><v-text-field v-model="editedPark.floorArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="占地面积(m²)" type="number"></v-text-field></v-flex>
-                          <v-flex xs3><v-text-field v-model="editedPark.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number"></v-text-field></v-flex>
-                          <v-flex xs3><v-text-field v-model="editedPark.greeningRate" :rules="[$store.state.rules.nonnegative]" label="绿化率(%)" type="number"></v-text-field></v-flex>
-                          <v-flex xs3><v-text-field v-model="editedPark.volumeRate" :rules="[$store.state.rules.nonnegative]" label="容积率(%)" type="number"></v-text-field></v-flex>
-                          <v-flex xs12><v-text-field v-model="editedPark.environment" label="环境描述"></v-text-field></v-flex>
+                          <v-flex xs6 sm3><v-text-field v-model="editedPark.floorArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="占地面积(m²)" type="number"></v-text-field></v-flex>
+                          <v-flex xs6 sm3><v-text-field v-model="editedPark.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number"></v-text-field></v-flex>
+                          <v-flex xs6 sm3><v-text-field v-model="editedPark.greeningRate" :rules="[$store.state.rules.nonnegative, rules.lessThen(100)]" label="绿化率(%)" type="number"></v-text-field></v-flex>
+                          <v-flex xs6 sm3><v-text-field v-model="editedPark.volumeRate" :rules="[$store.state.rules.nonnegative, rules.lessThen(100)]" label="容积率(%)" type="number"></v-text-field></v-flex>
+                          <v-flex xs12><v-textarea v-model="editedPark.environment" label="环境描述"></v-textarea></v-flex>
                         </v-layout>
+                        <!-- <small class="red--text text--accent-2">*&nbsp;标记为必填项</small> -->
                       </v-container>
-                      <small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
                     </v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
@@ -97,7 +97,7 @@
                         </div>
                         <div>
                           <v-icon small>access_time</v-icon>&nbsp;
-                          创建于 {{ parkItem.createDate.slice(0, 10) }}
+                          编辑于 {{ parkItem.createDate.slice(0, 10) }}
                         </div>
                       </v-flex>
                     </v-layout>
@@ -122,6 +122,9 @@ export default {
   data: () => ({
     networkLoading: false,
     networkError: null,
+    rules: {
+      lessThen: num => val => parseFloat(val) <= num || `该项需小于${num}`
+    },
     menu: {
       newPark: false
     },
@@ -257,11 +260,7 @@ export default {
               this.$store.commit("addSnackBar", "添加园区成功", "success");
               this.initialize();
             } else {
-              this.$store.commit(
-                "addSnackBar",
-                `园区添加失败 ${res.data.msg}`,
-                "error"
-              );
+              throw new Error(res.data.msg);
             }
           })
           .catch(err => {

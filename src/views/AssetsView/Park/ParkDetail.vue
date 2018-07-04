@@ -6,7 +6,7 @@
           <v-btn slot="activator" :disabled="networkLoading || networkError || !parkInfo" color="primary" depressed>编辑园区</v-btn>
           <v-form ref="newParkForm" v-model="newParkValid" lazy-validation>
             <v-card>
-              <v-card-title>
+              <v-card-title primary-title>
                 <span class="headline">编辑园区</span>
                 <v-spacer></v-spacer>
                 <v-dialog v-model="menu.delDialog" persistent max-width="290">
@@ -22,19 +22,19 @@
                   </v-card>
                 </v-dialog>
               </v-card-title>
-              <v-card-text>
-                <v-container grid-list-xs>
+              <v-card-text class="pt-0">
+                <v-container grid-list-md class="pa-0">
                   <v-layout wrap>
                     <v-flex xs12><v-text-field v-model="editedPark.parkName" :rules="[$store.state.rules.required]" label="园区名称" hint="如 : 望京园区" persistent-hint required></v-text-field></v-flex>
                     <v-flex xs12><v-text-field v-model="editedPark.address" :rules="[$store.state.rules.required]" label="详细地址" hint="省市区县不可更换" persistent-hint required></v-text-field></v-flex>
-                    <v-flex xs3><v-text-field v-model="editedPark.floorArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="占地面积(m²)" type="number"></v-text-field></v-flex>
-                    <v-flex xs3><v-text-field v-model="editedPark.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number"></v-text-field></v-flex>
-                    <v-flex xs3><v-text-field v-model="editedPark.greeningRate" :rules="[$store.state.rules.nonnegative]" label="绿化率(%)" type="number"></v-text-field></v-flex>
-                    <v-flex xs3><v-text-field v-model="editedPark.volumeRate" :rules="[$store.state.rules.nonnegative]" label="容积率(%)" type="number"></v-text-field></v-flex>
-                    <v-flex xs12><v-text-field v-model="editedPark.environment" label="环境描述"></v-text-field></v-flex>
+                    <v-flex xs6 sm3><v-text-field v-model="editedPark.floorArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="占地面积(m²)" type="number"></v-text-field></v-flex>
+                    <v-flex xs6 sm3><v-text-field v-model="editedPark.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number"></v-text-field></v-flex>
+                    <v-flex xs6 sm3><v-text-field v-model="editedPark.greeningRate" :rules="[$store.state.rules.nonnegative, rules.lessThen(100)]" label="绿化率(%)" type="number"></v-text-field></v-flex>
+                    <v-flex xs6 sm3><v-text-field v-model="editedPark.volumeRate" :rules="[$store.state.rules.nonnegative, rules.lessThen(100)]" label="容积率(%)" type="number"></v-text-field></v-flex>
+                    <v-flex xs12><v-textarea v-model="editedPark.environment" label="环境描述"></v-textarea></v-flex>
                   </v-layout>
+                  <small class="red--text text--accent-2">*&nbsp;标记为必填项</small>
                 </v-container>
-                <small class="px-1 red--text text--accent-2">*&nbsp;标记为必填项</small>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -44,9 +44,6 @@
             </v-card>
           </v-form>
         </v-dialog>
-        <v-btn icon>
-          <v-icon>help</v-icon>
-        </v-btn>
       </span>
     </view-tool-bar>
     <v-jumbotron height="auto">
@@ -131,6 +128,9 @@ export default {
   data: () => ({
     networkLoading: false,
     networkError: null,
+    rules: {
+      lessThen: num => val => parseFloat(val) <= num || `该项需小于${num}`
+    },
     menu: {
       newDialog: false,
       delDialog: false
@@ -211,44 +211,33 @@ export default {
           this.$http.spread((park, building, parkData) => {
             this.networkLoading = false;
             if (park.data.code == 500) {
-              this.$store.commit(
-                "addSnackBar",
-                `园区信息查询失败 ${park.data.msg}`,
-                "error"
-              );
-            } else if (building.data.code == 500) {
-              this.$store.commit(
-                "addSnackBar",
-                `楼宇信息查询失败 ${building.data.msg}`,
-                "error"
-              );
-            } else if (parkData.data.code == 500) {
-              this.$store.commit(
-                "addSnackBar",
-                `园区统计信息查询失败 ${parkData.data.msg}`,
-                "error"
-              );
-            } else {
-              let pData = park.data.data;
-              let bData = building.data.data;
-              this.parkInfo = pData && pData.length ? pData[0] : {};
-              this.buildingInfoArr = bData && bData.length ? bData : [];
-              this.parkDataInfo = parkData.data.data;
-              for (let key in this.parkInfo) {
-                if (this.defaultPark.hasOwnProperty(key)) {
-                  this.defaultPark[key] = this.parkInfo[key];
-                }
-              }
-              this.editedPark = Object.assign({}, this.defaultPark);
-              this.$store.commit("changeToolBarTitle", {
-                title: this.parkInfo.parkName,
-                isBack: true,
-                crumbs: [
-                  { name: "园区概览", to: { name: "park-list" } },
-                  { name: "园区详情" }
-                ]
-              });
+              throw new Error(park.data.msg);
             }
+            if (building.data.code == 500) {
+              throw new Error(building.data.msg);
+            }
+            if (parkData.data.code == 500) {
+              throw new Error(parkData.data.msg);
+            }
+            let pData = park.data.data;
+            let bData = building.data.data;
+            this.parkInfo = pData && pData.length ? pData[0] : {};
+            this.buildingInfoArr = bData && bData.length ? bData : [];
+            this.parkDataInfo = parkData.data.data;
+            for (let key in this.parkInfo) {
+              if (this.defaultPark.hasOwnProperty(key)) {
+                this.defaultPark[key] = this.parkInfo[key];
+              }
+            }
+            this.editedPark = Object.assign({}, this.defaultPark);
+            this.$store.commit("changeToolBarTitle", {
+              title: this.parkInfo.parkName,
+              isBack: true,
+              crumbs: [
+                { name: "园区概览", to: { name: "park-list" } },
+                { name: "园区详情" }
+              ]
+            });
           })
         )
         .catch(err => {
@@ -259,7 +248,7 @@ export default {
     },
     newParkClose(isCancel) {
       if (!isCancel || confirm("取消后内容将不会保存")) {
-        this.$refs.newParkForm.reset();
+        // this.$refs.newParkForm.reset();
         this.menu.newDialog = false;
         this.editedPark = Object.assign({}, this.defaultPark);
       }

@@ -39,7 +39,7 @@ export default {
 
 <style lang="stylus" scoped>
 .bar-crumbs
-  & /deep/ .breadcrumbs__item
+  & /deep/ .v-breadcrumbs__item
     color inherit
 .bar-content
   .bar-title

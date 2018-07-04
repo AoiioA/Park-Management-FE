@@ -5,13 +5,14 @@
         <v-flex xs12 xl10>
           <v-subheader>生效中合同</v-subheader>
           <v-card>
-            <v-card-title class="py-2">
+            <v-toolbar flat color="white">
               <v-text-field
                 flat
                 solo
                 prepend-icon="search"
                 label="在合同中检索..."
                 v-model="search"
+                hide-details
               ></v-text-field>
               <!-- <v-btn color="primary" @click="1">添加合同</v-btn> -->
               <v-tooltip bottom>
@@ -39,7 +40,7 @@
                   </v-list-tile>
                 </v-list>
               </v-menu> -->
-            </v-card-title>
+            </v-toolbar>
             <v-divider></v-divider>
             <v-data-table
               :no-data-text="networkError?`网络出现异常 - 检查网络后刷新重试`:`暂无记录`"
