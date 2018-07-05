@@ -49,7 +49,7 @@
     <v-jumbotron height="auto">
       <v-progress-linear v-if="networkLoading" indeterminate class="my-0"></v-progress-linear>
       <v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
-      <v-container v-else grid-list-xl>
+      <v-container v-else grid-list-xl fluid fill-height>
         <v-layout justify-center wrap>
           <v-flex xs12 sm10 md4 xl2>
             <v-subheader>园区基础信息</v-subheader>

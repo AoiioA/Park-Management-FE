@@ -9,7 +9,18 @@
               <v-card-title primary-title>
                 <span class="headline">修改楼宇信息</span>
                 <v-spacer></v-spacer>
-                <v-btn flat @click="delBuilding" color="error">删除楼宇</v-btn>
+                <v-dialog v-model="delBuildingDialog" persistent max-width="290">
+                  <v-btn slot="activator" flat color="error">删除楼宇</v-btn>
+                  <v-card>
+                    <v-card-title class="headline">确认删除楼宇?</v-card-title>
+                    <v-card-text>删除楼宇同时将删除该楼宇所含资源。</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="primary" flat @click.native="delBuildingDialog = false">再看看</v-btn>
+                      <v-btn color="error" flat @click.native="delBuilding">我确认</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
               </v-card-title>
               <v-card-text class="pt-0">
                 <v-container grid-list-md class="pa-0">
@@ -42,7 +53,7 @@
     </view-tool-bar>
     <v-tabs-items v-model="activeTab">
       <v-tab-item>
-        <v-container grid-list-xl>
+        <v-container grid-list-xl fluid fill-height>
           <v-layout justify-center wrap>
             <v-flex xs12 sm6>
               <v-card>
@@ -166,6 +177,7 @@ export default {
       }
     ],
     // 修改房源相关
+    delBuildingDialog: false,
     newBuildingDialog: false,
     newBuildingValid: true,
     select: {

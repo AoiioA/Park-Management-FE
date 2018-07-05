@@ -254,11 +254,11 @@
                 <v-form ref="changedForm" v-model="formValid.changedValid" lazy-validation>
                   <v-divider></v-divider>
                   <v-dialog v-model="changedInfo.modal" lazy full-width width="290px">
-                    <v-text-field slot="activator" v-model="changedInfo.cancelDate" :rules="[$store.state.rules.required]" label="变更时间" hide-details full-width single-line required readonly></v-text-field>
+                    <v-text-field slot="activator" v-model="changedInfo.cancelDate" :rules="[$store.state.rules.required]" label="变更时间" hide-details solo flat single-line required readonly></v-text-field>
                     <v-date-picker v-model="changedInfo.cancelDate" :min="getDay(new Date(), 0)" :max="getDay(CTRTInfo.endDate, -1)" :first-day-of-week="0" show-current locale="zh-cn" @input="changedInfo.modal = false;"></v-date-picker>
                   </v-dialog>
                   <v-divider></v-divider>
-                  <v-textarea v-model="changedInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="变更理由" counter="240" full-width single-line required></v-textarea>
+                  <v-textarea v-model="changedInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="变更理由" counter="240" solo flat single-line required></v-textarea>
                   <v-divider></v-divider>
                 </v-form>
                 <v-card-actions>
@@ -280,11 +280,11 @@
                 <v-form ref="refundedForm" v-model="formValid.refundedValid" lazy-validation>
                   <v-divider></v-divider>
                   <v-dialog v-model="refundedInfo.modal" lazy full-width width="290px">
-                    <v-text-field slot="activator" v-model="refundedInfo.throwALeaseDate" :rules="[$store.state.rules.required]" label="退租时间" hide-details full-width single-line required readonly></v-text-field>
+                    <v-text-field slot="activator" v-model="refundedInfo.throwALeaseDate" :rules="[$store.state.rules.required]" label="退租时间" hide-details solo flat single-line required readonly></v-text-field>
                     <v-date-picker v-model="refundedInfo.throwALeaseDate" :min="CTRTInfo.startDate" :max="CTRTInfo.endDate" :first-day-of-week="0" show-current locale="zh-cn" @input="refundedInfo.modal = false;"></v-date-picker>
                   </v-dialog>
                   <v-divider></v-divider>
-                  <v-textarea v-model="refundedInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="退租理由" counter="240" full-width single-line required></v-textarea>
+                  <v-textarea v-model="refundedInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="退租理由" counter="240" solo flat single-line required></v-textarea>
                   <v-divider></v-divider>
                 </v-form>
                 <v-card-actions>
@@ -304,27 +304,9 @@
               <v-card>
                 <v-card-title class="headline">提交审核结果</v-card-title>
                 <v-form ref="examineForm" v-model="formValid.examineValid" lazy-validation style="overflow: hidden">
-                  <v-overflow-btn
-                    v-model="examineInfo.result"
-                    :items="examineSelect"
-                    item-text="text"
-                    item-value="value"
-                    return-object
-                    :rules="[$store.state.rules.required]"
-                    label="审核结果"
-                    single-line
-                    required
-                    hide-details
-                  ></v-overflow-btn>
-                  <v-textarea
-                    v-model="examineInfo.reason"
-                    :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']"
-                    label="审核理由"
-                    counter="240"
-                    full-width
-                    single-line
-                    required
-                  ></v-textarea>
+                  <v-overflow-btn v-model="examineInfo.result" :items="examineSelect" item-text="text" item-value="value" return-object :rules="[$store.state.rules.required]" label="审核结果" single-line required hide-details></v-overflow-btn>
+                  <v-divider></v-divider>
+                  <v-textarea v-model="examineInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="审核理由" counter="240" solo flat single-line required></v-textarea>
                   <v-divider></v-divider>
                 </v-form>
                 <v-card-actions>

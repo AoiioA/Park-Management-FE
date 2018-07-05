@@ -212,7 +212,7 @@
                     </v-flex>
                   </v-layout>
                 </v-container>
-                <v-btn :to="{ 'name': 'house-info-detail', 'params': { 'houseNo': editHouse.houseNo } }" color="primary" depressed>{{ houseImageList.length?"上传完成":"跳过上传"}}</v-btn>
+                <v-btn :to="{ 'name': 'house-info-detail', 'params': { 'houseNo': editHouse.houseNo||0 } }" color="primary" depressed>{{ houseImageList.length?"上传完成":"跳过上传"}}</v-btn>
               </v-stepper-content>
             </v-stepper>
           </v-flex>

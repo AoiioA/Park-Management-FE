@@ -45,7 +45,7 @@
     <v-jumbotron height="auto">
       <v-progress-linear v-if="networkLoading" indeterminate class="my-0"></v-progress-linear>
       <v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
-      <v-container v-else grid-list-xl>
+      <v-container v-else grid-list-xl fluid fill-height>
         <v-layout justify-center align-center>
           <v-flex xs12 xl10>
             <v-layout wrap>
