@@ -14,7 +14,7 @@
                   <v-layout wrap>
                     <v-flex xs4><v-autocomplete dense v-model="editedBuilding.parkNo" :items="select.parkInfoArr" item-text="parkName" item-value="parkNo" label="所属园区" :hint="editedBuilding.parkNo!==0?`楼宇将继承省市区县信息`:''" persistent-hint required></v-autocomplete></v-flex>
                     <v-flex xs4><v-text-field v-model="editedBuilding.buildingName" :rules="[$store.state.rules.required]" label="楼宇名称" :hint="editedBuilding.buildingName?`全称为 : ${fullBuildingName}`:''" persistent-hint required></v-text-field></v-flex>
-        						<v-flex xs4><v-text-field v-model="editedBuilding.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number" required></v-text-field></v-flex>
+                    <v-flex xs4><v-text-field v-model="editedBuilding.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number" required></v-text-field></v-flex>
                     <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" @change="getCity" v-model="editedBuilding.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" required></v-autocomplete></v-flex>
                     <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.province" @change="getDistrict" v-model="editedBuilding.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" required></v-autocomplete></v-flex>
                     <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.city" v-model="editedBuilding.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" required></v-autocomplete></v-flex>
@@ -39,7 +39,7 @@
     <v-progress-linear v-if="networkLoading" :size="48" indeterminate class="my-0"></v-progress-linear>
     <v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
     <div v-else-if="buildingList.length==0" class="no-data">暂无楼宇记录 - <a @click="newBuildingDialog=true;getPark();getProvince();">点击此处添加</a></div>
-		<v-container v-else grid-list-xl>
+    <v-container v-else grid-list-xl>
       <v-layout justify-center wrap>
         <v-flex xs12 lg10>
           <v-subheader>您的全部楼宇项目</v-subheader>
@@ -67,7 +67,7 @@
           </v-layout>
         </v-flex>
       </v-layout>
-		</v-container>
+    </v-container>
   </div>
 </template>
 

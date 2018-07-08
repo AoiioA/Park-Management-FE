@@ -12,14 +12,14 @@
       <v-container grid-list-xl>
         <v-layout justify-center align-center>
         </v-layout>
-		    <v-layout justify-center wrap>
+        <v-layout justify-center wrap>
           <v-flex xs12 xl10>
             <v-subheader>
               筛选搜索您想要的房源
               <v-spacer></v-spacer>
               <!-- <v-btn depressed color="primary" @click="initialize">开始搜索</v-btn> -->
             </v-subheader>
-						<v-form ref="searchHouseForm" v-model="searchHouseValid" lazy-validation>
+            <v-form ref="searchHouseForm" v-model="searchHouseValid" lazy-validation>
               <v-layout row wrap align-center>
                 <v-flex xs6 sm3 lg2 style="min-width: 160px;">
                   <v-menu v-model="menu.buildingMenu" :close-on-content-click="false">
@@ -62,7 +62,7 @@
                 <v-spacer></v-spacer>
                 <v-flex xs12 sm3 lg2><v-btn :disabled="!searchHouseValid||(searchFilter.buildAreaMin>searchFilter.buildAreaMax)" @click="initialize" block large color="primary">开始搜索</v-btn></v-flex>
               </v-layout>
-						</v-form>
+            </v-form>
           </v-flex>
           <v-flex xs12 xl10>
             <v-card>
