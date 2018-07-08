@@ -8,8 +8,8 @@
       </span>
     </view-tool-bar>
     <v-jumbotron color="blue-grey lighten-5" height="auto">
-			<div class="no-data" v-if="networkLoading"><v-progress-circular indeterminate color="primary" class="my-0"></v-progress-circular></div>
-			<v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
+      <div class="no-data" v-if="networkLoading"><v-progress-circular indeterminate color="primary" class="my-0"></v-progress-circular></div>
+      <v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
       <v-container v-else class="px-4 py-4">
         <v-layout align-start align-content-start justify-center wrap>
           <v-flex xs12 md10 lg8>
@@ -20,7 +20,7 @@
               <v-stepper-content step="1">
                 <v-form ref="waterBillForm" v-model="waterBillFormValid" lazy-validation>
                   <v-container grid-list-md>
-                    <v-subheader>建筑信息</v-subheader>
+                    <!-- <v-subheader></v-subheader> -->
                     <v-layout row wrap>
                       <v-flex xs12 sm4><v-autocomplete dense v-model="selectedCompany" @change="newWaterBill.userId = selectedCompany.id;getContract(selectedCompany.id)" :items="companyList" item-text="companyName" item-value="id" return-object :rules="[v => !!v.id || '该项为必填项']" label="客户名称" :hint="selectedCompany.businessLicense" persistent-hint box required></v-autocomplete></v-flex>
                       <v-flex xs12 sm4><v-autocomplete dense :disabled="!selectedCompany.id" v-model="selectedContract" @change="newWaterBill.contractNo = selectedContract.contractNo" :items="contractList" item-text="contractName" item-value="contractName" return-object :rules="[v => (v.contractName&&!!v.contractName.length) || '该项为必填项']" label="合同名称" :hint="selectedContract.contractNo" persistent-hint box required></v-autocomplete></v-flex>
@@ -94,21 +94,25 @@
                         >
                           <template slot="items" slot-scope="props">
                             <td>{{ props.item.thisTime }}</td>
-                            <td>{{ parseFloat(props.item.amount).toFixed(2) }}</td>
-                            <td>{{ parseFloat(props.item.cost).toFixed(2) }}</td>
-                            <!-- <td>{{ (parseFloat(props.item.waterTax) + parseFloat(props.item.waterborneFee)).toFixed(2) }}</td> -->
-                            <td>{{ parseFloat(props.item.waterFee).toFixed(2) }}</td>
-                            <td>
-                              <v-icon v-if="true" small class="mr-2" @click="waterEdit(props.item)">edit</v-icon>
-                              <v-dialog v-model="menu.delWaterDialog" persistent max-width="290">
-                                <v-icon slot="activator" small>delete</v-icon>
+                            <td class="text-xs-right">{{ parseFloat(props.item.amount).toFixed(2) }}</td>
+                            <td class="text-xs-right">{{ parseFloat(props.item.cost).toFixed(2) }}</td>
+                            <!-- <td class="text-xs-right">{{ (parseFloat(props.item.waterTax) + parseFloat(props.item.waterborneFee)).toFixed(2) }}</td> -->
+                            <td class="text-xs-right">{{ parseFloat(props.item.waterFee).toFixed(2) }}</td>
+                            <td class="text-xs-center">
+                              <v-btn @click="waterEdit(props.item)" flat icon small color="grey darken-1" class="ma-0">
+                                <v-icon small>edit</v-icon>
+                              </v-btn>
+                              <v-dialog v-model="props.item.delWaterDialog" persistent max-width="290">
+                                <v-btn slot="activator" flat icon small color="grey darken-1" class="ma-0">
+                                  <v-icon small>delete</v-icon>
+                                </v-btn>
                                 <v-card>
                                   <v-card-title class="headline">确认删除水表单?</v-card-title>
                                   <!-- <v-card-text></v-card-text> -->
                                   <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="primary" flat @click.native="menu.delWaterDialog = false">再看看</v-btn>
-                                    <v-btn color="error" flat @click.native="menu.delWaterDialog = false;waterDelete(props.item)">我确认</v-btn>
+                                    <v-btn color="primary" flat @click.native="props.item.delWaterDialog = false">再看看</v-btn>
+                                    <v-btn color="error" flat @click.native="props.item.delWaterDialog = false;waterDelete(props.item)">我确认</v-btn>
                                   </v-card-actions>
                                 </v-card>
                               </v-dialog>
@@ -149,7 +153,6 @@ export default {
       companyMenu: false,
       contractMenu: false,
       waterMonthMenu: false,
-      delWaterDialog: false,
       newWaterDialog: false,
       lastTimeMenu: false,
       thisTimeMenu: false
@@ -189,11 +192,11 @@ export default {
     waterList: [],
     waterHeader: [
       { text: "抄表时间", value: "thisTime" },
-      { text: "用水量(m³)", value: "amount" },
-      { text: "用水费用", value: "cost" },
-      // { text: "其他费用", value: "waterTax&waterborneFee" },
-      { text: "水费总额", value: "waterFee" },
-      { text: "操作", value: "thisTime", sortable: false }
+      { text: "用水量(m³)", value: "amount", align: "right" },
+      { text: "用水费用", value: "cost", align: "right" },
+      // { text: "其他费用", value: "waterTax&waterborneFee", align: "right" },
+      { text: "水费总额", value: "waterFee", align: "right" },
+      { text: "操作", value: "thisTime", align: "center", sortable: false }
     ],
     editedWaterIndex: -1
   }),
@@ -313,12 +316,14 @@ export default {
         );
     },
     waterClose() {
-      this.menu.newWaterDialog = false;
-      setTimeout(() => {
-        this.$refs.waterForm.reset();
-        this.editedWater = Object.assign({}, this.defaultWater);
-        this.editedWaterIndex = -1;
-      }, 300);
+      if (confirm("取消后内容将不会保存")) {
+        this.menu.newWaterDialog = false;
+        setTimeout(() => {
+          this.$refs.waterForm.reset();
+          this.editedWater = Object.assign({}, this.defaultWater);
+          this.editedWaterIndex = -1;
+        }, 300);
+      }
     },
     waterSave() {
       if (this.$refs.waterForm.validate()) {
@@ -331,12 +336,15 @@ export default {
     },
     newWaterSave() {
       let submitUrl = "/cms/waterBill/add.json";
-      let submitData = Object.assign(
-        {
-          waterBillSubNo: this.submittedWaterBill.no
-        },
-        this.editedWater
-      );
+      let submitData = {
+        waterBillSubNo: this.submittedWaterBill.no
+      };
+
+      for (let key in this.defaultWater) {
+        if (this.defaultWater.hasOwnProperty(key)) {
+          submitData[key] = this.editedWater[key];
+        }
+      }
 
       this.$http
         .post(submitUrl, submitData)
@@ -358,13 +366,16 @@ export default {
     },
     editedWaterSave() {
       let submitUrl = "/cms/waterBill/update.json";
-      let submitData = Object.assign(
-        {
-          no: this.waterList[this.editedWaterIndex].no,
-          waterBillSubNo: this.submittedWaterBill.no
-        },
-        this.editedWater
-      );
+      let submitData = {
+        no: this.waterList[this.editedWaterIndex].no,
+        waterBillSubNo: this.submittedWaterBill.no
+      };
+
+      for (let key in this.defaultWater) {
+        if (this.defaultWater.hasOwnProperty(key)) {
+          submitData[key] = this.editedWater[key];
+        }
+      }
 
       this.$http
         .post(submitUrl, submitData)

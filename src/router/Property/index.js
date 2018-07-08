@@ -1,14 +1,16 @@
 import Property from "@/views/PropertyView/Property.vue";
 
 import Water from "@/views/PropertyView/Water/Water.vue";
-import WaterList from "@/views/PropertyView/Water/WaterList.vue";
-import WaterDetail from "@/views/PropertyView/Water/WaterDetail.vue";
 import WaterNew from "@/views/PropertyView/Water/WaterNew.vue";
+import WaterDetail from "@/views/PropertyView/Water/WaterDetail.vue";
+import WaterList from "@/views/PropertyView/Water/WaterList.vue";
+import WaterPayList from "@/views/PropertyView/Water/WaterList/WaterPayList.vue";
+import WaterAllList from "@/views/PropertyView/Water/WaterList/WaterAllList.vue";
 
 import Electricity from "@/views/PropertyView/Electricity/Electricity.vue";
-import ElectricityList from "@/views/PropertyView/Electricity/ElectricityList.vue";
-// import ElectricityDetail from "@/views/PropertyView/Electricity/ElectricityDetail.vue";
 // import ElectricityNew from "@/views/PropertyView/Electricity/ElectricityNew.vue";
+// import ElectricityDetail from "@/views/PropertyView/Electricity/ElectricityDetail.vue";
+import ElectricityList from "@/views/PropertyView/Electricity/ElectricityList.vue";
 
 export default [
   {
@@ -22,12 +24,12 @@ export default [
         children: [
           {
             path: "",
-            redirect: { name: "water-list" }
+            redirect: { name: "water-pay-list" }
           },
           {
-            path: "water-list",
-            name: "water-list",
-            component: WaterList
+            path: "water-new",
+            name: "water-new",
+            component: WaterNew
           },
           {
             path: "water-detail/:waterNo",
@@ -35,9 +37,24 @@ export default [
             component: WaterDetail
           },
           {
-            path: "water-new",
-            name: "water-new",
-            component: WaterNew
+            path: "water-list",
+            component: WaterList,
+            children: [
+              {
+                path: "",
+                redirect: { name: "water-pay-list" }
+              },
+              {
+                path: "water-pay-list",
+                name: "water-pay-list",
+                component: WaterPayList
+              },
+              {
+                path: "water-all-list",
+                name: "water-all-list",
+                component: WaterAllList
+              }
+            ]
           }
         ]
       },
