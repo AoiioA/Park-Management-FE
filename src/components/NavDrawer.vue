@@ -163,7 +163,7 @@ export default {
             {
               action: "build",
               title: "电费管理",
-              url: "/home/property/electricity"
+              url: "/home/property/electric"
             }
           ]
         },

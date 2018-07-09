@@ -7,10 +7,12 @@ import WaterList from "@/views/PropertyView/Water/WaterList.vue";
 import WaterPayList from "@/views/PropertyView/Water/WaterList/WaterPayList.vue";
 import WaterAllList from "@/views/PropertyView/Water/WaterList/WaterAllList.vue";
 
-import Electricity from "@/views/PropertyView/Electricity/Electricity.vue";
-// import ElectricityNew from "@/views/PropertyView/Electricity/ElectricityNew.vue";
-// import ElectricityDetail from "@/views/PropertyView/Electricity/ElectricityDetail.vue";
-import ElectricityList from "@/views/PropertyView/Electricity/ElectricityList.vue";
+import Electric from "@/views/PropertyView/Electric/Electric.vue";
+import ElectricNew from "@/views/PropertyView/Electric/ElectricNew.vue";
+import ElectricDetail from "@/views/PropertyView/Electric/ElectricDetail.vue";
+import ElectricList from "@/views/PropertyView/Electric/ElectricList.vue";
+import ElectricPayList from "@/views/PropertyView/Electric/ElectricList/ElectricPayList.vue";
+import ElectricAllList from "@/views/PropertyView/Electric/ElectricList/ElectricAllList.vue";
 
 export default [
   {
@@ -59,17 +61,42 @@ export default [
         ]
       },
       {
-        path: "electricity",
-        component: Electricity,
+        path: "electric",
+        component: Electric,
         children: [
           {
             path: "",
-            redirect: { name: "electricity-list" }
+            redirect: { name: "electric-pay-list" }
           },
           {
-            path: "electricity-list",
-            name: "electricity-list",
-            component: ElectricityList
+            path: "electric-new",
+            name: "electric-new",
+            component: ElectricNew
+          },
+          {
+            path: "electric-detail/:electricNo",
+            name: "electric-detail",
+            component: ElectricDetail
+          },
+          {
+            path: "electric-list",
+            component: ElectricList,
+            children: [
+              {
+                path: "",
+                redirect: { name: "electric-pay-list" }
+              },
+              {
+                path: "electric-pay-list",
+                name: "electric-pay-list",
+                component: ElectricPayList
+              },
+              {
+                path: "electric-all-list",
+                name: "electric-all-list",
+                component: ElectricAllList
+              }
+            ]
           }
         ]
       }

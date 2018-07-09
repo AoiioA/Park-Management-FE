@@ -3,7 +3,7 @@
     <v-container grid-list-xl fill-height>
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 xl10>
-          <v-subheader>全部水费账单</v-subheader>
+          <v-subheader>全部电费账单</v-subheader>
           <v-card>
             <v-data-table
               :no-data-text="networkError?`网络出现异常 - 检查网络后刷新重试`:`暂无记录`"
@@ -12,7 +12,7 @@
               :pagination.sync="pagination"
               :headers="headers"
               :loading="networkLoading"
-              :items="waterBillList"
+              :items="electricBillList"
               item-key="id"
             >
               <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
@@ -25,7 +25,7 @@
                 <td class="text-xs-right">{{ props.item.lastPayment }}</td>
                 <td class="text-xs-right">{{ props.item.residualPayment }}</td>
                 <td class="text-xs-center">
-                  <v-btn flat icon small color="grey darken-1" class="ma-0" :to="{ name: 'water-detail', params: { waterNo: props.item.no } }">
+                  <v-btn flat icon small color="grey darken-1" class="ma-0" :to="{ name: 'electric-detail', params: { electricNo: props.item.no } }">
                     <v-icon small>visibility</v-icon>
                   </v-btn>
                 </td>
@@ -51,14 +51,14 @@ export default {
     headers: [
       { text: "合同编号", value: "contractNo" },
       { text: "月份", value: "waterMonth" },
-      { text: "用水量", value: "totalAmount", align: "right" },
-      { text: "用水费用", value: "totalCost", align: "right" },
+      { text: "用电量", value: "totalAmount", align: "right" },
+      { text: "用电费用", value: "totalCost", align: "right" },
       { text: "账单总额", value: "totalWaterFee", align: "right" },
       { text: "上次缴纳", value: "lastPayment", align: "right" },
       { text: "剩余应缴", value: "residualPayment", align: "right" },
       { text: "操作", value: "id", align: "center", sortable: false }
     ],
-    waterBillList: []
+    electricBillList: []
   }),
   mounted() {
     this.initialize();
@@ -73,7 +73,7 @@ export default {
         .then(res => {
           this.networkLoading = false;
           let resData = res.data.data;
-          this.waterBillList = resData && resData.length ? resData : [];
+          this.electricBillList = resData && resData.length ? resData : [];
         })
         .catch(() => {
           this.networkLoading = false;
