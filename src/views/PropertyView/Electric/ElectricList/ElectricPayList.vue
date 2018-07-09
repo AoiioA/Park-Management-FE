@@ -18,10 +18,9 @@
               <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
               <template slot="items" slot-scope="props">
                 <td>{{ props.item.contractNo }}</td>
-                <td>{{ props.item.waterMonth }}</td>
-                <td class="text-xs-right">{{ props.item.totalAmount }}</td>
-                <td class="text-xs-right">{{ props.item.totalCost }}</td>
-                <td class="text-xs-right">{{ props.item.totalWaterFee }}</td>
+                <td>{{ props.item.electricMonth }}</td>
+                <td class="text-xs-right">{{ props.item.totalElectricQuantity }}</td>
+                <td class="text-xs-right">{{ props.item.totalElectricityFees }}</td>
                 <td class="text-xs-right">{{ props.item.lastPayment }}</td>
                 <td class="text-xs-right">{{ props.item.residualPayment }}</td>
                 <td class="text-xs-center">
@@ -45,15 +44,14 @@ export default {
     networkError: false,
     search: "",
     pagination: {
-      sortBy: "waterMonth",
+      sortBy: "electricMonth",
       descending: true
     },
     headers: [
       { text: "合同编号", value: "contractNo" },
-      { text: "月份", value: "waterMonth" },
-      { text: "用电量", value: "totalAmount", align: "right" },
-      { text: "用电费用", value: "totalCost", align: "right" },
-      { text: "账单总额", value: "totalWaterFee", align: "right" },
+      { text: "月份", value: "electricMonth" },
+      { text: "用电总量", value: "totalElectricQuantity", align: "right" },
+      { text: "账单总额", value: "totalElectricityFees", align: "right" },
       { text: "上次缴纳", value: "lastPayment", align: "right" },
       { text: "剩余应缴", value: "residualPayment", align: "right" },
       { text: "操作", value: "id", align: "center", sortable: false }
@@ -67,9 +65,7 @@ export default {
     initialize() {
       this.networkLoading = true;
       this.$http
-        .post("/cms/waterBillSub/selectWaterBillSub.json", {
-          contractNo: "ASDF-20180601-0005"
-        })
+        .post("/cms/electricBillSub/selectElectricBillSub.json", {})
         .then(res => {
           this.networkLoading = false;
           let resData = res.data.data;

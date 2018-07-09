@@ -31,15 +31,15 @@
                       <v-flex xs12 sm3><v-autocomplete dense v-model="selectedCompany" @change="newWaterBill.userId = selectedCompany.id;getContract(selectedCompany.id)" :items="companyList" item-text="companyName" item-value="id" return-object :rules="[v => !!v.id || '该项为必填项']" label="客户名称" :hint="selectedCompany.businessLicense" persistent-hint box required></v-autocomplete></v-flex>
                       <v-flex xs12 sm3><v-autocomplete dense :disabled="!selectedCompany.id" v-model="selectedContract" @change="newWaterBill.contractNo = selectedContract.contractNo" :items="contractList" item-text="contractName" item-value="contractName" return-object :rules="[v => (v.contractName&&!!v.contractName.length) || '该项为必填项']" label="合同名称" :hint="selectedContract.contractNo" persistent-hint box required></v-autocomplete></v-flex>
                       <v-flex xs12 sm3><v-text-field v-model="newWaterBill.userNo" :rules="[$store.state.rules.required]" label="用户编号" hint="" persistent-hint box required></v-text-field></v-flex>
-                      <v-flex xs12><v-textarea v-model="newWaterBill.userAddress" :rules="[$store.state.rules.required, rules.lengthLessThan(50)]" label="地址" hint="" persistent-hint counter="50" box required></v-textarea></v-flex>
-                      <v-flex xs12><v-textarea v-model="newWaterBill.remark" :rules="[rules.lengthLessThan(100)]" label="备注" hint="" persistent-hint counter="100" box></v-textarea></v-flex>
+                      <v-flex xs12><v-textarea v-model="newWaterBill.userAddress" :rules="[$store.state.rules.required, $store.state.rules.lengthLessThan(50)]" label="地址" hint="" persistent-hint counter="50" box required></v-textarea></v-flex>
+                      <v-flex xs12><v-textarea v-model="newWaterBill.remark" :rules="[$store.state.rules.lengthLessThan(100)]" label="备注" hint="" persistent-hint counter="100" box></v-textarea></v-flex>
                     </v-layout>
                     <v-divider class="my-3"></v-divider>
                   </v-container>
                   <v-btn :disabled="!waterBillFormValid" @click.native="submitWaterBill()" color="primary" depressed>确认无误并提交</v-btn>
                 </v-form>
               </v-stepper-content>
-              <v-stepper-step :complete="!!submittedWaterBill" step="2">
+              <v-stepper-step :complete="!!waterBillInfo" step="2">
                 水表单信息
               </v-stepper-step>
               <v-stepper-content step="2">
@@ -56,32 +56,32 @@
                               <v-card-text class="pt-0">
                                 <v-container grid-list-md class="pa-0">
                                   <v-layout wrap>
-                                    <v-flex xs6>
+                                    <v-flex xs4>
                                       <v-dialog v-model="menu.lastTimeMenu" lazy full-width width="290px">
                                         <v-text-field slot="activator" v-model="editedWater.lastTime" :rules="[$store.state.rules.required]" label="上次抄表日" hint="" persistent-hint required readonly></v-text-field>
                                         <v-date-picker v-model="editedWater.lastTime" @input="menu.lastTimeMenu = false" :first-day-of-week="0" show-current scrollable locale="zh-cn"></v-date-picker>
                                       </v-dialog>
                                     </v-flex>
-                                    <v-flex xs6>
+                                    <v-flex xs4><v-text-field v-model.number="editedWater.lastDegree" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="上次抄表数(m³)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs4><v-text-field v-model.number="editedWater.amount" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="用水量(m³)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs4>
                                       <v-dialog :disabled="!editedWater.lastTime" v-model="menu.thisTimeMenu" lazy full-width width="290px">
                                         <v-text-field slot="activator" :disabled="!editedWater.lastTime" v-model="editedWater.thisTime" :rules="[$store.state.rules.required]" label="本次抄表日" hint="" persistent-hint required readonly></v-text-field>
                                         <v-date-picker v-model="editedWater.thisTime" @input="menu.thisTimeMenu = false" :min="editedWater.lastTime" :first-day-of-week="0" show-current scrollable locale="zh-cn"></v-date-picker>
                                       </v-dialog>
                                     </v-flex>
-                                    <v-flex xs3><v-text-field v-model.number="editedWater.lastDegree" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="上次抄表数(m³)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs3><v-text-field v-model.number="editedWater.nowDegree" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="本次抄表数(m³)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs3><v-text-field v-model.number="editedWater.amount" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="用水量(m³)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs3><v-text-field v-model.number="editedWater.cost" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="用水费用(元)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs4><v-text-field v-model.number="editedWater.waterTax" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="水资源费改税(元)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs4><v-text-field v-model.number="editedWater.waterborneFee" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="污水处理费(元)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs4><v-text-field v-model.number="editedWater.waterFee" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="水费总额(元)" :hint="`约${Math.round((parseFloat(this.editedWater.cost) + parseFloat(this.editedWater.waterTax) + parseFloat(this.editedWater.waterborneFee))*100)/100}元`" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs12><v-textarea v-model="editedWater.remark" :rules="[$store.state.rules.required, rules.lengthLessThan(50)]" label="备注" hint="" counter="100" persistent-hint required></v-textarea></v-flex>
+                                    <v-flex xs4><v-text-field v-model.number="editedWater.nowDegree" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="本次抄表数(m³)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs4><v-text-field v-model.number="editedWater.cost" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="用水费用(元)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs4><v-text-field v-model.number="editedWater.waterTax" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="水资源费改税(元)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs4><v-text-field v-model.number="editedWater.waterborneFee" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="污水处理费(元)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs4><v-text-field v-model.number="editedWater.waterFee" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="水费总额(元)" :hint="`约${Math.round((parseFloat(this.editedWater.cost) + parseFloat(this.editedWater.waterTax) + parseFloat(this.editedWater.waterborneFee))*100)/100}元`" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs12><v-textarea v-model="editedWater.remark" :rules="[$store.state.rules.lengthLessThan(50)]" label="备注" hint="" counter="100" persistent-hint required></v-textarea></v-flex>
                                   </v-layout>
                                 </v-container>
                               </v-card-text>
                               <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn depressed @click.native="waterClose">取消操作</v-btn>
+                                <v-btn depressed @click.native="waterClose(true)">取消操作</v-btn>
                                 <v-btn :disabled="!waterFormValid" @click.native="waterSave" depressed color="primary">编辑完成</v-btn>
                               </v-card-actions>
                             </v-card>
@@ -89,7 +89,7 @@
                         </v-dialog>
                         <v-data-table
                           :headers="waterHeader"
-                          :items="waterList"
+                          :items="waterInfoList"
                           no-data-text="暂无水表单"
                         >
                           <template slot="items" slot-scope="props">
@@ -124,7 +124,7 @@
                   </v-layout>
                 </v-container>
                 <v-btn @click="menu.newWaterDialog = true" color="primary" outline>添加水表单</v-btn>
-                <v-btn color="primary" depressed @click="$router.push({ name: 'water-detail', params: { waterNo: submittedWaterBill.no } })">完成</v-btn>
+                <v-btn color="primary" depressed @click="$router.push({ name: 'water-detail', params: { waterNo: waterBillInfo.no } })">完成</v-btn>
               </v-stepper-content>
             </v-stepper>
           </v-flex>
@@ -144,11 +144,6 @@ export default {
   data: () => ({
     networkLoading: false,
     networkError: false,
-    rules: {
-      testFloorNumber: val =>
-        !new RegExp(/[^(\-?)\d+]/gi).test(val) || "该项需为整数",
-      lengthLessThan: num => val => val.length <= num || `该项长度需小于${num}`
-    },
     menu: {
       companyMenu: false,
       contractMenu: false,
@@ -160,7 +155,6 @@ export default {
     stepNum: 1,
     // 水费账单
     waterBillFormValid: true,
-    editedWaterBill: {},
     newWaterBill: {
       userId: "",
       userNo: "",
@@ -173,7 +167,6 @@ export default {
     contractList: [],
     selectedCompany: {},
     selectedContract: {},
-    submittedWaterBill: null,
     // 水表单
     waterFormValid: true,
     editedWater: {},
@@ -189,7 +182,6 @@ export default {
       waterFee: "",
       remark: ""
     },
-    waterList: [],
     waterHeader: [
       { text: "抄表时间", value: "thisTime" },
       { text: "用水量(m³)", value: "amount", align: "right" },
@@ -198,7 +190,9 @@ export default {
       { text: "水费总额", value: "waterFee", align: "right" },
       { text: "操作", value: "thisTime", align: "center", sortable: false }
     ],
-    editedWaterIndex: -1
+    editedWaterIndex: -1,
+    waterBillInfo: null,
+    waterInfoList: []
   }),
   computed: {
     waterFormTitle() {
@@ -207,13 +201,10 @@ export default {
   },
   created() {
     this.$store.commit("changeToolBarTitle", { title: "编辑水费账单" });
-    this.initialize();
     this.editedWater = Object.assign({}, this.defaultWater);
+    this.getCompany();
   },
   methods: {
-    initialize() {
-      this.getCompany();
-    },
     getCompany() {
       this.$http
         .get("/cms/companyInfo/companyNameList.json")
@@ -249,10 +240,10 @@ export default {
           .post(submitUrl, submitData)
           .then(res => {
             if (res.data.code != 500) {
-              this.submittedWaterBill = res.data.data;
+              this.waterBillInfo = res.data.data;
               this.$store.commit("addSnackBar", "水费账单添加成功", "success");
               this.stepNum++;
-              // this.getWater();
+              this.getWater();
             } else {
               throw new Error(res.data.msg);
             }
@@ -266,8 +257,21 @@ export default {
           );
       }
     },
+    getWater() {
+      this.$http
+        .get("/cms/waterBill/lookWaterBill.json", {
+          no: this.waterBillInfo.no
+        })
+        .then(
+          res =>
+            (this.waterInfoList = res.data && res.data.length ? res.data : [])
+        )
+        .catch(err =>
+          this.$store.commit("addSnackBar", `水表单查询失败 ${err}`, "error")
+        );
+    },
     waterEdit(item) {
-      this.editedWaterIndex = this.waterList.indexOf(item);
+      this.editedWaterIndex = this.waterInfoList.indexOf(item);
       this.editedWater = Object.assign({}, item);
       this.menu.newWaterDialog = true;
     },
@@ -276,9 +280,10 @@ export default {
         .post("/cms/waterBill/deleteOne.json", { no: item.no })
         .then(res => {
           if (res.data.code != 500) {
-            const index = this.waterList.indexOf(item);
-            this.waterList.splice(index, 1);
             this.$store.commit("addSnackBar", "水表单删除成功", "success");
+            // const index = this.waterInfoList.indexOf(item);
+            // this.waterInfoList.splice(index, 1);
+            this.getWater();
           } else {
             throw new Error(res.data.msg);
           }
@@ -287,8 +292,8 @@ export default {
           this.$store.commit("addSnackBar", `水表单删除失败 ${err}`, "error")
         );
     },
-    waterClose() {
-      if (confirm("取消后内容将不会保存")) {
+    waterClose(isCancel) {
+      if (!isCancel || confirm("取消后内容将不会保存")) {
         this.menu.newWaterDialog = false;
         setTimeout(() => {
           this.$refs.waterForm.reset();
@@ -309,7 +314,7 @@ export default {
     newWaterSave() {
       let submitUrl = "/cms/waterBill/add.json";
       let submitData = {
-        waterBillSubNo: this.submittedWaterBill.no
+        waterBillSubNo: this.waterBillInfo.no
       };
 
       for (let key in this.defaultWater) {
@@ -322,12 +327,13 @@ export default {
         .post(submitUrl, submitData)
         .then(res => {
           if (res.data.code != 500) {
-            this.submittedWaterBill = res.data.data.waterBillSub;
-            this.waterList.push(
-              Object.assign({ no: res.data.data.waterBillNo }, submitData)
-            );
-            this.waterClose();
             this.$store.commit("addSnackBar", "水表单添加成功", "success");
+            // this.waterBillInfo = res.data.data.waterBillSub;
+            // this.waterInfoList.push(
+            //   Object.assign({ no: res.data.data.waterBillNo }, submitData)
+            // );
+            this.waterClose(false);
+            this.getWater();
           } else {
             throw new Error(res.data.msg);
           }
@@ -339,8 +345,8 @@ export default {
     editedWaterSave() {
       let submitUrl = "/cms/waterBill/update.json";
       let submitData = {
-        no: this.waterList[this.editedWaterIndex].no,
-        waterBillSubNo: this.submittedWaterBill.no
+        no: this.waterInfoList[this.editedWaterIndex].no,
+        waterBillSubNo: this.waterBillInfo.no
       };
 
       for (let key in this.defaultWater) {
@@ -353,10 +359,14 @@ export default {
         .post(submitUrl, submitData)
         .then(res => {
           if (res.data.code != 500) {
-            this.submittedWaterBill = res.data.data;
-            Object.assign(this.waterList[this.editedWaterIndex], submitData);
-            this.waterClose();
             this.$store.commit("addSnackBar", "水表单编辑成功", "success");
+            // this.waterBillInfo = res.data.data;
+            // Object.assign(
+            //   this.waterInfoList[this.editedWaterIndex],
+            //   submitData
+            // );
+            this.waterClose(false);
+            this.getWater();
           } else {
             throw new Error(res.data.msg);
           }

@@ -67,9 +67,7 @@ export default {
     initialize() {
       this.networkLoading = true;
       this.$http
-        .post("/cms/waterBillSub/queryWaterBillSub.json", {
-          contractNo: "ASDF-20180601-0005"
-        })
+        .post("/cms/waterBillSub/queryWaterBillSub.json", {})
         .then(res => {
           this.networkLoading = false;
           let resData = res.data.data;

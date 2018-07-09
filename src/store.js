@@ -13,6 +13,10 @@ export default new Vuex.Store({
           : !!val || val === 0 || "此项为必填项",
       noZero: val => val != 0 || "此项不能为零",
       nonnegative: val => val >= 0 || "此项不能为负",
+      testFloorNumber: val =>
+        !new RegExp(/[^(\-?)\d+]/gi).test(val) || "该项需为整数",
+      lengthLessThan: num => val =>
+        (val || "").length <= num || `该项长度需小于${num}`,
       email: value => {
         const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return pattern.test(value) || "此项需按e-mail格式";

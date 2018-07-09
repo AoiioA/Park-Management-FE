@@ -31,19 +31,19 @@
                       <v-flex xs12 sm3><v-autocomplete dense v-model="selectedCompany" @change="newElectricBill.userId = selectedCompany.id;getContract(selectedCompany.id)" :items="companyList" item-text="companyName" item-value="id" return-object :rules="[v => !!v.id || '该项为必填项']" label="客户名称" :hint="selectedCompany.businessLicense" persistent-hint box required></v-autocomplete></v-flex>
                       <v-flex xs12 sm3><v-autocomplete dense :disabled="!selectedCompany.id" v-model="selectedContract" @change="newElectricBill.contractNo = selectedContract.contractNo" :items="contractList" item-text="contractName" item-value="contractName" return-object :rules="[v => (v.contractName&&!!v.contractName.length) || '该项为必填项']" label="合同名称" :hint="selectedContract.contractNo" persistent-hint box required></v-autocomplete></v-flex>
                       <v-flex xs12 sm3><v-text-field v-model="newElectricBill.userNo" :rules="[$store.state.rules.required]" label="用户编号" hint="" persistent-hint box required></v-text-field></v-flex>
-                      <v-flex xs12 sm3><v-text-field v-model.number="newElectricBill.peakPrice" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="尖峰时价(元/kW·h)" hint="" persistent-hint box required type="number"></v-text-field></v-flex>
-                      <v-flex xs12 sm3><v-text-field v-model.number="newElectricBill.summitPrice" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="峰时价(元/kW·h)" hint="" persistent-hint box required type="number"></v-text-field></v-flex>
-                      <v-flex xs12 sm3><v-text-field v-model.number="newElectricBill.flatPrice" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="平时价(元/kW·h)" hint="" persistent-hint box required type="number"></v-text-field></v-flex>
-                      <v-flex xs12 sm3><v-text-field v-model.number="newElectricBill.valleyPrice" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="谷时价(元/kW·h)" hint="" persistent-hint box required type="number"></v-text-field></v-flex>
-                      <v-flex xs12><v-textarea v-model="newElectricBill.userAddress" :rules="[$store.state.rules.required, rules.lengthLessThan(50)]" label="地址" hint="" persistent-hint counter="50" box required></v-textarea></v-flex>
-                      <v-flex xs12><v-textarea v-model="newElectricBill.remark" :rules="[rules.lengthLessThan(100)]" label="备注" hint="" persistent-hint counter="100" box></v-textarea></v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newElectricBill.peakPrice" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="尖峰时价(元/kW·h)" hint="" persistent-hint box required type="number"></v-text-field></v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newElectricBill.summitPrice" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="峰时价(元/kW·h)" hint="" persistent-hint box required type="number"></v-text-field></v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newElectricBill.flatPrice" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="平时价(元/kW·h)" hint="" persistent-hint box required type="number"></v-text-field></v-flex>
+                      <v-flex xs12 sm3><v-text-field v-model.number="newElectricBill.valleyPrice" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="谷时价(元/kW·h)" hint="" persistent-hint box required type="number"></v-text-field></v-flex>
+                      <v-flex xs12><v-textarea v-model="newElectricBill.userAddress" :rules="[$store.state.rules.required, $store.state.rules.lengthLessThan(50)]" label="地址" hint="" persistent-hint counter="50" box required></v-textarea></v-flex>
+                      <v-flex xs12><v-textarea v-model="newElectricBill.remark" :rules="[$store.state.rules.lengthLessThan(100)]" label="备注" hint="" persistent-hint counter="100" box></v-textarea></v-flex>
                     </v-layout>
                     <v-divider class="my-3"></v-divider>
                   </v-container>
                   <v-btn :disabled="!electricBillFormValid" @click.native="submitElectricBill()" color="primary" depressed>确认无误并提交</v-btn>
                 </v-form>
               </v-stepper-content>
-              <v-stepper-step :complete="!!submittedElectricBill" step="2">
+              <v-stepper-step :complete="!!electricBillInfo" step="2">
                 电表单信息
               </v-stepper-step>
               <v-stepper-content step="2">
@@ -72,22 +72,22 @@
                                         <v-date-picker v-model="editedElectric.thisTime" @input="menu.thisTimeMenu = false" :min="editedElectric.lastTime" :first-day-of-week="0" show-current scrollable locale="zh-cn"></v-date-picker>
                                       </v-dialog>
                                     </v-flex>
-                                    <v-flex xs3><v-text-field v-model.number="editedElectric.lastDegree" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="上次抄表数(kW·h)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs3><v-text-field v-model.number="editedElectric.nowDegree" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="本次抄表数(kW·h)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs3><v-text-field v-model.number="editedElectric.peak" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="尖峰时电量(kW·h)" :hint="`尖峰时价:${submittedElectricBill?submittedElectricBill.peakPrice:0}元/kW·h`" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs3><v-text-field v-model.number="editedElectric.summit" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="峰时电量(kW·h)" :hint="`峰时价:${submittedElectricBill?submittedElectricBill.summitPrice:0}元/kW·h`" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs3><v-text-field v-model.number="editedElectric.flat" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="平时电量(kW·h)" :hint="`平时价:${submittedElectricBill?submittedElectricBill.flatPrice:0}元/kW·h`" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs3><v-text-field v-model.number="editedElectric.valley" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="谷时电量(kW·h)" :hint="`谷时价:${submittedElectricBill?submittedElectricBill.valleyPrice:0}元/kW·h`" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs3><v-text-field v-model.number="editedElectric.lastDegree" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="上次抄表数(kW·h)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs3><v-text-field v-model.number="editedElectric.nowDegree" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="本次抄表数(kW·h)" hint="" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs3><v-text-field v-model.number="editedElectric.peak" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="尖峰时电量(kW·h)" :hint="`尖峰时价:${electricBillInfo?electricBillInfo.peakPrice:0}元/kW·h`" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs3><v-text-field v-model.number="editedElectric.summit" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="峰时电量(kW·h)" :hint="`峰时价:${electricBillInfo?electricBillInfo.summitPrice:0}元/kW·h`" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs3><v-text-field v-model.number="editedElectric.flat" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="平时电量(kW·h)" :hint="`平时价:${electricBillInfo?electricBillInfo.flatPrice:0}元/kW·h`" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs3><v-text-field v-model.number="editedElectric.valley" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="谷时电量(kW·h)" :hint="`谷时价:${electricBillInfo?electricBillInfo.valleyPrice:0}元/kW·h`" persistent-hint required type="number"></v-text-field></v-flex>
                                     <v-flex xs4><v-text-field v-model="editedElectric.meterNumber" :rules="[$store.state.rules.required]" label="电表编号" hint="" persistent-hint required></v-text-field></v-flex>
-                                    <v-flex xs4><v-text-field v-model.number="editedElectric.electricQuantity" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="用电总量(kW·h)" :hint="`约${Math.round((parseFloat(editedElectric.peak) + parseFloat(editedElectric.summit) + parseFloat(editedElectric.valley) + parseFloat(editedElectric.flat))*100)/100}kW·h`" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs4><v-text-field v-model.number="editedElectric.electricityFees" :rules="[$store.state.rules.required, $store.state.rules.noZero, $store.state.rules.nonnegative]" label="电费总额(元)" :hint="submittedElectricBill?`约${Math.round((editedElectric.peak * submittedElectricBill.peakPrice + editedElectric.summit * submittedElectricBill.summitPrice + editedElectric.valley * submittedElectricBill.valleyPrice + editedElectric.flat * submittedElectricBill.flatPrice)*100)/100}元`:''" persistent-hint required type="number"></v-text-field></v-flex>
-                                    <v-flex xs12><v-textarea v-model="editedElectric.remark" :rules="[rules.lengthLessThan(100)]" label="备注" hint="" persistent-hint counter="100" required></v-textarea></v-flex>
+                                    <v-flex xs4><v-text-field v-model.number="editedElectric.electricQuantity" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="用电总量(kW·h)" :hint="`约${Math.round((parseFloat(editedElectric.peak) + parseFloat(editedElectric.summit) + parseFloat(editedElectric.valley) + parseFloat(editedElectric.flat))*100)/100}kW·h`" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs4><v-text-field v-model.number="editedElectric.electricityFees" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="电费总额(元)" :hint="electricBillInfo?`约${Math.round((editedElectric.peak * electricBillInfo.peakPrice + editedElectric.summit * electricBillInfo.summitPrice + editedElectric.valley * electricBillInfo.valleyPrice + editedElectric.flat * electricBillInfo.flatPrice)*100)/100}元`:''" persistent-hint required type="number"></v-text-field></v-flex>
+                                    <v-flex xs12><v-textarea v-model="editedElectric.remark" :rules="[$store.state.rules.lengthLessThan(100)]" label="备注" hint="" persistent-hint counter="100" required></v-textarea></v-flex>
                                   </v-layout>
                                 </v-container>
                               </v-card-text>
                               <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn depressed @click.native="electricClose">取消操作</v-btn>
+                                <v-btn depressed @click.native="electricClose(true)">取消操作</v-btn>
                                 <v-btn :disabled="!electricFormValid" @click.native="electricSave" depressed color="primary">编辑完成</v-btn>
                               </v-card-actions>
                             </v-card>
@@ -95,7 +95,7 @@
                         </v-dialog>
                         <v-data-table
                           :headers="electricHeader"
-                          :items="electricList"
+                          :items="electricInfoList"
                           no-data-text="暂无电表单"
                         >
                           <template slot="items" slot-scope="props">
@@ -129,7 +129,7 @@
                   </v-layout>
                 </v-container>
                 <v-btn @click="menu.newElectricDialog = true" color="primary" outline>添加电表单</v-btn>
-                <v-btn color="primary" depressed @click="$router.push({ name: 'electric-detail', params: { electricNo: submittedElectricBill.no } })">完成</v-btn>
+                <v-btn color="primary" depressed @click="$router.push({ name: 'electric-detail', params: { electricNo: electricBillInfo.no } })">完成</v-btn>
               </v-stepper-content>
             </v-stepper>
           </v-flex>
@@ -149,11 +149,6 @@ export default {
   data: () => ({
     networkLoading: false,
     networkError: false,
-    rules: {
-      testFloorNumber: val =>
-        !new RegExp(/[^(\-?)\d+]/gi).test(val) || "该项需为整数",
-      lengthLessThan: num => val => val.length <= num || `该项长度需小于${num}`
-    },
     menu: {
       companyMenu: false,
       contractMenu: false,
@@ -165,7 +160,6 @@ export default {
     stepNum: 1,
     // 电费账单
     electricBillFormValid: true,
-    editedElectricBill: {},
     newElectricBill: {
       userId: "",
       userNo: "",
@@ -182,7 +176,6 @@ export default {
     contractList: [],
     selectedCompany: {},
     selectedContract: {},
-    submittedElectricBill: null,
     // 电表单
     electricFormValid: true,
     editedElectric: {},
@@ -195,11 +188,11 @@ export default {
       summit: "",
       valley: "",
       flat: "",
+      meterNumber: "",
       electricQuantity: "",
       electricityFees: "",
       remark: ""
     },
-    electricList: [],
     electricHeader: [
       { text: "电表编号", value: "meterNumber" },
       { text: "抄表时间", value: "thisTime" },
@@ -207,7 +200,9 @@ export default {
       { text: "电费总额", value: "electricityFees", align: "right" },
       { text: "操作", value: "thisTime", align: "center", sortable: false }
     ],
-    editedElectricIndex: -1
+    editedElectricIndex: -1,
+    electricBillInfo: null,
+    electricInfoList: []
   }),
   computed: {
     electricFormTitle() {
@@ -216,13 +211,10 @@ export default {
   },
   created() {
     this.$store.commit("changeToolBarTitle", { title: "编辑电费账单" });
-    this.initialize();
     this.editedElectric = Object.assign({}, this.defaultElectric);
+    this.getCompany();
   },
   methods: {
-    initialize() {
-      this.getCompany();
-    },
     getCompany() {
       this.$http
         .get("/cms/companyInfo/companyNameList.json")
@@ -258,10 +250,10 @@ export default {
           .post(submitUrl, submitData)
           .then(res => {
             if (res.data.code != 500) {
-              this.submittedElectricBill = res.data.data;
+              this.electricBillInfo = res.data.data;
               this.$store.commit("addSnackBar", "电费账单添加成功", "success");
               this.stepNum++;
-              // this.getElectric();
+              this.getElectric();
             } else {
               throw new Error(res.data.msg);
             }
@@ -275,8 +267,22 @@ export default {
           );
       }
     },
+    getElectric() {
+      this.$http
+        .get("/cms/electricBill/lookElectricBill.json", {
+          no: this.electricBillInfo.no
+        })
+        .then(
+          res =>
+            (this.electricInfoList =
+              res.data && res.data.length ? res.data : [])
+        )
+        .catch(err =>
+          this.$store.commit("addSnackBar", `电表单查询失败 ${err}`, "error")
+        );
+    },
     electricEdit(item) {
-      this.editedElectricIndex = this.electricList.indexOf(item);
+      this.editedElectricIndex = this.electricInfoList.indexOf(item);
       this.editedElectric = Object.assign({}, item);
       this.menu.newElectricDialog = true;
     },
@@ -285,9 +291,10 @@ export default {
         .post("/cms/electricBill/deleteOne.json", { no: item.no })
         .then(res => {
           if (res.data.code != 500) {
-            const index = this.electricList.indexOf(item);
-            this.electricList.splice(index, 1);
             this.$store.commit("addSnackBar", "电表单删除成功", "success");
+            // const index = this.electricInfoList.indexOf(item);
+            // this.electricInfoList.splice(index, 1);
+            this.getElectric();
           } else {
             throw new Error(res.data.msg);
           }
@@ -296,8 +303,8 @@ export default {
           this.$store.commit("addSnackBar", `电表单删除失败 ${err}`, "error")
         );
     },
-    electricClose() {
-      if (confirm("取消后内容将不会保存")) {
+    electricClose(isCancel) {
+      if (!isCancel || confirm("取消后内容将不会保存")) {
         this.menu.newElectricDialog = false;
         setTimeout(() => {
           this.$refs.electricForm.reset();
@@ -318,7 +325,7 @@ export default {
     newelectricSave() {
       let submitUrl = "/cms/electricBill/add.json";
       let submitData = {
-        electricBillSubNo: this.submittedElectricBill.no
+        electricBillSubNo: this.electricBillInfo.no
       };
 
       for (let key in this.defaultElectric) {
@@ -331,12 +338,13 @@ export default {
         .post(submitUrl, submitData)
         .then(res => {
           if (res.data.code != 500) {
-            this.submittedElectricBill = res.data.data.electricBillSub;
-            this.electricList.push(
-              Object.assign({ no: res.data.data.electricBillNo }, submitData)
-            );
-            this.electricClose();
             this.$store.commit("addSnackBar", "电表单添加成功", "success");
+            // this.electricBillInfo = res.data.data.electricBillSub;
+            // this.electricInfoList.push(
+            //   Object.assign({ no: res.data.data.electricBillNo }, submitData)
+            // );
+            this.electricClose(false);
+            this.getElectric();
           } else {
             throw new Error(res.data.msg);
           }
@@ -348,8 +356,8 @@ export default {
     editedElectricSave() {
       let submitUrl = "/cms/electricBill/update.json";
       let submitData = {
-        no: this.electricList[this.editedElectricIndex].no,
-        electricBillSubNo: this.submittedElectricBill.no
+        no: this.electricInfoList[this.editedElectricIndex].no,
+        electricBillSubNo: this.electricBillInfo.no
       };
 
       for (let key in this.defaultElectric) {
@@ -362,13 +370,14 @@ export default {
         .post(submitUrl, submitData)
         .then(res => {
           if (res.data.code != 500) {
-            this.submittedElectricBill = res.data.data;
-            Object.assign(
-              this.electricList[this.editedElectricIndex],
-              submitData
-            );
-            this.electricClose();
             this.$store.commit("addSnackBar", "电表单编辑成功", "success");
+            // this.electricBillInfo = res.data.data;
+            // Object.assign(
+            //   this.electricInfoList[this.editedElectricIndex],
+            //   submitData
+            // );
+            this.electricClose(false);
+            this.getElectric();
           } else {
             throw new Error(res.data.msg);
           }
