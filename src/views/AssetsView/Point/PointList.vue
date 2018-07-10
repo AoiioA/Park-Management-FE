@@ -163,15 +163,14 @@ export default {
       this.$http
         .post("/cms/pointInfo/listPointInfo.json", {})
         .then(res => {
-          this.networkLoading = false;
           let resData = res.data.data;
           this.pointList = resData && resData.length ? resData : [];
         })
         .catch(err => {
-          this.networkLoading = false;
           this.networkError = true;
           this.$store.commit("addSnackBar", `商圈查询失败${err}`, "error");
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     },
     getAssets() {
       this.$http

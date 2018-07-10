@@ -380,7 +380,6 @@ export default {
           ])
           .then(
             this.$http.spread((building, house) => {
-              this.networkLoading = false;
               if (building.data.code == 500) {
                 throw new Error(building.data.msg);
               } else if (house.data.code == 500) {
@@ -396,10 +395,10 @@ export default {
             })
           )
           .catch(err => {
-            this.networkLoading = false;
             this.networkError = true;
             this.$store.commit("addSnackBar", `房源搜索失败 ${err}`, "error");
-          });
+          })
+          .finally(() => (this.networkLoading = false));
       }
     },
     translateAssets(assetsData) {

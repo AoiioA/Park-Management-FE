@@ -437,19 +437,18 @@ export default {
           }
         })
         .then(res => {
-          this.networkLoading = false;
           let resData = res.data.data;
           this.CTRTInfo = resData;
         })
         .catch(err => {
-          this.networkLoading = false;
           this.networkError = err;
           this.$store.commit(
             "addSnackBar",
             "合同详情查询失败 请检查网络后刷新",
             "error"
           );
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     },
     getDay(date, day) {
       let t = new Date(

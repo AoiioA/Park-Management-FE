@@ -171,15 +171,14 @@ export default {
       this.$http
         .post("/cms/parkInfo/listParkInfo.json", {})
         .then(res => {
-          this.networkLoading = false;
           let resData = res.data.data;
           this.parkList = resData && resData.length ? resData : [];
         })
         .catch(err => {
-          this.networkLoading = false;
           this.networkError = true;
           this.$store.commit("addSnackBar", `园区查询失败${err}`, "error");
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     },
     getProvince() {
       this.select.provinceInfoArr = [];

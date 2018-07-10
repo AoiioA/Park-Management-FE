@@ -321,13 +321,12 @@ export default {
         ])
         .then(
           this.$http.spread((electricBill, electric) => {
-            this.networkLoading = false;
             if (electricBill.data.code == 500) {
               throw new Error(electricBill.data.msg);
             }
-            if (electric.data.code == 500) {
-              throw new Error(electric.data.msg);
-            }
+            // if (electric.data.code == 500) {
+            //   throw new Error(electric.data.msg);
+            // }
             let ebData = electricBill.data.data;
             let eData = electric.data.data;
             this.electricBillInfo = ebData && ebData.length ? ebData[0] : {};
@@ -344,10 +343,10 @@ export default {
           })
         )
         .catch(err => {
-          this.networkLoading = false;
           this.networkError = true;
           this.$store.commit("addSnackBar", `电费账单查询失败 ${err}`, "error");
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     },
     getCompany() {
       this.$http

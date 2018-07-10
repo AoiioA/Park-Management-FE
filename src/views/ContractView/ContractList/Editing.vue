@@ -88,14 +88,13 @@ export default {
           contractState: "待提交"
         })
         .then(res => {
-          this.networkLoading = false;
           let resData = res.data.length ? res.data : res.data.data;
           this.contractList = resData && resData.length ? resData : [];
         })
         .catch(() => {
-          this.networkLoading = false;
           this.networkError = true;
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     }
   }
 };

@@ -133,12 +133,11 @@ export default {
           //     fullAddress: `${el.province} ${el.city} ${el.district} ${el.address}`
           //   });
           // });
-          this.networkLoading = false;
         })
         .catch(() => {
-          this.networkLoading = false;
           this.networkError = true;
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     }
   }
 };

@@ -112,8 +112,6 @@ export default {
         this.$http
           .post("/cms/buildingInfo/listBuildingInfo.json", {})
           .then(res => {
-            this.networkLoading = false;
-
             let resData = res.data.data;
             let buildingArr =
               resData && resData.length
@@ -136,10 +134,10 @@ export default {
             }
           })
           .catch(err => {
-            this.networkLoading = false;
             this.networkError = true;
             this.$store.commit("addSnackBar", `楼宇查询失败 ${err}`, "error");
-          });
+          })
+          .finally(() => (this.networkLoading = false));
       } else {
         if (this.$route.name != "building-detail") {
           this.$router.replace(this.viewToolBarTab[0].to);

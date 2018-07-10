@@ -86,14 +86,13 @@ export default {
       this.$http
         .post("/cms/contract/expireList.json")
         .then(res => {
-          this.networkLoading = false;
           let resData = res.data.data;
           this.contractList = resData && resData.length ? resData : [];
         })
         .catch(() => {
-          this.networkLoading = false;
           this.networkError = true;
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     }
   }
 };

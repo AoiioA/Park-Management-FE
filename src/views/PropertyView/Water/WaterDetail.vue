@@ -303,13 +303,12 @@ export default {
         ])
         .then(
           this.$http.spread((waterBill, water) => {
-            this.networkLoading = false;
             if (waterBill.data.code == 500) {
               throw new Error(waterBill.data.msg);
             }
-            if (water.data.code == 500) {
-              throw new Error(water.data.msg);
-            }
+            // if (water.data.code == 500) {
+            //   throw new Error(water.data.msg);
+            // }
             let wbData = waterBill.data.data;
             let wData = water.data.data;
             this.waterBillInfo = wbData && wbData.length ? wbData[0] : {};
@@ -323,10 +322,10 @@ export default {
           })
         )
         .catch(err => {
-          this.networkLoading = false;
           this.networkError = true;
           this.$store.commit("addSnackBar", `水费账单查询失败 ${err}`, "error");
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     },
     getCompany() {
       this.$http

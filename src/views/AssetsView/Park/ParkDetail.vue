@@ -209,7 +209,6 @@ export default {
         ])
         .then(
           this.$http.spread((park, building, parkData) => {
-            this.networkLoading = false;
             if (park.data.code == 500) {
               throw new Error(park.data.msg);
             }
@@ -241,10 +240,10 @@ export default {
           })
         )
         .catch(err => {
-          this.networkLoading = false;
           this.networkError = true;
           this.$store.commit("addSnackBar", `园区查询失败 ${err}`, "error");
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     },
     newParkClose(isCancel) {
       if (!isCancel || confirm("取消后内容将不会保存")) {

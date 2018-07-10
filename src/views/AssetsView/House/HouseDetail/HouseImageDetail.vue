@@ -162,15 +162,14 @@ export default {
           type: 2
         })
         .then(res => {
-          this.networkLoading = false;
           let resData = res.data.data;
           this.houseImageList = resData;
         })
         .catch(err => {
-          this.networkLoading = false;
           this.networkError = true;
           this.$store.commit("addSnackBar", `房源图片查询失败 ${err}`, "error");
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     },
     inputFilter(newFile, oldFile, prevent) {
       if (newFile && !oldFile) {

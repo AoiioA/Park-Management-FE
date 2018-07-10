@@ -226,7 +226,6 @@ export default {
         ])
         .then(
           this.$http.spread((houseRes, buildingRes) => {
-            this.networkLoading = false;
             if (houseRes.data.code == 500 || !houseRes.data.data) {
               this.networkError = true;
               this.$store.commit(
@@ -242,7 +241,6 @@ export default {
                 "error"
               );
             } else {
-              this.networkLoading = false;
               this.houseInfo = houseRes.data.data;
               this.buildingInfo = buildingRes.data.data.find(
                 item => item.buildingNo == this.houseInfo.buildingNo
@@ -259,10 +257,10 @@ export default {
           })
         )
         .catch(err => {
-          this.networkLoading = false;
           this.networkError = true;
           this.$store.commit("addSnackBar", `房源查询失败 ${err}`, "error");
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     },
     delHouse() {
       this.$http

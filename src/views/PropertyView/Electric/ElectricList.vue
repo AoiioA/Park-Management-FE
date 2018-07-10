@@ -27,13 +27,13 @@ export default {
   data: () => ({
     viewToolBarTab: [
       {
-        name: "待缴电费账单",
+        name: "待缴账单",
         to: {
           name: "electric-pay-list"
         }
       },
       {
-        name: "全部电费账单",
+        name: "全部账单",
         to: {
           name: "electric-all-list"
         }

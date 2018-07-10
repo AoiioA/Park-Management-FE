@@ -335,7 +335,6 @@ export default {
         ])
         .then(
           this.$http.spread((point, pointData) => {
-            this.networkLoading = false;
             if (point.data.code == 500) {
               throw new Error(point.data.msg);
             }
@@ -375,10 +374,10 @@ export default {
           })
         )
         .catch(err => {
-          this.networkLoading = false;
           this.networkError = true;
           this.$store.commit("addSnackBar", `商圈查询失败 ${err}`, "error");
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     },
     getAssets() {
       this.$http

@@ -454,17 +454,16 @@ export default {
             }
           })
           .then(res => {
-            this.networkLoading = false;
             this.oldCTRT = res.data.data;
             if (["editing", "failed"].indexOf(this.$route.query.newType) >= 0) {
               this.copyCTRTInfo(this.oldCTRT);
             }
           })
           .catch(err => {
-            this.networkLoading = false;
             this.networkError = err;
             this.addSnackBar("编辑合同详情查询失败 请检查网络后刷新", "error");
-          });
+          })
+          .finally(() => (this.networkLoading = false));
       }
       // 查询续签的合同信息
       if (this.$route.query.exId) {
@@ -475,20 +474,19 @@ export default {
             }
           })
           .then(res => {
-            this.networkLoading = false;
             this.exCTRT = res.data.data;
             if (["editing", "failed"].indexOf(this.$route.query.newType) < 0) {
               this.copyCTRTInfo(this.exCTRT);
             }
           })
           .catch(err => {
-            this.networkLoading = false;
             this.networkError = err;
             this.addSnackBar(
               "续签原合同详情查询失败 请检查网络后刷新",
               "error"
             );
-          });
+          })
+          .finally(() => (this.networkLoading = false));
       }
     },
     copyCTRTInfo(oldCTRT) {

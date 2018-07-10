@@ -27,13 +27,13 @@ export default {
   data: () => ({
     viewToolBarTab: [
       {
-        name: "待缴水费账单",
+        name: "待缴账单",
         to: {
           name: "water-pay-list"
         }
       },
       {
-        name: "全部水费账单",
+        name: "全部账单",
         to: {
           name: "water-all-list"
         }

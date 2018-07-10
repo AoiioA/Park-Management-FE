@@ -364,7 +364,6 @@ export default {
         ])
         .then(
           this.$http.spread((building, buildingData, house) => {
-            this.networkLoading = false;
             if (building.data.code == 500) {
               throw new Error(building.data.msg);
             }
@@ -406,10 +405,10 @@ export default {
           })
         )
         .catch(err => {
-          this.networkLoading = false;
           this.networkError = true;
           this.$store.commit("addSnackBar", `楼宇查询失败 ${err}`, "error");
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     },
     getPark() {
       this.select.parkInfoArr = [{ parkName: "无园区", parkNo: 0 }];

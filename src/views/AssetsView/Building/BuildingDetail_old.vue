@@ -323,7 +323,6 @@ export default {
         ])
         .then(
           this.$http.spread((building, house) => {
-            this.networkLoading = false;
             if (building.data.code == 500) {
               this.networkError = true;
               this.$store.commit(
@@ -363,10 +362,10 @@ export default {
           })
         )
         .catch(err => {
-          this.networkLoading = false;
           this.networkError = true;
           this.$store.commit("addSnackBar", `楼宇查询失败 ${err}`, "error");
-        });
+        })
+        .finally(() => (this.networkLoading = false));
     },
     getPark() {
       this.select.parkInfoArr = [{ parkName: "无园区", parkNo: 0 }];
@@ -691,10 +690,7 @@ export default {
     },
     downloadExcel() {
       this.$http
-        .get(
-          "/cms/houseInfo/downloadTemplate.do",
-          { responseType: "blob" }
-        )
+        .get("/cms/houseInfo/downloadTemplate.do", { responseType: "blob" })
         .then(res => {
           if (res.data.code != 500) this.createDownloadEl(res);
         })
