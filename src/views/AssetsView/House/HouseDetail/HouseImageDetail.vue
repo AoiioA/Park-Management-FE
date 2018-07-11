@@ -116,6 +116,7 @@ import ImageCompressor from "image-compressor.js";
 import FileUpload from "vue-upload-component";
 
 export default {
+  name: "house-image-detail",
   components: {
     FileUpload
   },

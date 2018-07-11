@@ -29,13 +29,13 @@ export default {
       {
         name: "待缴账单",
         to: {
-          name: "water-pay-list"
+          name: "water-list-pay"
         }
       },
       {
         name: "全部账单",
         to: {
-          name: "water-all-list"
+          name: "water-list-all"
         }
       }
     ]

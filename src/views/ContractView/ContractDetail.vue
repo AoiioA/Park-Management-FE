@@ -4,10 +4,10 @@
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 md10 lg8>
           <v-toolbar dense flat color="blue-grey lighten-5">
-            <v-toolbar-side-icon @click="$router.push({})">
+            <v-toolbar-side-icon @click="$router.go(-1)">
               <v-icon>close</v-icon>
             </v-toolbar-side-icon>
-            <v-toolbar-title>{{ `${CTRTInfo.contractName?CTRTInfo.contractName:"合同详情"}` }}<br /><small>{{ CTRTInfoURL[$route.query.detailType].name }}</small></v-toolbar-title>
+            <v-toolbar-title>{{ `${CTRTInfo.contractName?CTRTInfo.contractName:"合同详情"}` }}<br /><small>{{ CTRTInfoURL[$route.params.contractType].name }}</small></v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
         </v-flex>
@@ -242,7 +242,7 @@
               </v-btn>
               <span>展开操作</span>
             </v-tooltip>
-            <v-dialog v-if="['fulfilling'].indexOf($route.query.detailType)>=0" v-model="dialog.changedDialog" persistent max-width="480">
+            <v-dialog v-if="['fulfilling'].indexOf($route.params.contractType)>=0" v-model="dialog.changedDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>delete_sweep</v-icon>
@@ -268,7 +268,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-if="['fulfilling', 'expired'].indexOf($route.query.detailType)>=0" v-model="dialog.refundedDialog" persistent max-width="480">
+            <v-dialog v-if="['fulfilling', 'expired'].indexOf($route.params.contractType)>=0" v-model="dialog.refundedDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>money_off</v-icon>
@@ -294,7 +294,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-if="['submitted'].indexOf($route.query.detailType)>=0" v-model="dialog.examineDialog" persistent max-width="480">
+            <v-dialog v-if="['submitted'].indexOf($route.params.contractType)>=0" v-model="dialog.examineDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>how_to_reg</v-icon>
@@ -316,14 +316,14 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-tooltip left v-if="['editing', 'failed'].indexOf($route.query.detailType)>=0">
+            <v-tooltip left v-if="['editing', 'failed'].indexOf($route.params.contractType)>=0">
               <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: 'editing', renewId: CTRTInfo.id, exId: CTRTInfo.exContractNo } })">
                 <v-icon>edit</v-icon>
               </v-btn>
               <span>编辑</span>
             </v-tooltip>
-            <v-tooltip left v-if="['fulfilling'].indexOf($route.query.detailType)>=0">
-              <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: $route.query.detailType, exId: CTRTInfo.id } })">
+            <v-tooltip left v-if="['fulfilling'].indexOf($route.params.contractType)>=0">
+              <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: $route.params.contractType, exId: CTRTInfo.id } })">
                 <v-icon>edit</v-icon>
               </v-btn>
               <span>续签</span>
@@ -431,11 +431,14 @@ export default {
       this.networkLoading = true;
       this.networkError = null;
       this.$http
-        .get(`/cms/${this.CTRTInfoURL[this.$route.query.detailType].to}.json`, {
-          params: {
-            id: this.$route.query.detailId
+        .get(
+          `/cms/${this.CTRTInfoURL[this.$route.params.contractType].to}.json`,
+          {
+            params: {
+              id: this.$route.params.contractId
+            }
           }
-        })
+        )
         .then(res => {
           let resData = res.data.data;
           this.CTRTInfo = resData;

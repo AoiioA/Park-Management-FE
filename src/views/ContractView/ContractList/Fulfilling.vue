@@ -14,32 +14,12 @@
                 v-model="search"
                 hide-details
               ></v-text-field>
-              <!-- <v-btn color="primary" @click="1">添加合同</v-btn> -->
               <v-tooltip bottom>
                 <v-btn icon @click="initialize" slot="activator">
                   <v-icon>refresh</v-icon>
                 </v-btn>
                 <span>刷新数据</span>
               </v-tooltip>
-              <!-- <v-menu offset-y left :nudge-bottom="10">
-                <v-btn icon slot="activator">
-                  <v-icon>more_vert</v-icon>
-                </v-btn>
-                <v-list two-line>
-                  <v-list-tile disabled @click="1">
-                    <v-list-tile-content>
-                      <v-list-tile-title>列表菜单选项一</v-list-tile-title>
-                      <v-list-tile-sub-title>这是一条列表菜单的选择项</v-list-tile-sub-title>
-                    </v-list-tile-content>
-                  </v-list-tile>
-                  <v-list-tile @click="1">
-                    <v-list-tile-content>
-                      <v-list-tile-title>列表菜单选项二</v-list-tile-title>
-                      <v-list-tile-sub-title>这是一条列表菜单的选择项</v-list-tile-sub-title>
-                    </v-list-tile-content>
-                  </v-list-tile>
-                </v-list>
-              </v-menu> -->
             </v-toolbar>
             <v-divider></v-divider>
             <v-data-table
@@ -54,21 +34,18 @@
               <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
               <template slot="items" slot-scope="props">
                 <!-- <tr @click="props.expanded = !props.expanded"> -->
-                  <td>{{ props.item.contractNo }}</td>
-                  <td>{{ props.item.contractName }}</td>
-                  <td>{{ props.item.companyName }}</td>
-                  <td>{{ props.item.signedPersonA }}</td>
-                  <td>{{ props.item.signingDate.slice(0, 10) }}</td>
-                  <td>{{ props.item.startDate.slice(0, 10) }}</td>
-                  <td>{{ props.item.endDate.slice(0, 10) }}</td>
-                  <td class="px-3">
-                    <v-btn icon class="mx-0" :to="{ query: { detailType: $route.name, detailId: props.item.id } }">
-                      <v-icon color="primary">visibility</v-icon>
-                    </v-btn>
-                    <!-- <v-btn icon class="mx-0" @click.stop="1">
-                      <v-icon color="purple lighten-1">file_download</v-icon>
-                    </v-btn> -->
-                  </td>
+                <td>{{ props.item.contractNo }}</td>
+                <td>{{ props.item.contractName }}</td>
+                <td>{{ props.item.companyName }}</td>
+                <td>{{ props.item.signedPersonA }}</td>
+                <td>{{ props.item.signingDate.slice(0, 10) }}</td>
+                <td>{{ props.item.startDate.slice(0, 10) }}</td>
+                <td>{{ props.item.endDate.slice(0, 10) }}</td>
+                <td class="text-xs-center">
+                  <v-btn flat icon small color="primary" class="ma-0" :to="{ name: 'contract-detail', params: { contractType: 'fulfilling', contractId: props.item.id } }">
+                    <v-icon small>visibility</v-icon>
+                  </v-btn>
+                </td>
                 <!-- </tr> -->
               </template>
               <!-- <template slot="expand" slot-scope="props">
@@ -146,6 +123,7 @@ export default {
   methods: {
     initialize() {
       this.networkLoading = true;
+      this.networkError = false;
       this.$http
         .post("/cms/contract/list.json")
         .then(res => {

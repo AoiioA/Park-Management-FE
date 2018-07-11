@@ -8,43 +8,46 @@
         </v-btn>
       </span>
       <span slot="bar-extend">
-        <v-tabs color="primary" class="px-4" show-arrows>
+        <v-tabs v-model="activeTab" color="primary" class="px-4" show-arrows>
           <v-tab v-for="tab in viewToolBarTab" :key="tab.value" :to="tab.to">{{ tab.name }}</v-tab>
         </v-tabs>
       </span>
     </view-tool-bar>
-    <router-view/>
+    <v-tabs-items v-model="activeTab">
+      <v-tab-item>
+        <house-info-detail></house-info-detail>
+      </v-tab-item>
+      <v-tab-item>
+        <house-image-detail></house-image-detail>
+      </v-tab-item>
+    </v-tabs-items>
   </div>
 </template>
 
 <script>
 import ViewToolBar from "@/components/ViewToolBar.vue";
+import HouseInfoDetail from "@/views/AssetsView/House/HouseDetail/HouseInfoDetail.vue";
+import HouseImageDetail from "@/views/AssetsView/House/HouseDetail/HouseImageDetail.vue";
 
 export default {
   components: {
-    ViewToolBar
+    ViewToolBar,
+    HouseInfoDetail,
+    HouseImageDetail
   },
-  data: () => ({}),
-  computed: {
-    viewToolBarTab() {
-      return [
-        {
-          name: "资源",
-          to: {
-            name: "house-info-detail",
-            params: { houseNo: this.$route.params.houseNo }
-          }
-        },
-        {
-          name: "图片",
-          to: {
-            name: "house-image-detail",
-            params: { houseNo: this.$route.params.houseNo }
-          }
-        }
-      ];
-    }
-  },
+  data: () => ({
+    activeTab: null,
+    viewToolBarTab: [
+      {
+        name: "资源",
+        value: "info"
+      },
+      {
+        name: "图片",
+        value: "image"
+      }
+    ]
+  }),
   created() {
     this.$store.commit("changeToolBarTitle", { title: "房源详情" });
   }

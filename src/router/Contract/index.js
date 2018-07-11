@@ -1,5 +1,6 @@
 import Contract from "@/views/ContractView/Contract.vue";
 
+import ContractDetail from "@/views/ContractView/ContractDetail.vue";
 import ContractList from "@/views/ContractView/ContractList.vue";
 
 import ExamineNew from "@/views/ContractView/ContractExamine/ExamineNew.vue";
@@ -19,7 +20,12 @@ export default [
     children: [
       {
         path: "",
-        redirect: { name: "fulfilling" }
+        redirect: { name: "contract-list-fulfilling" }
+      },
+      {
+        path: "detail/:contractType/:contractId",
+        name: "contract-detail",
+        component: ContractDetail
       },
       {
         path: "examine",
@@ -27,21 +33,21 @@ export default [
         children: [
           {
             path: "",
-            redirect: { name: "examine-new" }
+            redirect: { name: "contract-examine-new" }
           },
           {
-            path: "examine-new",
-            name: "examine-new",
+            path: "new",
+            name: "contract-examine-new",
             component: ExamineNew
           },
           {
-            path: "examine-changed",
-            name: "examine-changed",
+            path: "changed",
+            name: "contract-examine-changed",
             component: ExamineChanged
           },
           {
-            path: "examine-refunded",
-            name: "examine-refunded",
+            path: "refunded",
+            name: "contract-examine-refunded",
             component: ExamineRefunded
           }
         ]
@@ -52,31 +58,31 @@ export default [
         children: [
           {
             path: "",
-            redirect: { name: "fulfilling" }
+            redirect: { name: "contract-list-fulfilling" }
           },
           {
             path: "editing",
-            name: "editing",
+            name: "contract-list-editing",
             component: Editing
           },
           {
             path: "fulfilling",
-            name: "fulfilling",
+            name: "contract-list-fulfilling",
             component: Fulfilling
           },
           {
             path: "refunded",
-            name: "refunded",
+            name: "contract-list-refunded",
             component: Refunded
           },
           {
             path: "changed",
-            name: "changed",
+            name: "contract-list-changed",
             component: Changed
           },
           {
             path: "expired",
-            name: "expired",
+            name: "contract-list-expired",
             component: Expired
           }
         ]

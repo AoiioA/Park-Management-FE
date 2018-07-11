@@ -40,9 +40,9 @@
                 <td>{{ props.item.signingDate.slice(0, 10) }}</td>
                 <td>{{ props.item.startDate.slice(0, 10) }}</td>
                 <td>{{ props.item.endDate.slice(0, 10) }}</td>
-                <td class="px-3">
-                  <v-btn icon class="mx-0" :to="{ query: { detailType: $route.name, detailId: props.item.id } }">
-                    <v-icon color="primary">visibility</v-icon>
+                <td class="text-xs-center">
+                  <v-btn flat icon small color="primary" class="ma-0" :to="{ name: 'contract-detail', params: { contractType: 'refunded', contractId: props.item.id } }">
+                    <v-icon small>visibility</v-icon>
                   </v-btn>
                 </td>
               </template>

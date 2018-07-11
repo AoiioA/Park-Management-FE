@@ -16,8 +16,6 @@ import House from "@/views/AssetsView/House/House.vue";
 import HouseNew from "@/views/AssetsView/House/HouseNew.vue";
 import HouseSearch from "@/views/AssetsView/House/HouseSearch.vue";
 import HouseDetail from "@/views/AssetsView/House/HouseDetail.vue";
-import HouseInfoDetail from "@/views/AssetsView/House/HouseDetail/HouseInfoDetail.vue";
-import HouseImageDetail from "@/views/AssetsView/House/HouseDetail/HouseImageDetail.vue";
 
 export default [
   {
@@ -33,12 +31,12 @@ export default [
             redirect: { name: "point-list" }
           },
           {
-            path: "point-list",
+            path: "list",
             name: "point-list",
             component: PointList
           },
           {
-            path: "point-detail/:pointNo",
+            path: "detail/:pointNo",
             name: "point-detail",
             component: PointDetail
           }
@@ -53,12 +51,12 @@ export default [
             redirect: { name: "park-list" }
           },
           {
-            path: "park-list",
+            path: "list",
             name: "park-list",
             component: ParkList
           },
           {
-            path: "park-detail/:parkNo",
+            path: "detail/:parkNo",
             name: "park-detail",
             component: ParkDetail
           }
@@ -73,12 +71,12 @@ export default [
             redirect: { name: "building-list" }
           },
           {
-            path: "building-list",
+            path: "list",
             name: "building-list",
             component: BuildingList
           },
           {
-            path: "building-detail/:buildingNo",
+            path: "detail/:buildingNo",
             name: "building-detail",
             component: BuildingDetail
           }
@@ -93,34 +91,19 @@ export default [
             redirect: { name: "house-search" }
           },
           {
-            path: "house-new",
+            path: "new",
             name: "house-new",
             component: HouseNew
           },
           {
-            path: "house-search",
+            path: "search",
             name: "house-search",
             component: HouseSearch
           },
           {
-            path: "house-detail/:houseNo",
-            component: HouseDetail,
-            children: [
-              {
-                path: "",
-                redirect: { name: "house-info-detail" }
-              },
-              {
-                path: "info",
-                name: "house-info-detail",
-                component: HouseInfoDetail
-              },
-              {
-                path: "image",
-                name: "house-image-detail",
-                component: HouseImageDetail
-              }
-            ]
+            path: "detail/:houseNo",
+            name: "house-detail",
+            component: HouseDetail
           }
         ]
       }

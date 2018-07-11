@@ -276,7 +276,7 @@ export default {
       title: "水费账单详情",
       isBack: true,
       crumbs: [
-        { name: "水费账单概览", to: { name: "water-pay-list" } },
+        { name: "水费账单概览", to: { name: "water-list-pay" } },
         { name: "水费账单详情" }
       ]
     });
@@ -400,7 +400,7 @@ export default {
           if (res.data.code != 500) {
             this.$store.commit("addSnackBar", "水费账单删除成功", "success");
             this.$router.replace({
-              name: "water-pay-list"
+              name: "water-list-pay"
             });
           } else {
             throw new Error(res.data.msg);

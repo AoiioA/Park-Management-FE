@@ -58,9 +58,9 @@
                 <td>{{ props.item.signingDate.slice(0, 10) }}</td>
                 <td>{{ props.item.startDate.slice(0, 10) }}</td>
                 <td>{{ props.item.endDate.slice(0, 10) }}</td>
-                <td class="px-3">
-                  <v-btn icon class="mx-0" :to="{ query: { detailType: contractViewArr.find(item => item.urlParams == props.item.contractState).link, detailId: props.item.id } }">
-                    <v-icon color="primary">visibility</v-icon>
+                <td class="text-xs-center">
+                  <v-btn flat icon small color="primary" class="ma-0" :to="{ name: 'contract-detail', params: { contractType: contractViewArr.find(item => item.urlParams == props.item.contractState).link, contractId: props.item.id } }">
+                    <v-icon small>visibility</v-icon>
                   </v-btn>
                 </td>
               </template>
@@ -129,12 +129,16 @@ export default {
       }
     }
   },
+  created() {
+    this.contractView = this.contractViewArr[0];
+  },
   mounted() {
     this.initialize(this.contractView.urlParams);
   },
   methods: {
     initialize(val) {
       this.networkLoading = true;
+      this.networkError = false;
       this.$http
         .post("/cms/contractSub/queryByState.json", {
           contractState: val

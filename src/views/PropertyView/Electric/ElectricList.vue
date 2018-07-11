@@ -29,13 +29,13 @@ export default {
       {
         name: "待缴账单",
         to: {
-          name: "electric-pay-list"
+          name: "electric-list-pay"
         }
       },
       {
         name: "全部账单",
         to: {
-          name: "electric-all-list"
+          name: "electric-list-all"
         }
       }
     ]

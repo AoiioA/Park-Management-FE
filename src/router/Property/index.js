@@ -26,34 +26,34 @@ export default [
         children: [
           {
             path: "",
-            redirect: { name: "water-pay-list" }
+            redirect: { name: "water-list-pay" }
           },
           {
-            path: "water-new",
+            path: "new",
             name: "water-new",
             component: WaterNew
           },
           {
-            path: "water-detail/:waterNo",
+            path: "detail/:waterNo",
             name: "water-detail",
             component: WaterDetail
           },
           {
-            path: "water-list",
+            path: "list",
             component: WaterList,
             children: [
               {
                 path: "",
-                redirect: { name: "water-pay-list" }
+                redirect: { name: "water-list-pay" }
               },
               {
-                path: "water-pay-list",
-                name: "water-pay-list",
+                path: "pay",
+                name: "water-list-pay",
                 component: WaterPayList
               },
               {
-                path: "water-all-list",
-                name: "water-all-list",
+                path: "all",
+                name: "water-list-all",
                 component: WaterAllList
               }
             ]
@@ -66,15 +66,15 @@ export default [
         children: [
           {
             path: "",
-            redirect: { name: "electric-pay-list" }
+            redirect: { name: "electric-list-pay" }
           },
           {
-            path: "electric-new",
+            path: "new",
             name: "electric-new",
             component: ElectricNew
           },
           {
-            path: "electric-detail/:electricNo",
+            path: "detail/:electricNo",
             name: "electric-detail",
             component: ElectricDetail
           },
@@ -84,16 +84,16 @@ export default [
             children: [
               {
                 path: "",
-                redirect: { name: "electric-pay-list" }
+                redirect: { name: "electric-list-pay" }
               },
               {
-                path: "electric-pay-list",
-                name: "electric-pay-list",
+                path: "pay",
+                name: "electric-list-pay",
                 component: ElectricPayList
               },
               {
-                path: "electric-all-list",
-                name: "electric-all-list",
+                path: "all",
+                name: "electric-list-all",
                 component: ElectricAllList
               }
             ]

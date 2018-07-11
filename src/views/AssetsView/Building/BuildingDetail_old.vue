@@ -158,7 +158,7 @@
                   <td>{{ props.item.resourceStatus }}</td>
                   <td>{{ props.item.idleDays }}</td>
                   <td class="px-3">
-                    <v-btn icon class="mx-0" :to="{ name: 'house-info-detail', params: { houseNo: props.item.houseNo } }">
+                    <v-btn icon class="mx-0" :to="{ name: 'house-detail', params: { houseNo: props.item.houseNo } }">
                       <v-icon color="primary">visibility</v-icon>
                     </v-btn>
                   </td>
@@ -529,7 +529,7 @@ export default {
           name: `${house.doorNumber}室`,
           value: [parseFloat(house.buildArea)],
           to: {
-            name: "house-info-detail",
+            name: "house-detail",
             params: { houseNo: house.houseNo }
           }
         });

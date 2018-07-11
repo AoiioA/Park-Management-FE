@@ -294,7 +294,7 @@ export default {
       title: "电费账单详情",
       isBack: true,
       crumbs: [
-        { name: "电费账单概览", to: { name: "electric-pay-list" } },
+        { name: "电费账单概览", to: { name: "electric-list-pay" } },
         { name: "电费账单详情" }
       ]
     });
@@ -421,7 +421,7 @@ export default {
           if (res.data.code != 500) {
             this.$store.commit("addSnackBar", "电费账单删除成功", "success");
             this.$router.replace({
-              name: "electric-pay-list"
+              name: "electric-list-pay"
             });
           } else {
             throw new Error(res.data.msg);

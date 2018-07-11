@@ -6,9 +6,9 @@
           <v-subheader>全部水费账单</v-subheader>
           <v-form ref="searchHouseForm" v-model="searchHouseValid" lazy-validation>
             <v-layout row wrap align-center>
-              <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-autocomplete dense v-model="searchFilter.userId" @change="getContract(searchFilter.userId)" :items="searchFilterData.company" item-text="companyName" item-value="id" label="客户名称" clearable solo hide-details></v-autocomplete></v-flex>
-              <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-autocomplete dense :disabled="!searchFilter.userId" v-model="searchFilter.contractNo" :items="searchFilterData.contract" item-text="contractName" item-value="contractNo" label="合同名称" clearable solo hide-details></v-autocomplete></v-flex>
-              <v-flex xs12 sm3>
+              <v-flex xs6 sm3 lg2><v-autocomplete dense v-model="searchFilter.userId" @change="getContract(searchFilter.userId)" :items="searchFilterData.company" item-text="companyName" item-value="id" label="客户名称" clearable solo hide-details></v-autocomplete></v-flex>
+              <v-flex xs6 sm3 lg2><v-autocomplete dense :disabled="!searchFilter.userId" v-model="searchFilter.contractNo" :items="searchFilterData.contract" item-text="contractName" item-value="contractNo" label="合同名称" clearable solo hide-details></v-autocomplete></v-flex>
+              <v-flex xs6 sm3 lg2>
                 <v-dialog ref="monthdialog" v-model="menu.waterMonthMenu" :return-value.sync="searchFilter.waterMonth" lazy full-width width="290px">
                   <v-text-field slot="activator" v-model="searchFilter.waterMonth" label="月份" clearable solo hide-details readonly></v-text-field>
                   <v-date-picker v-model="searchFilter.waterMonth" @input="$refs.monthdialog.save(searchFilter.waterMonth)" :first-day-of-week="0" show-current scrollable locale="zh-cn" type="month"></v-date-picker>
@@ -41,7 +41,7 @@
                 <td class="text-xs-right">{{ props.item.lastPayment }}</td>
                 <td class="text-xs-right">{{ props.item.residualPayment }}</td>
                 <td class="text-xs-center">
-                  <v-btn flat icon small color="grey darken-1" class="ma-0" :to="{ name: 'water-detail', params: { waterNo: props.item.no } }">
+                  <v-btn flat icon small color="primary" class="ma-0" :to="{ name: 'water-detail', params: { waterNo: props.item.no } }">
                     <v-icon small>visibility</v-icon>
                   </v-btn>
                 </td>

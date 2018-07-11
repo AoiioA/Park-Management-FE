@@ -166,6 +166,7 @@
 
 <script>
 export default {
+  name: "house-info-detail",
   data: () => ({
     menu: {
       delDialog: false

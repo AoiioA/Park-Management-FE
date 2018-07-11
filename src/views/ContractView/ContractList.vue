@@ -13,7 +13,7 @@
         </v-tabs>
       </span>
     </view-tool-bar>
-    <router-view></router-view>
+    <router-view />
   </div>
 </template>
 
@@ -30,9 +30,9 @@ export default {
       examine: {
         title: "合同审核",
         tabs: [
-          { name: "签订审核", to: "examine-new" },
-          { name: "变更审核", to: "examine-changed" },
-          { name: "退租审核", to: "examine-refunded" }
+          { name: "签订审核", to: "new" },
+          { name: "变更审核", to: "changed" },
+          { name: "退租审核", to: "refunded" }
         ]
       },
       list: {
