@@ -126,8 +126,10 @@
           <v-subheader>楼内房源租赁情况</v-subheader>
           <v-data-iterator
             :items="houseInfoArr"
-            :rows-per-page-items="['']"
+            :rows-per-page-items="['1', '3', '5']"
+            rows-per-page-text="页数"
             :pagination.sync="pagination"
+            :total-items="totalItems"
             content-tag="v-layout"
             row
             wrap
@@ -139,7 +141,7 @@
                 @click="clickHouse"
                 auto-resize
                 theme="light"
-                style="height:240px;width:100%;"
+                style="height:300px;width:100%;"
               ></chart>
             </v-flex>
             <v-flex slot="no-data" class="no-data">
@@ -215,9 +217,8 @@ export default {
       "维护房源",
       "租赁审核房源"
     ],
-    pagination: {
-      rowsPerPage: 3
-    }
+    pagination: {},
+    totalItems: 0
   }),
   computed: {
     fullBuildingName() {
@@ -338,7 +339,18 @@ export default {
         { name: "楼宇详情" }
       ]
     });
+  },
+  mounted() {
     this.initialize();
+    this.getHouseInfoByFloor();
+  },
+  watch: {
+    pagination: {
+      handler() {
+        this.getHouseInfoByFloor();
+      },
+      deep: true
+    }
   },
   methods: {
     initialize() {
@@ -346,7 +358,6 @@ export default {
       this.networkError = null;
       this.buildingInfo = {};
       this.buildingDataInfo = {};
-      this.houseInfoArr = [];
       this.$http
         .all([
           this.$http.post("/cms/buildingInfo/listBuildingInfo.json", {
@@ -357,30 +368,19 @@ export default {
             {
               buildingNos: String(this.$route.params.buildingNo)
             }
-          ),
-          this.$http.post("/cms/houseInfo/listHouseInfoByFloor.json", {
-            buildingNo: Number(this.$route.params.buildingNo)
-          })
+          )
         ])
         .then(
-          this.$http.spread((building, buildingData, house) => {
+          this.$http.spread((building, buildingData) => {
             if (building.data.code == 500) {
               throw new Error(building.data.msg);
             }
             if (buildingData.data.code == 500) {
               throw new Error(buildingData.data.msg);
             }
-            if (house.data.code == 500) {
-              throw new Error(house.data.msg);
-            }
             let bData = building.data.data;
-            let hData = house.data.data;
             this.buildingInfo = bData && bData.length ? bData[0] : {};
             this.buildingDataInfo = buildingData.data.data;
-            this.houseInfoArr =
-              hData && hData.length
-                ? hData.sort((x, y) => x.floorNo > y.floorNo)
-                : [];
             for (let key in this.buildingInfo) {
               if (this.defaultBuilding.hasOwnProperty(key)) {
                 this.defaultBuilding[key] = this.buildingInfo[key];
@@ -409,6 +409,25 @@ export default {
           this.$store.commit("addSnackBar", `楼宇查询失败 ${err}`, "error");
         })
         .finally(() => (this.networkLoading = false));
+    },
+    getHouseInfoByFloor() {
+      this.$http
+        .post("/cms/houseInfo/listHouseInfoByFloor.json", {
+          buildingNo: Number(this.$route.params.buildingNo),
+          houseType: 0,
+          limit: this.pagination.rowsPerPage,
+          page: this.pagination.page
+        })
+        .then(res => {
+          if (res.data.code == 500) {
+            throw new Error(res.data.msg);
+          }
+          this.totalItems = res.data.data.count;
+          this.houseInfoArr = res.data.data.floorInfoQueryDTOList;
+        })
+        .catch(err =>
+          this.$store.commit("addSnackBar", `房源信息查询失败 ${err}`, "error")
+        );
     },
     getPark() {
       this.select.parkInfoArr = [{ parkName: "无园区", parkNo: 0 }];
@@ -570,7 +589,7 @@ export default {
           name: `${house.doorNumber}室`,
           value: [parseFloat(house.buildArea)],
           to: {
-            name: "house-info-detail",
+            name: "house-detail",
             params: { houseNo: house.houseNo }
           }
         });
