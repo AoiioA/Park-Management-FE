@@ -46,19 +46,19 @@
                     </v-list>
                   </v-menu>
                 </v-flex>
-                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.resourceStatus" :items="searchFilterData.resourceStatus" solo hide-details></v-select></v-flex>
+                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.resourceStatus" :items="searchFilterData.resourceStatus" label="租赁情况" solo hide-details clearable></v-select></v-flex>
                 <v-flex xs12 sm6 lg4>
                   <v-container fill-height fluid grid-list-xs class="pa-0">
                     <v-layout row no-wrap align-center>
-                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMin" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最小面积" solo hide-details></v-text-field></v-flex>
+                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMin" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最小面积" solo hide-details clearable></v-text-field></v-flex>
                       <v-flex class="text-xs-center" style="flex:none">至</v-flex>
-                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMax" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最大面积" solo hide-details></v-text-field></v-flex>
+                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMax" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最大面积" solo hide-details clearable></v-text-field></v-flex>
                     </v-layout>
                   </v-container>
                 </v-flex>
-                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.decorationSituation" :items="searchFilterData.decorationSituation" solo hide-details></v-select></v-flex>
-                <!-- <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.isRegister" :items="searchFilterData.isRegister" solo hide-details></v-select></v-flex> -->
-                <!-- <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.idleLevel" :items="searchFilterData.idleLevel" solo hide-details></v-select></v-flex> -->
+                <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.decorationSituation" :items="searchFilterData.decorationSituation" label="装修情况" solo hide-details clearable></v-select></v-flex>
+                <!-- <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.isRegister" :items="searchFilterData.isRegister" label="注册状态" solo hide-details clearable></v-select></v-flex> -->
+                <!-- <v-flex xs6 sm3 lg2 style="min-width: 160px;"><v-select v-model="searchFilter.idleLevel" :items="searchFilterData.idleLevel" label="预警状态" solo hide-details clearable></v-select></v-flex> -->
                 <v-spacer></v-spacer>
                 <v-flex xs12 sm3 lg2><v-btn :disabled="!searchHouseValid||(searchFilter.buildAreaMin>searchFilter.buildAreaMax)" @click="initialize" block large color="primary">开始搜索</v-btn></v-flex>
               </v-layout>
@@ -224,7 +224,7 @@
                   <td>{{ props.item.resourceStatus }}</td>
                   <td>{{ props.item.idleDays }}</td>
                   <td class="px-3">
-                    <v-btn icon class="mx-0" :to="{ name: 'house-info-detail', params: { houseNo: props.item.houseNo } }">
+                    <v-btn icon class="mx-0" :to="{ name: 'house-detail', params: { houseNo: props.item.houseNo } }">
                       <v-icon color="primary">visibility</v-icon>
                     </v-btn>
                   </td>
@@ -261,7 +261,6 @@ export default {
     searchFilterData: {
       buildingName: "",
       resourceStatus: [
-        { text: "租赁情况", value: "" },
         { text: "空置中", value: 0 },
         { text: "出租中", value: 1 },
         { text: "已预定", value: 2 },
@@ -269,7 +268,6 @@ export default {
         { text: "租赁审核", value: 4 }
       ],
       decorationSituation: [
-        { text: "装修情况", value: "" },
         { text: "毛坯", value: 0 },
         { text: "简装修", value: 1 },
         { text: "中等装修", value: 2 },
@@ -277,12 +275,10 @@ export default {
         { text: "精装修", value: 4 }
       ],
       isRegister: [
-        { text: "注册状态", value: "" },
         { text: "可注册", value: 1 },
         { text: "不可注册", value: 0 }
       ],
       idleLevel: [
-        { text: "预警状态", value: "" },
         { text: "30天内", value: 1 },
         { text: "30-60天", value: 2 },
         { text: "60-90天", value: 3 }
