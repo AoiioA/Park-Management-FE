@@ -121,20 +121,27 @@ export default {
     },
     getContract(companyId) {
       this.searchFilterData.contract = [];
-      this.$http
-        .get("/cms/contract/queryContractNameById", {
-          params: {
-            id: companyId
-          }
-        })
-        .then(
-          res =>
-            (this.searchFilterData.contract =
-              res.data && res.data.length ? res.data : [])
-        )
-        .catch(err =>
-          this.$store.commit("addSnackBar", `客户合同查询失败 ${err}`, "error")
-        );
+      this.searchFilter.contractNo = "";
+      if (typeof companyId == "number") {
+        this.$http
+          .get("/cms/contract/queryContractNameById", {
+            params: {
+              id: companyId
+            }
+          })
+          .then(
+            res =>
+              (this.searchFilterData.contract =
+                res.data && res.data.length ? res.data : [])
+          )
+          .catch(err =>
+            this.$store.commit(
+              "addSnackBar",
+              `客户合同查询失败 ${err}`,
+              "error"
+            )
+          );
+      }
     }
   }
 };
