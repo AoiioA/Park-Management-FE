@@ -1,5 +1,6 @@
 import Contract from "@/views/ContractView/Contract.vue";
 
+import ContractNew from "@/views/ContractView/ContractNew.vue";
 import ContractDetail from "@/views/ContractView/ContractDetail.vue";
 import ContractList from "@/views/ContractView/ContractList.vue";
 
@@ -23,7 +24,12 @@ export default [
         redirect: { name: "contract-list-fulfilling" }
       },
       {
-        path: "detail/:contractType/:contractId",
+        path: "new",
+        name: "contract-new",
+        component: ContractNew
+      },
+      {
+        path: "detail/:contractId",
         name: "contract-detail",
         component: ContractDetail
       },

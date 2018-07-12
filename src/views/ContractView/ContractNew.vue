@@ -4,7 +4,7 @@
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 md10 lg8>
           <v-toolbar dense flat color="blue-grey lighten-5">
-            <v-toolbar-side-icon @click="$router.push({})">
+            <v-toolbar-side-icon @click="$router.go(-1)">
               <v-icon>close</v-icon>
             </v-toolbar-side-icon>
             <v-toolbar-title>{{CTRTInfoURL[$route.query.newType].title}}并提交审核</v-toolbar-title>
@@ -240,10 +240,11 @@
                         </v-card>
                       </template> -->
                       <template slot="footer" v-if="rentDetail.contractRentDetailDtoList">
-                        <td colspan="100%" class="text-xs-right">
-                          <span>租金总计 : {{ rentDetail.contractRentDetailDtoList.map(el=>el.houseTotal).reduce((all, el, i) => parseFloat(all) + parseFloat(el)).toFixed(2) }}元</span>
-                          &nbsp;
-                          <span>物业费总计 : {{ rentDetail.propertyFeeTotal.toFixed(2) }}元</span>
+                        <td colspan="100%">
+                          <small v-if="rentDetail.contractRentDetailDtoList">租金总计 : {{ rentDetail.contractRentDetailDtoList.map(el=>el.houseTotal).reduce((all, el, i) => parseFloat(all) + parseFloat(el)).toFixed(0) }}元</small>
+                          &nbsp;&nbsp;<small>物业费总计 : {{ rentDetail.propertyFeeTotal }}元</small>
+                          &nbsp;&nbsp;<small>押金 : {{ rentDetail.deposit }}元</small>
+                          &nbsp;&nbsp;<small>违约金 : {{ rentDetail.liquidatedDamages }}元</small>
                         </td>
                       </template>
                     </v-data-table>
@@ -726,7 +727,9 @@ export default {
               increaseType: this.newCTRTOther.increaseType,
               increaseRate: this.newCTRTOther.increaseRate / 100
             })),
+            deposit: this.newCTRT.deposit,
             endDate: this.newCTRT.endDate,
+            liquidatedDamages: this.newCTRT.liquidatedDamages,
             month: this.newCTRT.month,
             propertyFee: this.newCTRT.propertyFee,
             signingDate: this.newCTRT.signingDate,

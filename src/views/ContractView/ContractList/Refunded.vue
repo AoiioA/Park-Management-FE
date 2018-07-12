@@ -41,7 +41,7 @@
                 <td>{{ props.item.startDate.slice(0, 10) }}</td>
                 <td>{{ props.item.endDate.slice(0, 10) }}</td>
                 <td class="text-xs-center">
-                  <v-btn flat icon small color="primary" class="ma-0" :to="{ name: 'contract-detail', params: { contractType: 'refunded', contractId: props.item.id } }">
+                  <v-btn flat icon small color="primary" class="ma-0" :to="{ name: 'contract-detail', query: { contractType: 'refunded' }, params: { contractId: props.item.id } }">
                     <v-icon small>visibility</v-icon>
                   </v-btn>
                 </td>

@@ -7,7 +7,7 @@
             <v-toolbar-side-icon @click="$router.go(-1)">
               <v-icon>close</v-icon>
             </v-toolbar-side-icon>
-            <v-toolbar-title>{{ `${CTRTInfo.contractName?CTRTInfo.contractName:"合同详情"}` }}<br /><small>{{ CTRTInfoURL[$route.params.contractType].name }}</small></v-toolbar-title>
+            <v-toolbar-title>{{ `${CTRTInfo.contractName?CTRTInfo.contractName:"合同详情"}` }}<br /><small>{{ CTRTInfoURL[$route.query.contractType].name }}</small></v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
         </v-flex>
@@ -114,14 +114,14 @@
                         <v-list-tile-content>记租后免租:</v-list-tile-content>
                         <v-list-tile-content class="align-end">{{ CTRTInfo.afterFree }}天</v-list-tile-content>
                       </v-list-tile>
-                      <v-list-tile>
+                      <!-- <v-list-tile>
                         <v-list-tile-content>押金:</v-list-tile-content>
                         <v-list-tile-content class="align-end">{{ CTRTInfo.deposit }}元</v-list-tile-content>
                       </v-list-tile>
                       <v-list-tile>
                         <v-list-tile-content>违约金:</v-list-tile-content>
                         <v-list-tile-content class="align-end">{{ CTRTInfo.liquidatedDamages }}元</v-list-tile-content>
-                      </v-list-tile>
+                      </v-list-tile> -->
                       <v-list-tile>
                         <v-list-tile-content>租金缴纳周期:</v-list-tile-content>
                         <v-list-tile-content class="align-end">每{{ CTRTInfo.month }}个月</v-list-tile-content>
@@ -163,7 +163,7 @@
             <v-container grid-list-xl fill-height>
               <v-layout align-start align-content-start justify-center wrap>
                 <v-flex xs12 md12>
-                  <v-subheader>租金缴纳明细<small>（预计）</small></v-subheader>
+                  <v-subheader>金额明细</v-subheader>
                   <v-data-table
                     :headers="rentPreHeaders"
                     :items="CTRTInfo.contractRentTotalDto.contractRentDetailDtoList"
@@ -186,10 +186,11 @@
                       </v-card>
                     </template> -->
                     <template slot="footer">
-                      <td colspan="100%" class="text-xs-right">
-                        <span v-if="CTRTInfo.contractRentTotalDto.contractRentDetailDtoList">租金总计 : {{ CTRTInfo.contractRentTotalDto.contractRentDetailDtoList.map(el=>el.houseTotal).reduce((all, el, i) => parseFloat(all) + parseFloat(el)).toFixed(0) }}元</span>
-                        &nbsp;
-                        <span>物业费总计 : {{ CTRTInfo.contractRentTotalDto.propertyFeeTotal }}元</span>
+                      <td colspan="100%">
+                        <small v-if="CTRTInfo.contractRentTotalDto.contractRentDetailDtoList">租金总计 : {{ CTRTInfo.contractRentTotalDto.contractRentDetailDtoList.map(el=>el.houseTotal).reduce((all, el, i) => parseFloat(all) + parseFloat(el)).toFixed(0) }}元</small>
+                        &nbsp;&nbsp;<small>物业费总计 : {{ CTRTInfo.contractRentTotalDto.propertyFeeTotal }}元</small>
+                        &nbsp;&nbsp;<small>押金 : {{ CTRTInfo.contractRentTotalDto.deposit }}元</small>
+                        &nbsp;&nbsp;<small>违约金 : {{ CTRTInfo.contractRentTotalDto.liquidatedDamages }}元</small>
                       </td>
                     </template>
                   </v-data-table>
@@ -242,7 +243,19 @@
               </v-btn>
               <span>展开操作</span>
             </v-tooltip>
-            <v-dialog v-if="['fulfilling'].indexOf($route.params.contractType)>=0" v-model="dialog.changedDialog" persistent max-width="480">
+            <v-tooltip left v-if="['editing', 'failed'].indexOf($route.query.contractType)>=0">
+              <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ name: 'contract-new', query: { newType: 'editing', renewId: CTRTInfo.id, exId: CTRTInfo.exContractNo } })">
+                <v-icon>edit</v-icon>
+              </v-btn>
+              <span>编辑</span>
+            </v-tooltip>
+            <v-tooltip left v-if="['fulfilling'].indexOf($route.query.contractType)>=0">
+              <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ name: 'contract-new', query: { newType: $route.query.contractType, exId: CTRTInfo.id } })">
+                <v-icon>edit</v-icon>
+              </v-btn>
+              <span>续签</span>
+            </v-tooltip>
+            <v-dialog v-if="['fulfilling'].indexOf($route.query.contractType)>=0" v-model="dialog.changedDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>delete_sweep</v-icon>
@@ -268,7 +281,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-if="['fulfilling', 'expired'].indexOf($route.params.contractType)>=0" v-model="dialog.refundedDialog" persistent max-width="480">
+            <v-dialog v-if="['fulfilling', 'expired'].indexOf($route.query.contractType)>=0" v-model="dialog.refundedDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>money_off</v-icon>
@@ -276,12 +289,17 @@
                 <span>退租</span>
               </v-tooltip>
               <v-card>
+                <v-alert v-if="renewCTRTInfo&&renewCTRTInfo.id" :value="true" type="warning">
+                  该合同已被续签，续签合同将同时被退租
+                  <v-btn @click="$router.push({ name: 'contract-detail', query: { contractType: $route.query.contractType }, params: { contractId: renewCTRTInfo.id } })" dark flat small class="ma-0 text-xs-right" style="height:22px;float:right">查看续签合同</v-btn>
+                </v-alert>
                 <v-card-title class="headline">即将提交退租申请</v-card-title>
                 <v-form ref="refundedForm" v-model="formValid.refundedValid" lazy-validation>
+                  <v-overflow-btn v-model="refundedInfo.throwALeaseType" :items="refundedSelect" item-text="text" item-value="value" return-object :rules="[$store.state.rules.required]" label="退租类型" single-line required hide-details></v-overflow-btn>
                   <v-divider></v-divider>
-                  <v-dialog v-model="refundedInfo.modal" lazy full-width width="290px">
-                    <v-text-field slot="activator" v-model="refundedInfo.throwALeaseDate" :rules="[$store.state.rules.required]" label="退租时间" hide-details solo flat single-line required readonly></v-text-field>
-                    <v-date-picker v-model="refundedInfo.throwALeaseDate" :min="CTRTInfo.startDate" :max="CTRTInfo.endDate" :first-day-of-week="0" show-current locale="zh-cn" @input="refundedInfo.modal = false;"></v-date-picker>
+                  <v-dialog v-model="refundedInfo.dateDialog" lazy full-width width="290px">
+                    <v-text-field slot="activator" v-if="refundedInfo.throwALeaseType.value != '合同期满退租'" v-model="refundedInfo.throwALeaseDate" :rules="[$store.state.rules.required]" label="退租时间" hide-details solo flat single-line required readonly></v-text-field>
+                    <v-date-picker v-model="refundedInfo.throwALeaseDate" :min="CTRTInfo.startDate" :max="CTRTInfo.endDate" :first-day-of-week="0" show-current locale="zh-cn" @input="refundedInfo.dateDialog = false;"></v-date-picker>
                   </v-dialog>
                   <v-divider></v-divider>
                   <v-textarea v-model="refundedInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="退租理由" counter="240" solo flat single-line required></v-textarea>
@@ -294,7 +312,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-if="['submitted'].indexOf($route.params.contractType)>=0" v-model="dialog.examineDialog" persistent max-width="480">
+            <v-dialog v-if="['submitted'].indexOf($route.query.contractType)>=0" v-model="dialog.examineNewDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>how_to_reg</v-icon>
@@ -303,31 +321,41 @@
               </v-tooltip>
               <v-card>
                 <v-card-title class="headline">提交审核结果</v-card-title>
-                <v-form ref="examineForm" v-model="formValid.examineValid" lazy-validation style="overflow: hidden">
-                  <v-overflow-btn v-model="examineInfo.result" :items="examineSelect" item-text="text" item-value="value" return-object :rules="[$store.state.rules.required]" label="审核结果" single-line required hide-details></v-overflow-btn>
+                <v-form ref="examineNewForm" v-model="formValid.examineNewValid" lazy-validation style="overflow: hidden">
+                  <v-overflow-btn v-model="examineNewInfo.result" :items="examineNewSelect" item-text="text" item-value="value" return-object :rules="[$store.state.rules.required]" label="审核结果" single-line required hide-details></v-overflow-btn>
                   <v-divider></v-divider>
-                  <v-textarea v-model="examineInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="审核理由" counter="240" solo flat single-line required></v-textarea>
+                  <v-textarea v-model="examineNewInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="审核理由" counter="240" solo flat single-line required></v-textarea>
                   <v-divider></v-divider>
                 </v-form>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn @click.native="closeExamine" flat>取消操作</v-btn>
-                  <v-btn :disabled="!formValid.examineValid" @click.native="saveExamine" color="primary" depressed>提交审核</v-btn>
+                  <v-btn @click.native="closeExamineNew" flat>取消操作</v-btn>
+                  <v-btn :disabled="!formValid.examineNewValid" @click.native="saveExamineNew" color="primary" depressed>提交审核</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-tooltip left v-if="['editing', 'failed'].indexOf($route.params.contractType)>=0">
-              <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: 'editing', renewId: CTRTInfo.id, exId: CTRTInfo.exContractNo } })">
-                <v-icon>edit</v-icon>
-              </v-btn>
-              <span>编辑</span>
-            </v-tooltip>
-            <v-tooltip left v-if="['fulfilling'].indexOf($route.params.contractType)>=0">
-              <v-btn slot="activator" fab small dark color="pink" @click="$router.push({ query: { newType: $route.params.contractType, exId: CTRTInfo.id } })">
-                <v-icon>edit</v-icon>
-              </v-btn>
-              <span>续签</span>
-            </v-tooltip>
+            <v-dialog v-if="['submitted'].indexOf($route.query.contractType)>=0" v-model="dialog.examineRefundedDialog" persistent max-width="480">
+              <v-tooltip left slot="activator">
+                <v-btn slot="activator" fab small dark color="pink">
+                  <v-icon>how_to_reg</v-icon>
+                </v-btn>
+                <span>退租审核</span>
+              </v-tooltip>
+              <v-card>
+                <v-card-title class="headline">提交退租审核</v-card-title>
+                <v-form ref="examineRefundedForm" v-model="formValid.examineRefundedValid" lazy-validation style="overflow: hidden">
+                  <v-overflow-btn v-model="examineRefundedInfo.result" :items="examineRefundedSelect" item-text="text" item-value="value" return-object :rules="[$store.state.rules.required]" label="审核结果" single-line required hide-details></v-overflow-btn>
+                  <v-divider></v-divider>
+                  <v-textarea v-model="examineRefundedInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="审核理由" counter="240" solo flat single-line required></v-textarea>
+                  <v-divider></v-divider>
+                </v-form>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn @click.native="closeExamineRefunded" flat>取消操作</v-btn>
+                  <v-btn :disabled="!formValid.examineRefundedValid" @click.native="saveExamineRefunded" color="primary" depressed>提交审核</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
           </v-speed-dial>
         </v-flex>
       </v-layout>
@@ -356,16 +384,17 @@ export default {
     },
     dialog: {
       fab: false,
-      examineDialog: false,
+      examineNewDialog: false,
       refundedDialog: false,
       changedDialog: false
     },
     formValid: {
-      examineValid: false,
+      examineNewValid: false,
       refundedValid: false,
       changedValid: false
     },
     CTRTInfo: {},
+    // 租金列表
     rentPreHeaders: [
       { text: "应缴日期", value: "payDay", sortable: false },
       { text: "计费起始日期", value: "fromDate", sortable: false },
@@ -381,50 +410,83 @@ export default {
       { text: "应缴金额", value: "totalRent", sortable: false },
       { text: "费用状态", value: "state", sortable: false }
     ],
-    changedInfo: {
-      time: "",
-      reason: ""
-    },
+    // 变更
+    renewCTRTInfo: null,
+    changedInfo: null,
     defaultChanged: {
       time: "",
       reason: ""
     },
-    refundedInfo: {
-      time: "",
-      reason: ""
-    },
+    // 退租
+    refundedInfo: null,
     defaultRefunded: {
-      time: "",
+      throwALeaseType: {
+        text: "期满退租",
+        value: "合同期满退租"
+      },
+      throwALeaseDate: "",
       reason: ""
     },
-    examineInfo: {
+    refundedSelect: [
+      {
+        text: "期满退租",
+        value: "合同期满退租"
+      },
+      {
+        text: "提前退租",
+        value: "合同提前退租"
+      }
+    ],
+    // 新增审核
+    examineNewInfo: null,
+    defaultExamineNew: {
       reason: "",
       result: {
         text: "通过",
-        value: 0
+        value: "审核通过"
       }
     },
-    defaultExamine: {
-      reason: "",
-      result: {
-        text: "通过",
-        value: 0
-      }
-    },
-    examineSelect: [
+    examineNewSelect: [
       {
         text: "通过",
-        value: 0
+        value: "审核通过"
       },
       {
         text: "驳回",
-        value: 1
+        value: "审核未通过"
+      }
+    ],
+    // 退租审核
+    examineRefundedInfo: null,
+    defaultExamineRefunded: {
+      reason: "",
+      result: {
+        text: "通过",
+        value: "审核通过"
+      }
+    },
+    examineRefundedSelect: [
+      {
+        text: "通过",
+        value: "审核通过"
+      },
+      {
+        text: "驳回",
+        value: "审核未通过"
       }
     ]
   }),
   created() {
-    // this.$store.commit("changeToolBarTitle", { title: "合同详情" });
+    this.changedInfo = Object.assign({}, this.defaultChanged);
+    this.refundedInfo = Object.assign({}, this.defaultRefunded);
+    this.examineNewInfo = Object.assign({}, this.defaultExamineNew);
+    this.examineRefundInfo = Object.assign({}, this.defaultExamineRefund);
     this.initialize();
+  },
+  watch: {
+    "dialog.refundedDialog"(val) {
+      !val || this.getRenewContract();
+    }
   },
   methods: {
     initialize() {
@@ -432,7 +494,7 @@ export default {
       this.networkError = null;
       this.$http
         .get(
-          `/cms/${this.CTRTInfoURL[this.$route.params.contractType].to}.json`,
+          `/cms/${this.CTRTInfoURL[this.$route.query.contractType].to}.json`,
           {
             params: {
               id: this.$route.params.contractId
@@ -453,6 +515,20 @@ export default {
         })
         .finally(() => (this.networkLoading = false));
     },
+    getRenewContract() {
+      this.renewCTRTInfo = null;
+      this.$http
+        .post(`/cms/contract/throwALeaseRenewList.json`, {
+          id: this.CTRTInfo.id,
+          realEndDate: this.getDay(new Date(), 0)
+        })
+        .then(res => {
+          this.renewCTRTInfo = res.data.data;
+        })
+        .catch(() =>
+          this.$store.commit("addSnackBar", "续签合同查询失败", "error")
+        );
+    },
     getDay(date, day) {
       let t = new Date(
         new Date(date).getTime() + parseInt(day) * 24 * 60 * 60 * 1000
@@ -465,8 +541,8 @@ export default {
     closeChanged() {
       this.dialog.changedDialog = false;
       setTimeout(() => {
-        this.changedInfo = Object.assign({}, this.defaultChanged);
         this.$refs.changedForm.reset();
+        this.changedInfo = Object.assign({}, this.defaultChanged);
       }, 300);
     },
     saveChanged() {
@@ -480,19 +556,15 @@ export default {
           .then(res => {
             if (res.data.code == 0) {
               this.$store.commit("addSnackBar", "合同变更成功", "success");
-              this.$router.push({});
+              this.closeChanged();
             } else {
-              this.$store.commit(
-                "addSnackBar",
-                `合同变更错误: ${res.data.meg}`,
-                "error"
-              );
+              throw new Error(res.data.msg);
             }
           })
-          .catch(() =>
+          .catch(err =>
             this.$store.commit(
               "addSnackBar",
-              "合同变更出现错误 请检查网络后重试",
+              `合同变更出现错误 ${err}`,
               "error"
             )
           );
@@ -501,8 +573,8 @@ export default {
     closeRefunded() {
       this.dialog.refundedDialog = false;
       setTimeout(() => {
-        this.refundedInfo = Object.assign({}, this.defaultRefunded);
         this.$refs.refundedForm.reset();
+        this.refundedInfo = Object.assign({}, this.defaultRefunded);
       }, 300);
     },
     saveRefunded() {
@@ -510,63 +582,89 @@ export default {
         this.$http
           .post("/cms/contract/throwALease.json", {
             id: this.CTRTInfo.id,
+            throwALeaseType: this.refundedInfo.throwALeaseType.value,
             throwALeaseDate: this.refundedInfo.throwALeaseDate,
             reason: this.refundedInfo.reason
           })
           .then(res => {
             if (res.data.code == 0) {
               this.$store.commit("addSnackBar", "合同已退租成功", "success");
-              this.$router.push({});
+              this.closeRefunded();
             } else {
-              this.$store.commit(
-                "addSnackBar",
-                `合同退租错误: ${res.data.meg}`,
-                "error"
-              );
+              throw new Error(res.data.msg);
             }
           })
-          .catch(() =>
+          .catch(err =>
             this.$store.commit(
               "addSnackBar",
-              "合同退租出现错误 请检查网络后重试",
+              `合同退租出现错误 ${err}`,
               "error"
             )
           );
       }
     },
-    closeExamine() {
-      this.dialog.examineDialog = false;
+    closeExamineNew() {
+      this.dialog.examineNewDialog = false;
       setTimeout(() => {
-        this.examineInfo = Object.assign({}, this.defaultExamine);
-        this.$refs.examineForm.reset();
+        this.$refs.examineNewForm.reset();
+        this.examineNewInfo = Object.assign({}, this.defaultExamineNew);
       }, 300);
     },
-    saveExamine() {
-      if (this.$refs.examineForm.validate()) {
+    saveExamineNew() {
+      if (this.$refs.examineNewForm.validate()) {
         this.$http
           .post("/cms/contractSub/checkContract.json", {
             id: this.CTRTInfo.id,
-            contractState: ["审核通过", "审核未通过"][
-              this.examineInfo.result.value
-            ],
-            reason: this.examineInfo.reason
+            contractState: this.examineNewInfo.result.value,
+            reason: this.examineNewInfo.reason
           })
           .then(res => {
             if (res.data.code == 0) {
               this.$store.commit("addSnackBar", "合同已审核成功", "success");
-              this.$router.push({});
+              this.$router.go(-1);
             } else {
-              this.$store.commit(
-                "addSnackBar",
-                `合同审核错误: ${res.data.meg}`,
-                "error"
-              );
+              throw new Error(res.data.msg);
             }
           })
-          .catch(() =>
+          .catch(err =>
             this.$store.commit(
               "addSnackBar",
-              "合同审核出现错误 请检查网络后重试",
+              `合同审核出现错误 ${err}`,
+              "error"
+            )
+          );
+      }
+    },
+    closeExamineRefunded() {
+      this.dialog.examineRefundedDialog = false;
+      setTimeout(() => {
+        this.$refs.examineRefundedForm.reset();
+        this.examineRefundedInfo = Object.assign(
+          {},
+          this.defaultExamineRefunded
+        );
+      }, 300);
+    },
+    saveExamineRefunded() {
+      if (this.$refs.examineRefundedForm.validate()) {
+        this.$http
+          .post("/cms/contract/verifyThrowALease.json", {
+            id: this.CTRTInfo.id,
+            contractState: this.examineRefundedInfo.result.value,
+            verifyDescription: this.examineRefundedInfo.reason
+          })
+          .then(res => {
+            if (res.data.code == 0) {
+              this.$store.commit("addSnackBar", "合同已审核成功", "success");
+              this.$router.go(-1);
+            } else {
+              throw new Error(res.data.msg);
+            }
+          })
+          .catch(err =>
+            this.$store.commit(
+              "addSnackBar",
+              `合同审核出现错误 ${err}`,
               "error"
             )
           );
