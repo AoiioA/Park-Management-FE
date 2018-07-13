@@ -271,7 +271,7 @@
                     <v-date-picker v-model="changedInfo.cancelDate" :min="getDay(new Date(), 0)" :max="getDay(CTRTInfo.endDate, -1)" :first-day-of-week="0" show-current locale="zh-cn" @input="changedInfo.modal = false;"></v-date-picker>
                   </v-dialog>
                   <v-divider></v-divider>
-                  <v-textarea v-model="changedInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="变更理由" counter="240" solo flat single-line required></v-textarea>
+                  <v-textarea v-model="changedInfo.reason" :rules="[$store.state.rules.lengthLessThan(100)]" label="变更理由" counter="100" solo flat single-line required></v-textarea>
                   <v-divider></v-divider>
                 </v-form>
                 <v-card-actions>
@@ -281,35 +281,90 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-if="['fulfilling', 'expired'].indexOf($route.query.contractType)>=0" v-model="dialog.refundedDialog" persistent max-width="480">
+            <v-dialog v-if="['fulfilling', 'expired'].indexOf($route.query.contractType)>=0" v-model="dialog.refundedDialog" fullscreen hide-overlay>
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>money_off</v-icon>
                 </v-btn>
                 <span>退租</span>
               </v-tooltip>
-              <v-card>
-                <v-alert v-if="renewCTRTInfo&&renewCTRTInfo.id" :value="true" type="warning">
+              <v-card color="blue-grey lighten-5">
+                <!-- <v-alert v-if="renewCTRTInfo&&renewCTRTInfo.id" :value="true" type="warning">
                   该合同已被续签，续签合同将同时被退租
                   <v-btn @click="$router.push({ name: 'contract-detail', query: { contractType: $route.query.contractType }, params: { contractId: renewCTRTInfo.id } })" dark flat small class="ma-0 text-xs-right" style="height:22px;float:right">查看续签合同</v-btn>
-                </v-alert>
-                <v-card-title class="headline">即将提交退租申请</v-card-title>
-                <v-form ref="refundedForm" v-model="formValid.refundedValid" lazy-validation>
-                  <v-overflow-btn v-model="refundedInfo.throwALeaseType" :items="refundedSelect" item-text="text" item-value="value" return-object :rules="[$store.state.rules.required]" label="退租类型" single-line required hide-details></v-overflow-btn>
-                  <v-divider></v-divider>
-                  <v-dialog v-model="refundedInfo.dateDialog" lazy full-width width="290px">
-                    <v-text-field slot="activator" v-if="refundedInfo.throwALeaseType.value != '合同期满退租'" v-model="refundedInfo.throwALeaseDate" :rules="[$store.state.rules.required]" label="退租时间" hide-details solo flat single-line required readonly></v-text-field>
-                    <v-date-picker v-model="refundedInfo.throwALeaseDate" :min="CTRTInfo.startDate" :max="CTRTInfo.endDate" :first-day-of-week="0" show-current locale="zh-cn" @input="refundedInfo.dateDialog = false;"></v-date-picker>
-                  </v-dialog>
-                  <v-divider></v-divider>
-                  <v-textarea v-model="refundedInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="退租理由" counter="240" solo flat single-line required></v-textarea>
-                  <v-divider></v-divider>
-                </v-form>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn @click.native="closeRefunded" flat>取消操作</v-btn>
-                  <v-btn :disabled="!formValid.refundedValid" @click.native="saveRefunded" color="error" depressed>确认退租</v-btn>
-                </v-card-actions>
+                </v-alert> -->
+
+                <v-container class="px-2">
+                  <v-layout align-start align-content-start justify-center wrap>
+                    <v-flex xs12 md10 lg8>
+                      <v-toolbar dense flat color="blue-grey lighten-5">
+                        <v-toolbar-side-icon @click="closeRefunded">
+                          <v-icon>close</v-icon>
+                        </v-toolbar-side-icon>
+                        <v-toolbar-title>提交退租 - {{ CTRTInfo.contractName }}<small>({{ CTRTInfo.contractNo }})</small></v-toolbar-title>
+                        <v-spacer></v-spacer>
+                      </v-toolbar>
+                    </v-flex>
+                    <v-flex xs12 md10 lg8>
+                      <v-stepper v-model="examineStepper" vertical class="elevation-0 dialog-stepper">
+                        <v-stepper-step :rules="formValid.refundedValid" :complete="examineStepper > 1" step="1">
+                          填写退租信息
+                          <small>稍后将生成退租明细</small>
+                        </v-stepper-step>
+                        <v-stepper-content step="1">
+                          <v-form ref="refundedForm" v-model="formValid.refundedValid" lazy-validation>
+                            <v-container grid-list-md>
+                              <v-layout row wrap>
+                                <v-flex xs6><v-autocomplete dense v-model="refundedInfo.throwALeaseType" :items="refundedSelect" item-text="text" item-value="value" return-object :rules="[$store.state.rules.required]" label="退租类型" box required></v-autocomplete></v-flex>
+                                <v-flex xs6>
+                                  <v-dialog v-model="refundedInfo.dateDialog" lazy full-width width="290px">
+                                    <v-text-field slot="activator" v-if="refundedInfo.throwALeaseType.value != '合同期满退租'" v-model="refundedInfo.throwALeaseDate" :rules="[$store.state.rules.required]" label="退租时间" :hint="`将于${CTRTInfo.endDate&&CTRTInfo.endDate.slice(0, 10)}到期`" persistent-hint box required readonly></v-text-field>
+                                    <v-date-picker v-model="refundedInfo.throwALeaseDate" :min="CTRTInfo.startDate" :max="CTRTInfo.endDate" :first-day-of-week="0" show-current locale="zh-cn" @input="refundedInfo.dateDialog = false;"></v-date-picker>
+                                  </v-dialog>
+                                </v-flex>
+                                <v-flex xs12><v-textarea v-model="refundedInfo.reason" :rules="[$store.state.rules.lengthLessThan(100)]" label="退租理由" counter="100" box required></v-textarea></v-flex>
+                              </v-layout>
+                            </v-container>
+                          </v-form>
+                          <v-btn :disabled="!formValid.refundedValid" @click.native="$refs.refundedForm.validate();examineStepper++;getRefundedDetail()" color="primary" depressed>核对退租信息</v-btn>
+                          <v-btn @click.native="examineStepper--" flat>后退</v-btn>
+                        </v-stepper-content>
+                        <v-stepper-step :complete="examineStepper > 2" step="2">确认退租明细</v-stepper-step>
+                        <v-stepper-content step="2">
+                          <v-container grid-list-md>
+                            <v-layout justify-center wrap>
+                              <v-flex xs12>
+                                <v-subheader>
+                                  租金缴纳明细
+                                  <v-spacer></v-spacer>
+                                  <v-btn :disabled="!formValid.refundedValid" @click.native="getRefundedRent()" small color="primary" depressed>生成租金明细</v-btn>
+                                </v-subheader>
+                                <v-data-table
+                                  :headers="rentHeaders"
+                                  :items="refundedRentList"
+                                  item-key="payDay"
+                                  no-data-text="暂无租金明细"
+                                  class="elevation-1 mb-4"
+                                >
+                                  <template slot="items" slot-scope="props">
+                                    <td v-if="props.item.rentType">{{ props.item.rentType }}</td>
+                                    <td v-if="props.item.payDate">{{ props.item.payDate.slice(0, 10) }}</td>
+                                    <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
+                                    <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
+                                    <td>{{ props.item.totalRent }}元</td>
+                                    <td>{{ props.item.state }}</td>
+                                  </template>
+                                </v-data-table>
+                              </v-flex>
+                            </v-layout>
+                          </v-container>
+                          <v-btn :disabled="!formValid.refundedValid" @click.native="saveRefunded" color="primary" depressed>申请退租</v-btn>
+                          <v-btn @click.native="examineStepper--" flat>后退</v-btn>
+                        </v-stepper-content>
+                      </v-stepper>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
               </v-card>
             </v-dialog>
             <v-dialog v-if="['submitted'].indexOf($route.query.contractType)>=0" v-model="dialog.examineNewDialog" persistent max-width="480">
@@ -324,7 +379,7 @@
                 <v-form ref="examineNewForm" v-model="formValid.examineNewValid" lazy-validation style="overflow: hidden">
                   <v-overflow-btn v-model="examineNewInfo.result" :items="examineNewSelect" item-text="text" item-value="value" return-object :rules="[$store.state.rules.required]" label="审核结果" single-line required hide-details></v-overflow-btn>
                   <v-divider></v-divider>
-                  <v-textarea v-model="examineNewInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="审核理由" counter="240" solo flat single-line required></v-textarea>
+                  <v-textarea v-model="examineNewInfo.reason" :rules="[$store.state.rules.lengthLessThan(100)]" label="审核理由" counter="100" solo flat single-line required></v-textarea>
                   <v-divider></v-divider>
                 </v-form>
                 <v-card-actions>
@@ -346,7 +401,7 @@
                 <v-form ref="examineRefundedForm" v-model="formValid.examineRefundedValid" lazy-validation style="overflow: hidden">
                   <v-overflow-btn v-model="examineRefundedInfo.result" :items="examineRefundedSelect" item-text="text" item-value="value" return-object :rules="[$store.state.rules.required]" label="审核结果" single-line required hide-details></v-overflow-btn>
                   <v-divider></v-divider>
-                  <v-textarea v-model="examineRefundedInfo.reason" :rules="[$store.state.rules.required, val => String(val).length < 240 || '此项不能超过240字']" label="审核理由" counter="240" solo flat single-line required></v-textarea>
+                  <v-textarea v-model="examineRefundedInfo.reason" :rules="[$store.state.rules.lengthLessThan(100)]" label="审核理由" counter="100" solo flat single-line required></v-textarea>
                   <v-divider></v-divider>
                 </v-form>
                 <v-card-actions>
@@ -411,14 +466,15 @@ export default {
       { text: "费用状态", value: "state", sortable: false }
     ],
     // 变更
-    renewCTRTInfo: null,
-    changedInfo: null,
+    renewCTRTInfo: {},
+    changedInfo: {},
     defaultChanged: {
       time: "",
       reason: ""
     },
     // 退租
-    refundedInfo: null,
+    examineStepper: 1,
+    refundedInfo: {},
     defaultRefunded: {
       throwALeaseType: {
         text: "期满退租",
@@ -437,8 +493,9 @@ export default {
         value: "合同提前退租"
       }
     ],
+    refundedRentList: [],
     // 新增审核
-    examineNewInfo: null,
+    examineNewInfo: {},
     defaultExamineNew: {
       reason: "",
       result: {
@@ -457,7 +514,7 @@ export default {
       }
     ],
     // 退租审核
-    examineRefundedInfo: null,
+    examineRefundedInfo: {},
     defaultExamineRefunded: {
       reason: "",
       result: {
@@ -568,6 +625,34 @@ export default {
               "error"
             )
           );
+      }
+    },
+    getRefundedDetail() {
+      this.getRefundedRent();
+    },
+    getRefundedRent() {
+      if (this.formValid.refundedValid) {
+        this.$http
+          .post("/cms/contract/contractRefundDetail.json", {
+            id: this.CTRTInfo.id,
+            realEndDate:
+              this.refundedInfo.throwALeaseType == "合同期满退租"
+                ? this.CTRTInfo.endDate
+                : this.refundedInfo.throwALeaseDate
+          })
+          .then(res => {
+            if (res.data.code != 500) {
+              this.addSnackBar("租金明细生成成功", "success");
+              this.refundedRentList = res.data.data;
+            } else {
+              throw new Error(res.data.msg);
+            }
+          })
+          .catch(err =>
+            this.addSnackBar(`退租明细生成出现错误 ${err}`, "error")
+          );
+      } else {
+        this.addSnackBar("退租信息填写有误 请检查后重试", "error");
       }
     },
     closeRefunded() {
@@ -693,12 +778,16 @@ export default {
   min-height: 100%;
   background: #ECEFF1;
   z-index: 1;
+}
 
-  .center-box {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
+.dialog-stepper {
+  background: #eceff1 !important;
+}
+
+.center-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>
