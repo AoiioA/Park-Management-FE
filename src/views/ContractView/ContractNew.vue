@@ -776,7 +776,7 @@ export default {
               } else {
                 this.addSnackBar("合同已提交成功 即将开始审核", "success");
               }
-              this.$router.push({});
+              this.$router.go(-1);
             } else {
               this.addSnackBar(`合同提交错误: ${res.data.meg}`, "error");
             }

@@ -10,7 +10,7 @@
                 :items="contractViewArr"
                 v-model="contractView"
                 item-text="text"
-                item-value="value"
+                item-value="link"
                 return-object
                 :hint="`切换合同类型`"
                 persistent-hint
@@ -59,7 +59,7 @@
                 <td>{{ props.item.startDate.slice(0, 10) }}</td>
                 <td>{{ props.item.endDate.slice(0, 10) }}</td>
                 <td class="text-xs-center">
-                  <v-btn flat icon small color="primary" class="ma-0" :to="{ name: 'contract-detail', query: { contractType: contractViewArr.find(item => item.urlParams == props.item.contractState).link }, params: { contractId: props.item.id } }">
+                  <v-btn flat icon small color="primary" class="ma-0" :to="{ name: 'contract-detail', query: { contractType: contractView.link }, params: { contractId: props.item.id } }">
                     <v-icon small>visibility</v-icon>
                   </v-btn>
                 </td>
@@ -79,34 +79,29 @@ export default {
     networkError: false,
     contractView: {
       text: "签订待审",
-      value: "submitted",
       urlParams: "待审核",
-      link: "submitted"
+      link: "new-submitted"
     },
     contractViewArr: [
       {
         text: "签订待审",
-        value: "submitted",
         urlParams: "待审核",
-        link: "submitted"
+        link: "new-submitted"
       },
       {
         text: "新签过审",
-        value: "new-success",
         urlParams: "已签订",
         link: "new-success"
       },
       {
         text: "续签过审",
-        value: "renew-success",
         urlParams: "已续签",
         link: "renew-success"
       },
       {
-        text: "未过审",
-        value: "failed",
+        text: "签订未过审",
         urlParams: "审核未通过",
-        link: "failed"
+        link: "new-failed"
       }
     ],
     search: "",

@@ -40,9 +40,9 @@ export default {
         tabs: [
           { name: "待提交", to: "editing" },
           { name: "生效中", to: "fulfilling" },
-          { name: "已到期", to: "expired" },
-          { name: "已退租", to: "refunded" },
-          { name: "已变更", to: "changed" }
+          { name: "已到期", to: "expired" }
+          // { name: "已退租", to: "refunded" },
+          // { name: "已变更", to: "changed" }
         ]
       }
     }
