@@ -392,7 +392,7 @@ export default {
           )
           .catch(err => {
             this.networkError = true;
-            this.$store.commit("addSnackBar", `房源搜索失败 ${err}`, "error");
+            this.$store.commit("addErrorBar", `房源搜索失败 ${err}`);
           })
           .finally(() => (this.networkLoading = false));
       }
@@ -477,30 +477,18 @@ export default {
         // 上传错误
         if (newFile.error && !oldFile.error) {
           // console.log("error", newFile.error, newFile, newFile.xhr.response);
-          this.$store.commit(
-            "addSnackBar",
-            `Excel上传失败 ${newFile.error}`,
-            "error"
-          );
+          this.$store.commit("addErrorBar", `Excel上传失败 ${newFile.error}`);
         }
 
         // 上传成功
         if (newFile.success && !oldFile.success) {
           let res = JSON.parse(newFile.xhr.response);
           if (res.code == 0) {
+            this.$store.commit("addSuccessBar", `Excel上传成功 ${res.data}`);
             this.menu.uploadDialog = false;
-            this.$store.commit(
-              "addSnackBar",
-              `Excel上传成功 ${res.data}`,
-              "success"
-            );
             this.initialize();
           } else {
-            this.$store.commit(
-              "addSnackBar",
-              `Excel上传失败 ${res.msg}`,
-              "error"
-            );
+            this.$store.commit("addErrorBar", `Excel上传失败 ${res.msg}`);
           }
         }
       }
@@ -523,20 +511,16 @@ export default {
           )
           .then(res => {
             if (res.data.code != 500) {
-              this.$store.commit("addSnackBar", "批量删除成功", "success");
+              this.$store.commit("addSuccessBar", "批量删除成功");
               this.initialize();
               this.selected = [];
               this.tableActionMode = "view";
             } else {
-              this.$store.commit(
-                "addSnackBar",
-                `批量删除失败 ${res.data.msg}`,
-                "error"
-              );
+              throw new Error(res.data.msg);
             }
           })
           .catch(err =>
-            this.$store.commit("addSnackBar", `批量删除失败${err}`, "error")
+            this.$store.commit("addErrorBar", `批量删除失败 ${err}`)
           );
       }
     },
@@ -554,15 +538,11 @@ export default {
               this.selected = [];
               this.tableActionMode = "view";
             } else {
-              this.$store.commit(
-                "addSnackBar",
-                `批量导出失败 ${res.data.msg}`,
-                "error"
-              );
+              throw new Error(res.data.msg);
             }
           })
           .catch(err =>
-            this.$store.commit("addSnackBar", `批量导出失败 ${err}`, "error")
+            this.$store.commit("addErrorBar", `批量导出失败 ${err}`)
           );
       }
     },
@@ -570,10 +550,14 @@ export default {
       this.$http
         .get("/cms/houseInfo/downloadTemplate.do", { responseType: "blob" })
         .then(res => {
-          if (res.data.code != 500) this.createDownloadEl(res);
+          if (res.data.code != 500) {
+            this.createDownloadEl(res);
+          } else {
+            throw new Error(res.data.msg);
+          }
         })
         .catch(err =>
-          this.$store.commit("addSnackBar", `Excel模板下载失败${err}`, "error")
+          this.$store.commit("addErrorBar", `Excel模板下载失败 ${err}`)
         );
     },
     createDownloadEl(res) {

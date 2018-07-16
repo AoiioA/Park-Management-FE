@@ -212,9 +212,7 @@ export default {
           res =>
             (this.companyList = res.data && res.data.length ? res.data : [])
         )
-        .catch(err =>
-          this.$store.commit("addSnackBar", `客户名称查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "客户名称查询失败"));
     },
     getContract(companyId) {
       this.contractList = [];
@@ -228,9 +226,7 @@ export default {
           res =>
             (this.contractList = res.data && res.data.length ? res.data : [])
         )
-        .catch(err =>
-          this.$store.commit("addSnackBar", `客户合同查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "客户合同查询失败"));
     },
     submitWaterBill() {
       if (this.$refs.waterBillForm.validate()) {
@@ -240,8 +236,8 @@ export default {
           .post(submitUrl, submitData)
           .then(res => {
             if (res.data.code != 500) {
+              this.$store.commit("addSuccessBar", "水费账单添加成功");
               this.waterBillInfo = res.data.data;
-              this.$store.commit("addSnackBar", "水费账单添加成功", "success");
               this.stepNum++;
               this.getWater();
             } else {
@@ -249,11 +245,7 @@ export default {
             }
           })
           .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `水费账单添加失败 ${err}`,
-              "error"
-            )
+            this.$store.commit("addErrorBar", `水费账单添加失败 ${err}`)
           );
       }
     },
@@ -266,9 +258,7 @@ export default {
           res =>
             (this.waterInfoList = res.data && res.data.length ? res.data : [])
         )
-        .catch(err =>
-          this.$store.commit("addSnackBar", `水表单查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "水表单查询失败"));
     },
     waterEdit(item) {
       this.editedWaterIndex = this.waterInfoList.indexOf(item);
@@ -280,7 +270,7 @@ export default {
         .post("/cms/waterBill/deleteOne.json", { no: item.no })
         .then(res => {
           if (res.data.code != 500) {
-            this.$store.commit("addSnackBar", "水表单删除成功", "success");
+            this.$store.commit("addSuccessBar", "水表单删除成功");
             // const index = this.waterInfoList.indexOf(item);
             // this.waterInfoList.splice(index, 1);
             this.getWater();
@@ -289,7 +279,7 @@ export default {
           }
         })
         .catch(err =>
-          this.$store.commit("addSnackBar", `水表单删除失败 ${err}`, "error")
+          this.$store.commit("addErrorBar", `水表单删除失败 ${err}`)
         );
     },
     waterClose(isCancel) {
@@ -327,7 +317,7 @@ export default {
         .post(submitUrl, submitData)
         .then(res => {
           if (res.data.code != 500) {
-            this.$store.commit("addSnackBar", "水表单添加成功", "success");
+            this.$store.commit("addSuccessBar", "水表单添加成功");
             // this.waterBillInfo = res.data.data.waterBillSub;
             // this.waterInfoList.push(
             //   Object.assign({ no: res.data.data.waterBillNo }, submitData)
@@ -339,7 +329,7 @@ export default {
           }
         })
         .catch(err =>
-          this.$store.commit("addSnackBar", `水表单添加失败 ${err}`, "error")
+          this.$store.commit("addErrorBar", `水表单添加失败 ${err}`)
         );
     },
     editedWaterSave() {
@@ -359,7 +349,7 @@ export default {
         .post(submitUrl, submitData)
         .then(res => {
           if (res.data.code != 500) {
-            this.$store.commit("addSnackBar", "水表单编辑成功", "success");
+            this.$store.commit("addSuccessBar", "水表单编辑成功");
             // this.waterBillInfo = res.data.data;
             // Object.assign(
             //   this.waterInfoList[this.editedWaterIndex],
@@ -372,7 +362,7 @@ export default {
           }
         })
         .catch(err =>
-          this.$store.commit("addSnackBar", `水表单编辑失败 ${err}`, "error")
+          this.$store.commit("addErrorBar", `水表单编辑失败 ${err}`)
         );
     }
   }

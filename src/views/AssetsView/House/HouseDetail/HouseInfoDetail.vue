@@ -229,37 +229,29 @@ export default {
           this.$http.spread((houseRes, buildingRes) => {
             if (houseRes.data.code == 500 || !houseRes.data.data) {
               this.networkError = true;
-              this.$store.commit(
-                "addSnackBar",
-                `房源信息查询失败 ${houseRes.data.msg}`,
-                "error"
-              );
-            } else if (buildingRes.data.code == 500 || !buildingRes.data.data) {
-              this.networkError = true;
-              this.$store.commit(
-                "addSnackBar",
-                `房源所属楼宇查询失败 ${buildingRes.data.msg}`,
-                "error"
-              );
-            } else {
-              this.houseInfo = houseRes.data.data;
-              this.buildingInfo = buildingRes.data.data.find(
-                item => item.buildingNo == this.houseInfo.buildingNo
-              );
-              this.$store.commit("changeToolBarTitle", {
-                title: `${this.houseInfo.doorNumber}`,
-                isBack: true,
-                crumbs: [
-                  { name: "房源概览", to: { name: "house-search" } },
-                  { name: "房源详情" }
-                ]
-              });
+              throw new Error(houseRes.data.msg);
             }
+            if (buildingRes.data.code == 500 || !buildingRes.data.data) {
+              this.networkError = true;
+              throw new Error(buildingRes.data.msg);
+            }
+            this.houseInfo = houseRes.data.data;
+            this.buildingInfo = buildingRes.data.data.find(
+              item => item.buildingNo == this.houseInfo.buildingNo
+            );
+            this.$store.commit("changeToolBarTitle", {
+              title: `${this.houseInfo.doorNumber}`,
+              isBack: true,
+              crumbs: [
+                { name: "房源概览", to: { name: "house-search" } },
+                { name: "房源详情" }
+              ]
+            });
           })
         )
         .catch(err => {
           this.networkError = true;
-          this.$store.commit("addSnackBar", `房源查询失败 ${err}`, "error");
+          this.$store.commit("addErrorBar", `房源查询失败 ${err}`);
         })
         .finally(() => (this.networkLoading = false));
     },
@@ -272,13 +264,13 @@ export default {
         )
         .then(res => {
           if (res.data.code != 500) {
-            this.$store.commit("addSnackBar", "房源删除成功", "success");
+            this.$store.commit("addSuccessBar", "房源删除成功");
             this.$router.go(-1);
+          } else {
+            throw new Error(res.data.msg);
           }
         })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `房源删除失败${err}`, "error")
-        );
+        .catch(err => this.$store.commit("addErrorBar", `房源删除失败 ${err}`));
     }
   }
 };

@@ -89,24 +89,20 @@ export default {
           .then(res => {
             this.loginLoading = false;
             if (res.data.code != 500) {
-              this.$store.commit("addSnackBar", "登录成功 欢迎回来", "success");
+              this.$store.commit("addSuccessBar", "登录成功 欢迎回来");
               window.localStorage.setItem(
                 "userInfo",
                 JSON.stringify(res.data.data)
               );
               this.$router.push("/home");
             } else {
-              this.$store.commit(
-                "addSnackBar",
-                `登录失败 ${res.data.msg}`,
-                "error"
-              );
+              throw new Error(res.data.msg);
             }
           })
           .catch(err => {
             this.loginLoading = false;
             this.passwordHint = ["用户不存在或密码错误"];
-            this.$store.commit("addSnackBar", `登录失败 ${err}`, "error");
+            this.$store.commit("addErrorBar", `登录失败 ${err}`);
           });
       }
     }

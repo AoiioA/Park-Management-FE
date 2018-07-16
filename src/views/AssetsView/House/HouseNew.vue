@@ -315,9 +315,7 @@ export default {
           resData = resData && resData.length ? resData : [];
           this.assetsInfo = this.translateAssets(resData);
         })
-        .catch(() =>
-          this.$store.commit("addSnackBar", "楼宇信息查询失败", "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "楼宇信息查询失败"));
     },
     getHouse() {
       this.networkLoading.info = true;
@@ -335,42 +333,34 @@ export default {
           this.$http.spread((houseRes, buildingRes) => {
             this.networkLoading.info = false;
             if (houseRes.data.code == 500) {
-              this.$store.commit(
-                "addSnackBar",
-                `房源信息查询失败 ${houseRes.data.msg}`,
-                "error"
-              );
-            } else if (buildingRes.data.code == 500) {
-              this.$store.commit(
-                "addSnackBar",
-                `房源所属楼宇查询失败 ${buildingRes.data.msg}`,
-                "error"
+              throw new Error(houseRes.data.msg);
+            }
+            if (buildingRes.data.code == 500) {
+              throw new Error(buildingRes.data.msg);
+            }
+            this.editHouse = houseRes.data.data;
+            if (this.editHouse.resourceStatus === 0) {
+              this.$store.commit("changeToolBarTitle", { title: "修改房源" });
+              for (let key in this.editHouse) {
+                if (this.newHouse.hasOwnProperty(key)) {
+                  this.newHouse[key] = this.editHouse[key];
+                }
+              }
+              Object.assign(
+                this.assetsOfNewHouse,
+                buildingRes.data.data.find(
+                  item => item.buildingNo == this.editHouse.buildingNo
+                )
               );
             } else {
-              this.editHouse = houseRes.data.data;
-              if (this.editHouse.resourceStatus === 0) {
-                this.$store.commit("changeToolBarTitle", { title: "修改房源" });
-                for (let key in this.editHouse) {
-                  if (this.newHouse.hasOwnProperty(key)) {
-                    this.newHouse[key] = this.editHouse[key];
-                  }
-                }
-                Object.assign(
-                  this.assetsOfNewHouse,
-                  buildingRes.data.data.find(
-                    item => item.buildingNo == this.editHouse.buildingNo
-                  )
-                );
-              } else {
-                this.getAssets();
-              }
+              this.getAssets();
             }
           })
         )
-        .catch(err => {
+        .catch(() => {
           this.networkLoading.info = false;
           this.networkError.info = true;
-          this.$store.commit("addSnackBar", `房源查询失败 ${err}`, "error");
+          this.$store.commit("addErrorBar", "房源信息查询失败");
         });
     },
     translateAssets(assetsData) {
@@ -431,23 +421,19 @@ export default {
           .post(submitUrl, submitData)
           .then(res => {
             if (res.data.code != 500) {
+              this.$store.commit("addSuccessBar", "房源添加成功");
               if (this.editHouse.resourceStatus !== 0) {
                 Object.assign(this.editHouse, this.newHouse);
                 this.editHouse.houseNo = res.data.data.houseNo;
               }
-              this.$store.commit("addSnackBar", "房源添加成功", "success");
               this.stepNum++;
               this.getHouseImage();
             } else {
-              this.$store.commit(
-                "addSnackBar",
-                `房源添加失败 ${res.data.msg}`,
-                "error"
-              );
+              throw new Error(res.data.msg);
             }
           })
           .catch(err =>
-            this.$store.commit("addSnackBar", `房源添加失败: ${err}`, "error")
+            this.$store.commit("addErrorBar", `房源添加失败 ${err}`)
           );
       }
     },
@@ -465,10 +451,10 @@ export default {
           let resData = res.data.data;
           this.houseImageList = resData;
         })
-        .catch(err => {
+        .catch(() => {
           this.networkLoading.image = false;
           this.networkError.image = true;
-          this.$store.commit("addSnackBar", `房源图片查询失败 ${err}`, "error");
+          this.$store.commit("addErrorBar", "房源图片查询失败");
         });
     },
     inputFilter(newFile, oldFile, prevent) {
@@ -551,11 +537,7 @@ export default {
         // 上传错误
         if (newFile.error && !oldFile.error) {
           // console.log("error", newFile.error, newFile, newFile.xhr.response);
-          this.$store.commit(
-            "addSnackBar",
-            `图片上传失败: ${newFile.error}`,
-            "error"
-          );
+          this.$store.commit("addErrorBar", `图片上传失败 ${newFile.error}`);
         }
 
         // 上传成功
@@ -563,17 +545,13 @@ export default {
           // console.log("success", newFile.success, newFile.xhr);
           let res = JSON.parse(newFile.xhr.response);
           if (res.code == 0) {
-            this.$refs.upload.remove(newFile.id);
             // res.data.photoNewname = res.data.name;
             // this.houseImageList.push(res.data);
+            this.$store.commit("addSuccessBar", "图片上传成功");
+            this.$refs.upload.remove(newFile.id);
             this.getHouseImage();
-            this.$store.commit("addSnackBar", "图片上传成功", "success");
           } else {
-            this.$store.commit(
-              "addSnackBar",
-              `图片上传失败: ${res.msg}`,
-              "error"
-            );
+            this.$store.commit("addErrorBar", `图片上传失败 ${res.msg}`);
           }
         }
       }
@@ -591,19 +569,13 @@ export default {
         .then(res => {
           if (res.data.code != 500) {
             // this.houseImageList.splice(index, 1);
+            this.$store.commit("addSuccessBar", "图片删除成功");
             this.getHouseImage();
-            this.$store.commit("addSnackBar", "图片删除成功", "success");
           } else {
-            this.$store.commit(
-              "addSnackBar",
-              `图片删除失败: ${res.data.msg}`,
-              "error"
-            );
+            throw new Error(res.data.msg);
           }
         })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `图片删除失败: ${err}`, "error")
-        );
+        .catch(err => this.$store.commit("addErrorBar", `图片删除失败 ${err}`));
     }
   }
 };

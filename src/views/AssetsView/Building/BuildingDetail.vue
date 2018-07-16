@@ -406,7 +406,7 @@ export default {
         )
         .catch(err => {
           this.networkError = true;
-          this.$store.commit("addSnackBar", `楼宇查询失败 ${err}`, "error");
+          this.$store.commit("addErrorBar", `楼宇查询失败 ${err}`);
         })
         .finally(() => (this.networkLoading = false));
     },
@@ -425,9 +425,7 @@ export default {
           this.totalItems = res.data.data.count;
           this.houseInfoArr = res.data.data.floorInfoQueryDTOList;
         })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `房源信息查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "房源信息查询失败"));
     },
     getPark() {
       this.select.parkInfoArr = [{ parkName: "无园区", parkNo: 0 }];
@@ -438,9 +436,7 @@ export default {
           this.select.parkInfoArr = resData && resData.length ? resData : [];
           this.select.parkInfoArr.unshift({ parkName: "无园区", parkNo: 0 });
         })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `园区信息查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "园区信息查询失败"));
     },
     getProvince() {
       this.select.provinceInfoArr = [];
@@ -451,9 +447,7 @@ export default {
           this.select.provinceInfoArr =
             resData && resData.length ? resData : [];
         })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `省级信息查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "省级信息查询失败"));
     },
     getCity(province) {
       if (province) {
@@ -470,13 +464,7 @@ export default {
             this.editedBuilding.district = "";
             this.select.cityInfoArr = resData && resData.length ? resData : [];
           })
-          .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `市级信息查询失败 ${err}`,
-              "error"
-            )
-          );
+          .catch(() => this.$store.commit("addErrorBar", "市级信息查询失败"));
       }
     },
     getDistrict(city) {
@@ -495,13 +483,7 @@ export default {
             this.select.districtInfoArr =
               resData && resData.length ? resData : [];
           })
-          .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `区县信息查询失败 ${err}`,
-              "error"
-            )
-          );
+          .catch(() => this.$store.commit("addErrorBar", "区县信息查询失败"));
       }
     },
     delBuilding() {
@@ -513,15 +495,13 @@ export default {
         )
         .then(res => {
           if (res.data.code != 500) {
-            this.$store.commit("addSnackBar", "楼宇删除成功", "success");
+            this.$store.commit("addSuccessBar", "楼宇删除成功");
             this.$router.go(0);
           } else {
             throw new Error(res.data.msg);
           }
         })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `楼宇删除失败${err}`, "error")
-        );
+        .catch(err => this.$store.commit("addErrorBar", `楼宇删除失败${err}`));
     },
     newBuildingClose(isCancel) {
       if (!isCancel || confirm("取消后内容将不会保存")) {
@@ -560,15 +540,15 @@ export default {
           })
           .then(res => {
             if (res.data.code != 500) {
+              this.$store.commit("addSuccessBar", "楼宇修改成功");
               this.newBuildingClose(false);
               this.initialize();
-              this.$store.commit("addSnackBar", "楼宇修改成功", "success");
             } else {
               throw new Error(res.data.msg);
             }
           })
           .catch(err =>
-            this.$store.commit("addSnackBar", `楼宇修改失败 ${err}`, "error")
+            this.$store.commit("addErrorBar", `楼宇修改失败 ${err}`)
           );
       }
     },

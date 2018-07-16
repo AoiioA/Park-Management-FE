@@ -36,14 +36,27 @@ export default new Vuex.Store({
     }
   },
   mutations: {
-    addSnackBar(state, text, type) {
+    addSuccessBar(state, text) {
       let newSnackBar = [];
       state.snackbar.forEach(el => {
         if (el.value != false) newSnackBar.push(el);
       });
       newSnackBar.push({
-        color: type,
         text: text,
+        color: "info",
+        value: true,
+        temp: new Date()
+      });
+      state.snackbar = newSnackBar;
+    },
+    addErrorBar(state, text) {
+      let newSnackBar = [];
+      state.snackbar.forEach(el => {
+        if (el.value != false) newSnackBar.push(el);
+      });
+      newSnackBar.push({
+        text: text,
+        color: "error",
         value: true,
         temp: new Date()
       });

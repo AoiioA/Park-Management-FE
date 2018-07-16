@@ -118,9 +118,7 @@ export default {
             (this.searchFilterData.company =
               res.data && res.data.length ? res.data : [])
         )
-        .catch(err =>
-          this.$store.commit("addSnackBar", `客户名称查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "客户名称查询失败"));
     },
     getContract(companyId) {
       this.searchFilterData.contract = [];
@@ -137,13 +135,7 @@ export default {
               (this.searchFilterData.contract =
                 res.data && res.data.length ? res.data : [])
           )
-          .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `客户合同查询失败 ${err}`,
-              "error"
-            )
-          );
+          .catch(() => this.$store.commit("addErrorBar", "客户合同查询失败"));
       }
     }
   }

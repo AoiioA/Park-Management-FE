@@ -352,7 +352,7 @@
                                 <div v-if="renewCTRTInfo&&renewCTRTInfo.id">
                                   <v-alert :value="true" type="warning">
                                     该合同已被续签，续签合同将同时被退租
-                                    <v-btn @click="$router.push({ name: 'contract-detail', query: { contractType: 'fulfilling' }, params: { contractId: renewCTRTInfo.id } });$router.go(0)" dark flat small class="ma-0 text-xs-right" style="height:22px;float:right">查看续签合同</v-btn>
+                                    <v-btn :to="{ name: 'contract-detail', query: { contractType: 'fulfilling' }, params: { contractId: renewCTRTInfo.id } }" dark flat small class="ma-0 text-xs-right" style="height:22px;float:right">查看续签合同</v-btn>
                                   </v-alert>
                                   <v-subheader>
                                     续签合同退租明细 - {{ renewCTRTInfo.contractName }}({{ renewCTRTInfo.contractNo }})
@@ -652,6 +652,12 @@ export default {
         this.getRefundedRent();
         this.getRefundedRenewRent();
       }
+    },
+    "$route.params.contractId"() {
+      this.$router.go(0);
+    },
+    "$route.query.contractType"() {
+      this.$router.go(0);
     }
   },
   methods: {
@@ -673,11 +679,7 @@ export default {
         })
         .catch(err => {
           this.networkError = err;
-          this.$store.commit(
-            "addSnackBar",
-            "合同详情查询失败 请检查网络后刷新",
-            "error"
-          );
+          this.$store.commit("addErrorBar", "合同详情查询失败");
         })
         .finally(() => (this.networkLoading = false));
     },
@@ -707,18 +709,14 @@ export default {
           })
           .then(res => {
             if (res.data.code == 0) {
-              this.$store.commit("addSnackBar", "合同变更成功", "success");
+              this.$store.commit("addSuccessBar", "合同变更成功");
               this.closeChanged();
             } else {
               throw new Error(res.data.msg);
             }
           })
           .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `合同变更出现错误 ${err}`,
-              "error"
-            )
+            this.$store.commit("addErrorBar", `合同变更出现错误 ${err}`)
           );
       }
     },
@@ -733,18 +731,14 @@ export default {
         })
         .then(res => {
           if (res.data.length) {
-            this.$store.commit("addSnackBar", "退租明细生成成功", "success");
+            this.$store.commit("addSuccessBar", "退租明细生成成功");
             this.refundedRent = res.data;
           } else {
             throw new Error(res.data.msg);
           }
         })
         .catch(err =>
-          this.$store.commit(
-            "addSnackBar",
-            `退租明细生成出现错误 ${err}`,
-            "error"
-          )
+          this.$store.commit("addErrorBar", `退租明细生成出现错误 ${err}`)
         );
     },
     getRefundedRenewRent() {
@@ -764,9 +758,8 @@ export default {
           })
           .catch(err =>
             this.$store.commit(
-              "addSnackBar",
-              `退租续签合同明细生成出现错误 ${err}`,
-              "error"
+              "addErrorBar",
+              `退租续签合同明细生成出现错误 ${err}`
             )
           );
       }
@@ -789,18 +782,14 @@ export default {
           })
           .then(res => {
             if (res.data.code == 0) {
-              this.$store.commit("addSnackBar", "合同退租申请成功", "success");
+              this.$store.commit("addSuccessBar", "合同退租申请成功");
               this.closeRefunded();
             } else {
               throw new Error(res.data.msg);
             }
           })
           .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `合同退租出现错误 ${err}`,
-              "error"
-            )
+            this.$store.commit("addErrorBar", `合同退租出现错误 ${err}`)
           );
       }
     },
@@ -821,18 +810,14 @@ export default {
           })
           .then(res => {
             if (res.data.code == 0) {
-              this.$store.commit("addSnackBar", "合同已审核成功", "success");
+              this.$store.commit("addSuccessBar", "合同已审核成功");
               this.$router.go(-1);
             } else {
               throw new Error(res.data.msg);
             }
           })
           .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `合同审核出现错误 ${err}`,
-              "error"
-            )
+            this.$store.commit("addErrorBar", `合同审核出现错误 ${err}`)
           );
       }
     },
@@ -856,18 +841,14 @@ export default {
           })
           .then(res => {
             if (res.data.code == 0) {
-              this.$store.commit("addSnackBar", "合同已审核成功", "success");
+              this.$store.commit("addSuccessBar", "合同已审核成功");
               this.$router.go(-1);
             } else {
               throw new Error(res.data.msg);
             }
           })
           .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `合同审核出现错误 ${err}`,
-              "error"
-            )
+            this.$store.commit("addErrorBar", `合同审核出现错误 ${err}`)
           );
       }
     }

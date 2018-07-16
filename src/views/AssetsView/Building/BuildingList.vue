@@ -137,9 +137,9 @@ export default {
               ? resData.sort((x, y) => x.buildingNo - y.buildingNo)
               : [];
         })
-        .catch(err => {
+        .catch(() => {
           this.networkError = true;
-          this.$store.commit("addSnackBar", `楼宇查询失败 ${err}`, "error");
+          this.$store.commit("addErrorBar", "楼宇查询失败");
         })
         .finally(() => (this.networkLoading = false));
     },
@@ -152,9 +152,7 @@ export default {
           this.select.parkInfoArr = resData && resData.length ? resData : [];
           this.select.parkInfoArr.unshift({ parkName: "无园区", parkNo: 0 });
         })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `园区信息查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "园区信息查询失败"));
     },
     getProvince() {
       this.select.provinceInfoArr = [];
@@ -165,9 +163,7 @@ export default {
           this.select.provinceInfoArr =
             resData && resData.length ? resData : [];
         })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `省级信息查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "省级信息查询失败"));
     },
     getCity(province) {
       if (province) {
@@ -184,13 +180,7 @@ export default {
             this.editedBuilding.district = "";
             this.select.cityInfoArr = resData && resData.length ? resData : [];
           })
-          .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `市级信息查询失败 ${err}`,
-              "error"
-            )
-          );
+          .catch(() => this.$store.commit("addErrorBar", "市级信息查询失败"));
       }
     },
     getDistrict(city) {
@@ -209,13 +199,7 @@ export default {
             this.select.districtInfoArr =
               resData && resData.length ? resData : [];
           })
-          .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `区县信息查询失败 ${err}`,
-              "error"
-            )
-          );
+          .catch(() => this.$store.commit("addErrorBar", "区县信息查询失败"));
       }
     },
     newBuildingClose(isCancel) {
@@ -253,15 +237,15 @@ export default {
           })
           .then(res => {
             if (res.data.code != 500) {
+              this.$store.commit("addSuccessBar", "楼宇添加成功");
               this.newBuildingClose(false);
               this.initialize();
-              this.$store.commit("addSnackBar", "楼宇添加成功", "success");
             } else {
               throw new Error(res.data.msg);
             }
           })
           .catch(err =>
-            this.$store.commit("addSnackBar", `楼宇添加失败 ${err}`, "error")
+            this.$store.commit("addErrorBar", `楼宇添加失败 ${err}`)
           );
       }
     }

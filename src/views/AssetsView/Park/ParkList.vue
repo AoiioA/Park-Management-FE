@@ -174,9 +174,9 @@ export default {
           let resData = res.data.data;
           this.parkList = resData && resData.length ? resData : [];
         })
-        .catch(err => {
+        .catch(() => {
           this.networkError = true;
-          this.$store.commit("addSnackBar", `园区查询失败${err}`, "error");
+          this.$store.commit("addErrorBar", "园区查询失败");
         })
         .finally(() => (this.networkLoading = false));
     },
@@ -189,9 +189,7 @@ export default {
           this.select.provinceInfoArr =
             resData && resData.length ? resData : [];
         })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `省级信息查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "省级信息查询失败"));
     },
     getCity(province) {
       if (province) {
@@ -208,13 +206,7 @@ export default {
             this.editedPark.district = "";
             this.select.cityInfoArr = resData && resData.length ? resData : [];
           })
-          .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `市级信息查询失败 ${err}`,
-              "error"
-            )
-          );
+          .catch(() => this.$store.commit("addErrorBar", "市级信息查询失败"));
       }
     },
     getDistrict(city) {
@@ -233,13 +225,7 @@ export default {
             this.select.districtInfoArr =
               resData && resData.length ? resData : [];
           })
-          .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `区县信息查询失败 ${err}`,
-              "error"
-            )
-          );
+          .catch(() => this.$store.commit("addErrorBar", "区县信息查询失败"));
       }
     },
     newParkClose(isCancel) {
@@ -255,15 +241,15 @@ export default {
           .post("/cms/parkInfo/addParkInfo.json", this.editedPark)
           .then(res => {
             if (res.data.code != 500) {
+              this.$store.commit("addSuccessBar", "添加园区成功");
               this.newParkClose(false);
-              this.$store.commit("addSnackBar", "添加园区成功", "success");
               this.initialize();
             } else {
               throw new Error(res.data.msg);
             }
           })
           .catch(err => {
-            this.$store.commit("addSnackBar", `园区添加失败 ${err}`, "error");
+            this.$store.commit("addErrorBar", `园区添加失败 ${err}`);
           });
       }
     }

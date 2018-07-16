@@ -462,7 +462,7 @@ export default {
           })
           .catch(err => {
             this.networkError = err;
-            this.addSnackBar("编辑合同详情查询失败 请检查网络后刷新", "error");
+            this.$store.commit("addErrorBar", "编辑合同详情查询失败");
           })
           .finally(() => (this.networkLoading = false));
       }
@@ -482,10 +482,7 @@ export default {
           })
           .catch(err => {
             this.networkError = err;
-            this.addSnackBar(
-              "续签原合同详情查询失败 请检查网络后刷新",
-              "error"
-            );
+            this.$store.commit("addErrorBar", "续签原合同详情查询失败");
           })
           .finally(() => (this.networkLoading = false));
       }
@@ -511,6 +508,7 @@ export default {
           }
         }
       }
+      this.newCTRT.exContractNo = oldCTRT.id;
       // 改变newCTRTOther
       this.newCTRTOther = {
         increaseType: oldCTRT.houseAndBuildingDtos[0].increaseType,
@@ -541,7 +539,7 @@ export default {
             // 转换数据结构为Tree并保存至assetsInfo
             this.assetsInfo = this.translatePark(resData);
           })
-          .catch(() => this.addSnackBar("楼宇信息查询失败", "error"));
+          .catch(() => this.$store.commit("addErrorBar", "楼宇信息查询失败"));
       } else {
         // 若为续签或编辑续签 则仅获取原合同房源
         this.assetsInfo = this.translatePark(this.exCTRT.houseAndBuildingDtos);
@@ -609,7 +607,9 @@ export default {
               assetsBuildingNo
             );
           })
-          .catch(() => this.addSnackBar("楼宇所含房源信息查询失败", "error"));
+          .catch(() =>
+            this.$store.commit("addErrorBar", "楼宇所含房源信息查询失败")
+          );
       } else {
         // 若为续签或编辑续签 则仅获取原合同房源
         this.assetsFloorInfo = this.translateBuilding(
@@ -684,7 +684,7 @@ export default {
                 });
               }
             })
-            .catch(() => this.addSnackBar("房源信息查询失败", "error"));
+            .catch(() => this.$store.commit("addErrorBar", "房源信息查询失败"));
         } else {
           // 若为续签或编辑续签 则仅获取原合同房源
           let exHouse = this.exCTRT.houseAndBuildingDtos.find(
@@ -737,20 +737,21 @@ export default {
           })
           .then(res => {
             if (res.data.code != 500) {
-              this.addSnackBar("租金明细生成成功", "success");
+              this.$store.commit("addSuccessBar", "租金明细生成成功");
               this.rentDetail = res.data.data;
+            } else {
+              throw new Error(res.date.msg);
             }
           })
           .catch(err =>
-            this.addSnackBar(`租金明细生成出现错误 ${err}`, "error")
+            this.$store.commit("addErrorBar", `租金明细生成出现错误 ${err}`)
           );
       } else {
-        this.addSnackBar("合同信息填写有误 请检查后重试", "error");
+        this.$store.commit("addErrorBar", "合同信息填写有误 请检查后重试");
       }
     },
     submitContract(isSummit) {
       let CTRTData = Object.assign({}, this.newCTRT, {
-        exContractNo: Number(this.$route.query.exId) || null,
         contractState: isSummit ? "待审核" : "待提交",
         contractHouseDtos: this.newAssets.map(item => ({
           houseId: item.houseId,
@@ -772,28 +773,28 @@ export default {
           .then(res => {
             if (res.data.code == 0) {
               if (!isSummit) {
-                this.addSnackBar("合同已保存成功 可稍后编辑", "success");
+                this.$store.commit("addSuccessBar", "合同保存成功 可稍后编辑");
               } else {
-                this.addSnackBar("合同已提交成功 即将开始审核", "success");
+                this.$store.commit("addSuccessBar", "合同提交成功 等待审核");
               }
               this.$router.go(-1);
             } else {
-              this.addSnackBar(`合同提交错误: ${res.data.meg}`, "error");
+              throw new Error(res.data.meg);
             }
           })
           .catch(() =>
-            this.addSnackBar("合同提交出现错误 请检查网络后重试", "error")
+            this.$store.commit(
+              "addErrorBar",
+              "合同提交出现错误 请检查网络后重试"
+            )
           );
       } else {
-        this.addSnackBar("合同信息填写有误 请检查后重试", "error");
+        this.$store.commit("addErrorBar", "合同信息填写有误 请检查后重试");
       }
     },
     nextStep(el) {
       el.validate();
       this.stepNum++;
-    },
-    addSnackBar(text, type) {
-      this.$store.commit("addSnackBar", text, type);
     }
   }
 };

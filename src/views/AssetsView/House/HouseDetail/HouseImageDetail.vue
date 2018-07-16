@@ -166,9 +166,9 @@ export default {
           let resData = res.data.data;
           this.houseImageList = resData;
         })
-        .catch(err => {
+        .catch(() => {
           this.networkError = true;
-          this.$store.commit("addSnackBar", `房源图片查询失败 ${err}`, "error");
+          this.$store.commit("addErrorBar", "房源图片查询失败");
         })
         .finally(() => (this.networkLoading = false));
     },
@@ -252,11 +252,7 @@ export default {
         // 上传错误
         if (newFile.error && !oldFile.error) {
           // console.log("error", newFile.error, newFile, newFile.xhr.response);
-          this.$store.commit(
-            "addSnackBar",
-            `图片上传失败: ${newFile.error}`,
-            "error"
-          );
+          this.$store.commit("addErrorBar", `图片上传失败: ${newFile.error}`);
         }
 
         // 上传成功
@@ -267,14 +263,10 @@ export default {
             this.$refs.uploadEl.remove(newFile.id);
             // res.data.photoNewname = res.data.name;
             // this.houseImageList.push(res.data);
+            this.$store.commit("addSuccessBar", "图片上传成功");
             this.initialize();
-            this.$store.commit("addSnackBar", "图片上传成功", "success");
           } else {
-            this.$store.commit(
-              "addSnackBar",
-              `图片上传失败: ${res.msg}`,
-              "error"
-            );
+            this.$store.commit("addErrorBar", `图片上传失败: ${res.msg}`);
           }
         }
       }
@@ -292,18 +284,14 @@ export default {
         .then(res => {
           if (res.data.code != 500) {
             // this.houseImageList.splice(index, 1);
+            this.$store.commit("addSuccessBar", "图片删除成功");
             this.initialize();
-            this.$store.commit("addSnackBar", "图片删除成功", "success");
           } else {
-            this.$store.commit(
-              "addSnackBar",
-              `图片删除失败: ${res.data.msg}`,
-              "error"
-            );
+            throw new Error(res.data.msg);
           }
         })
         .catch(err =>
-          this.$store.commit("addSnackBar", `图片删除失败: ${err}`, "error")
+          this.$store.commit("addErrorBar", `图片删除失败: ${err}`)
         );
     }
   }
@@ -311,16 +299,21 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.no-data
-  height 300px
-  line-height 300px
-  text-align center
+.no-data {
+  height: 300px;
+  line-height: 300px;
+  text-align: center;
+}
 
-.house-image
-  .image-container
-    opacity 0
-    background rgba(128, 128, 128, 0.3)
-    transition 0.3s ease
-    &:hover
-      opacity 1
+.house-image {
+  .image-container {
+    opacity: 0;
+    background: rgba(128, 128, 128, 0.3);
+    transition: 0.3s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
 </style>

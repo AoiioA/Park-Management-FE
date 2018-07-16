@@ -373,9 +373,9 @@ export default {
             });
           })
         )
-        .catch(err => {
+        .catch(() => {
           this.networkError = true;
-          this.$store.commit("addSnackBar", `商圈查询失败 ${err}`, "error");
+          this.$store.commit("addErrorBar", `商圈查询失败`);
         })
         .finally(() => (this.networkLoading = false));
     },
@@ -405,7 +405,7 @@ export default {
           this.select.parkArr = parkInfo.filter(el => el);
         })
         .catch(err =>
-          this.$store.commit("addSnackBar", `楼宇信息查询失败 ${err}`, "error")
+          this.$store.commit("addErrorBar", `楼宇信息查询失败 ${err}`)
         );
     },
     newPointClose(isCancel) {
@@ -429,15 +429,15 @@ export default {
           })
           .then(res => {
             if (res.data.code) {
+              this.$store.commit("addSuccessBar", "商圈编辑成功");
               this.newPointClose(false);
-              this.$store.commit("addSnackBar", "商圈编辑成功", "success");
               this.initialize();
               // } else {
               //   throw new Error(res.data.msg);
             }
           })
           .catch(err => {
-            this.$store.commit("addSnackBar", `商圈编辑失败 ${err}`, "error");
+            this.$store.commit("addErrorBar", `商圈编辑失败 ${err}`);
           });
       }
     },
@@ -450,7 +450,7 @@ export default {
         )
         .then(res => {
           if (res.data.code != 500) {
-            this.$store.commit("addSnackBar", "商圈删除成功", "success");
+            this.$store.commit("addSuccessBar", "商圈删除成功");
             this.$router.replace({
               name: "point-list"
             });
@@ -458,9 +458,7 @@ export default {
             throw new Error(res.data.msg);
           }
         })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `商圈删除失败 ${err}`, "error")
-        );
+        .catch(err => this.$store.commit("addErrorBar", `商圈删除失败 ${err}`));
     }
   }
 };

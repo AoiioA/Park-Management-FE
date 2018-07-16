@@ -222,9 +222,7 @@ export default {
           res =>
             (this.companyList = res.data && res.data.length ? res.data : [])
         )
-        .catch(err =>
-          this.$store.commit("addSnackBar", `客户名称查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "客户名称查询失败"));
     },
     getContract(companyId) {
       this.contractList = [];
@@ -238,9 +236,7 @@ export default {
           res =>
             (this.contractList = res.data && res.data.length ? res.data : [])
         )
-        .catch(err =>
-          this.$store.commit("addSnackBar", `客户合同查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "客户合同查询失败"));
     },
     submitElectricBill() {
       if (this.$refs.electricBillForm.validate()) {
@@ -250,8 +246,8 @@ export default {
           .post(submitUrl, submitData)
           .then(res => {
             if (res.data.code != 500) {
+              this.$store.commit("addSuccessBar", "电费账单添加成功");
               this.electricBillInfo = res.data.data;
-              this.$store.commit("addSnackBar", "电费账单添加成功", "success");
               this.stepNum++;
               this.getElectric();
             } else {
@@ -259,11 +255,7 @@ export default {
             }
           })
           .catch(err =>
-            this.$store.commit(
-              "addSnackBar",
-              `电费账单添加失败 ${err}`,
-              "error"
-            )
+            this.$store.commit("addErrorBar", `电费账单添加失败 ${err}`)
           );
       }
     },
@@ -277,9 +269,7 @@ export default {
             (this.electricInfoList =
               res.data && res.data.length ? res.data : [])
         )
-        .catch(err =>
-          this.$store.commit("addSnackBar", `电表单查询失败 ${err}`, "error")
-        );
+        .catch(() => this.$store.commit("addErrorBar", "电表单查询失败"));
     },
     electricEdit(item) {
       this.editedElectricIndex = this.electricInfoList.indexOf(item);
@@ -291,7 +281,7 @@ export default {
         .post("/cms/electricBill/deleteOne.json", { no: item.no })
         .then(res => {
           if (res.data.code != 500) {
-            this.$store.commit("addSnackBar", "电表单删除成功", "success");
+            this.$store.commit("addSuccessBar", "电表单删除成功");
             // const index = this.electricInfoList.indexOf(item);
             // this.electricInfoList.splice(index, 1);
             this.getElectric();
@@ -300,7 +290,7 @@ export default {
           }
         })
         .catch(err =>
-          this.$store.commit("addSnackBar", `电表单删除失败 ${err}`, "error")
+          this.$store.commit("addErrorBar", `电表单删除失败 ${err}`)
         );
     },
     electricClose(isCancel) {
@@ -338,7 +328,7 @@ export default {
         .post(submitUrl, submitData)
         .then(res => {
           if (res.data.code != 500) {
-            this.$store.commit("addSnackBar", "电表单添加成功", "success");
+            this.$store.commit("addSuccessBar", "电表单添加成功");
             // this.electricBillInfo = res.data.data.electricBillSub;
             // this.electricInfoList.push(
             //   Object.assign({ no: res.data.data.electricBillNo }, submitData)
@@ -350,7 +340,7 @@ export default {
           }
         })
         .catch(err =>
-          this.$store.commit("addSnackBar", `电表单添加失败 ${err}`, "error")
+          this.$store.commit("addErrorBar", `电表单添加失败 ${err}`)
         );
     },
     editedElectricSave() {
@@ -370,7 +360,7 @@ export default {
         .post(submitUrl, submitData)
         .then(res => {
           if (res.data.code != 500) {
-            this.$store.commit("addSnackBar", "电表单编辑成功", "success");
+            this.$store.commit("addSuccessBar", "电表单编辑成功");
             // this.electricBillInfo = res.data.data;
             // Object.assign(
             //   this.electricInfoList[this.editedElectricIndex],
@@ -383,7 +373,7 @@ export default {
           }
         })
         .catch(err =>
-          this.$store.commit("addSnackBar", `电表单编辑失败 ${err}`, "error")
+          this.$store.commit("addErrorBar", `电表单编辑失败 ${err}`)
         );
     }
   }

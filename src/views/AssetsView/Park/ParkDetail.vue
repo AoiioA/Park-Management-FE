@@ -241,7 +241,7 @@ export default {
         )
         .catch(err => {
           this.networkError = true;
-          this.$store.commit("addSnackBar", `园区查询失败 ${err}`, "error");
+          this.$store.commit("addErrorBar", `园区查询失败 ${err}`);
         })
         .finally(() => (this.networkLoading = false));
     },
@@ -267,8 +267,8 @@ export default {
           )
           .then(res => {
             if (res.data.code != 500) {
+              this.$store.commit("addSuccessBar", "园区编辑成功");
               this.newParkClose(false);
-              this.$store.commit("addSnackBar", "园区编辑成功", "success");
               let Idd;
               this.$http
                 .post("/cms/parkInfo/listParkInfo.json", {})
@@ -284,15 +284,11 @@ export default {
                   this.initialize();
                 });
             } else {
-              this.$store.commit(
-                "addSnackBar",
-                `园区编辑失败 ${res.data.msg}`,
-                "error"
-              );
+              throw new Error(res.data.msg);
             }
           })
           .catch(err => {
-            this.$store.commit("addSnackBar", `园区编辑失败 ${err}`, "error");
+            this.$store.commit("addErrorBar", `园区编辑失败 ${err}`);
           });
       }
     },
@@ -303,15 +299,13 @@ export default {
         )
         .then(res => {
           if (res.data.code != 500) {
-            this.$store.commit("addSnackBar", "园区删除成功", "success");
+            this.$store.commit("addSuccessBar", "园区删除成功");
             this.$router.replace({
               name: "park-list"
             });
           }
         })
-        .catch(err =>
-          this.$store.commit("addSnackBar", `园区删除失败${err}`, "error")
-        );
+        .catch(err => this.$store.commit("addErrorBar", `园区删除失败${err}`));
     }
   }
 };
