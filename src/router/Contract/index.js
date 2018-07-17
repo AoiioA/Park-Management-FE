@@ -1,8 +1,9 @@
 import Contract from "@/views/ContractView/Contract.vue";
 
 import ContractNew from "@/views/ContractView/ContractNew.vue";
-import ContractDetail from "@/views/ContractView/ContractDetail.vue";
+import ContractRefunded from "@/views/ContractView/ContractRefunded.vue";
 import ContractRefundedDetail from "@/views/ContractView/ContractRefundedDetail.vue";
+import ContractDetail from "@/views/ContractView/ContractDetail.vue";
 import ContractList from "@/views/ContractView/ContractList.vue";
 
 import ExamineNew from "@/views/ContractView/ContractExamine/ExamineNew.vue";
@@ -30,14 +31,19 @@ export default [
         component: ContractNew
       },
       {
-        path: "detail/:contractId",
-        name: "contract-detail",
-        component: ContractDetail
-      },
-      {
         path: "refunded-detail/:contractId",
         name: "contract-refunded-detail",
         component: ContractRefundedDetail
+      },
+      {
+        path: "refunded/:contractId",
+        name: "contract-refunded",
+        component: ContractRefunded
+      },
+      {
+        path: "detail/:contractId",
+        name: "contract-detail",
+        component: ContractDetail
       },
       {
         path: "examine",
@@ -45,21 +51,21 @@ export default [
         children: [
           {
             path: "",
-            redirect: { name: "contract-examine-new" }
+            redirect: { name: "contract-examineList-new" }
           },
           {
             path: "new",
-            name: "contract-examine-new",
+            name: "contract-examineList-new",
             component: ExamineNew
           },
           {
             path: "changed",
-            name: "contract-examine-changed",
+            name: "contract-examineList-changed",
             component: ExamineChanged
           },
           {
             path: "refunded",
-            name: "contract-examine-refunded",
+            name: "contract-examineList-refunded",
             component: ExamineRefunded
           }
         ]

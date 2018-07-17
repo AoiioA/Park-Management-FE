@@ -1,6 +1,6 @@
 <template>
   <transition name="slide-fade">
-    <v-container class="contract-detail px-2">
+    <v-container class="contract-refunded-detail px-2 pb-5">
       <v-layout align-start align-content-start justify-center wrap>
         <v-flex xs12 md10 lg8>
           <v-toolbar dense flat color="blue-grey lighten-5">
@@ -15,9 +15,8 @@
         <v-alert v-else-if="networkError" :value="true" type="error" class="center-box">网络出现异常 - 检查网络后刷新重试</v-alert>
         <v-flex xs12 md10 lg8 v-else>
           <v-jumbotron height="auto">
-            <v-container grid-list-xl fill-height>
+            <v-container grid-list-xl>
               <v-layout wrap>
-                <!-- <v-flex xs12 md12 class="subheading grey--text text--darken-1">合同明细</v-flex> -->
                 <v-flex xs12 md6>
                   <v-subheader>出租方</v-subheader>
                   <v-card>
@@ -114,14 +113,6 @@
                         <v-list-tile-content>记租后免租:</v-list-tile-content>
                         <v-list-tile-content class="align-end">{{ CTRTInfo.afterFree }}天</v-list-tile-content>
                       </v-list-tile>
-                      <!-- <v-list-tile>
-                        <v-list-tile-content>押金:</v-list-tile-content>
-                        <v-list-tile-content class="align-end">{{ CTRTInfo.deposit }}元</v-list-tile-content>
-                      </v-list-tile>
-                      <v-list-tile>
-                        <v-list-tile-content>违约金:</v-list-tile-content>
-                        <v-list-tile-content class="align-end">{{ CTRTInfo.liquidatedDamages }}元</v-list-tile-content>
-                      </v-list-tile> -->
                       <v-list-tile>
                         <v-list-tile-content>租金缴纳周期:</v-list-tile-content>
                         <v-list-tile-content class="align-end">每{{ CTRTInfo.month }}个月</v-list-tile-content>
@@ -157,39 +148,80 @@
                   </v-card>
                 </v-flex>
               </v-layout>
-            </v-container>
-          </v-jumbotron>
-          <v-jumbotron height="auto" v-if="CTRTInfo.addRefundBillDtos">
-            <v-container grid-list-xl fill-height>
-              <v-layout align-start align-content-start justify-center wrap>
-                <v-flex xs12 md12>
-                  <v-subheader>所含交易明细</v-subheader>
+              <v-layout wrap>
+                <v-flex xs12 md6>
+                  <v-subheader>退租申请信息</v-subheader>
+                  <v-card>
+                    <v-list dense style="height: 128px;">
+                      <v-list-tile>
+                        <v-list-tile-content>申请时间:</v-list-tile-content>
+                        <v-list-tile-content class="align-end">{{ CTRTInfo.realEndDate.slice(0, 10) }}</v-list-tile-content>
+                      </v-list-tile>
+                      <v-list-tile>
+                        <v-list-tile-content>申请备注:</v-list-tile-content>
+                        <v-list-tile-content class="align-end">{{ CTRTInfo.reason }}</v-list-tile-content>
+                      </v-list-tile>
+                    </v-list>
+                  </v-card>
+                </v-flex>
+                <v-flex xs12 md6 v-if="['refunded-submitted'].indexOf($route.query.contractType)==-1">
+                  <v-subheader>退租审批信息</v-subheader>
+                  <v-card>
+                    <v-list dense style="height: 128px;">
+                      <v-list-tile>
+                        <v-list-tile-content>审批结果:</v-list-tile-content>
+                        <v-list-tile-content class="align-end">{{ CTRTInfo.contractState }}</v-list-tile-content>
+                      </v-list-tile>
+                      <v-list-tile>
+                        <v-list-tile-content>审批时间:</v-list-tile-content>
+                        <v-list-tile-content class="align-end">{{ CTRTInfo.verifyTime.slice(0, 10) }}</v-list-tile-content>
+                      </v-list-tile>
+                      <v-list-tile>
+                        <v-list-tile-content>审批备注:</v-list-tile-content>
+                        <v-list-tile-content class="align-end">{{ CTRTInfo.verifyDescription }}</v-list-tile-content>
+                      </v-list-tile>
+                    </v-list>
+                  </v-card>
+                </v-flex>
+                <v-flex xs12 v-if="CTRTInfo.addRefundBillDtos">
+                  <v-subheader>当前合同退租明细</v-subheader>
                   <v-data-table
                     :headers="rentHeaders"
-                    :items="CTRTInfo.rentBillListDtos"
+                    :items="CTRTInfo.addRefundBillDtos"
                     item-key="id"
-                    no-data-text="暂无交易明细"
-                    class="elevation-1 mb-5"
+                    no-data-text="暂无退租明细"
+                    class="elevation-1"
                   >
                     <template slot="items" slot-scope="props">
-                      <!-- <tr @click="props.expanded = !props.expanded"> -->
                       <td v-if="props.item.rentType">{{ props.item.rentType }}</td>
                       <td v-if="props.item.payDate">{{ props.item.payDate.slice(0, 10) }}</td>
                       <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
                       <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
                       <td>{{ props.item.totalRent }}元</td>
                       <td>{{ props.item.state }}</td>
-                      <!-- </tr> -->
                     </template>
-                    <!-- <template slot="expand" slot-scope="props">
-                      <v-card flat>
-                        <v-card-text>Peek-a-boo!</v-card-text>
-                      </v-card>
-                    </template> -->
-                    <template slot="footer">
-                      <td colspan="100%" class="text-xs-right">
-                        <span v-if="CTRTInfo.rentBillListDtos">金额总计 : {{ CTRTInfo.rentBillListDtos.map(el=>el.totalRent).reduce((all, el, i) => parseFloat(all) + parseFloat(el)) }}元</span>
-                      </td>
+                  </v-data-table>
+                </v-flex>
+                <v-flex xs12 v-if="renewCTRTInfo">
+                  <v-subheader>
+                    续签合同退租明细 - {{ renewCTRTInfo.contractName }}({{ renewCTRTInfo.contractNo }})
+                    <v-spacer></v-spacer>
+                    <v-btn :to="{ name: 'contract-detail', query: { contractType: 'fulfilling' }, params: { contractId: renewCTRTInfo.id } }" small color="primary" depressed>查看续签合同</v-btn>
+                  </v-subheader>
+                  <v-data-table
+                    :headers="rentHeaders"
+                    :items="renewCTRTInfo.addRefundBillDtos"
+                    item-key="id"
+                    no-data-text="暂无退租明细"
+                    class="elevation-1"
+                  >
+                    <template slot="items" slot-scope="props">
+                      <td v-if="props.item.rentType">{{ props.item.rentType }}</td>
+                      <td v-if="props.item.payDate">{{ props.item.payDate.slice(0, 10) }}</td>
+                      <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
+                      <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
+                      <td>{{ props.item.totalRent }}元</td>
+                      <td>{{ props.item.state }}</td>
                     </template>
                   </v-data-table>
                 </v-flex>
@@ -204,101 +236,26 @@
               </v-btn>
               <span>展开操作</span>
             </v-tooltip>
-            <v-dialog v-if="['refunded-submitted'].indexOf($route.query.contractType)>=0" v-model="dialog.examineRefundedDialog" lazy fullscreen hide-overlay>
+            <v-dialog v-if="['refunded-submitted'].indexOf($route.query.contractType)>=0" v-model="dialog.examineRefundedDialog" persistent max-width="480">
               <v-tooltip left slot="activator">
                 <v-btn slot="activator" fab small dark color="pink">
                   <v-icon>how_to_reg</v-icon>
                 </v-btn>
-                <span>退租审核</span>
+                <span>即将提交退租审核</span>
               </v-tooltip>
-              <v-card color="blue-grey lighten-5">
-                <v-container class="px-2">
-                  <v-layout align-start align-content-start justify-center wrap>
-                    <v-flex xs12 md10 lg8>
-                      <v-toolbar dense flat color="blue-grey lighten-5">
-                        <v-toolbar-side-icon @click="closeExamineRefunded">
-                          <v-icon>close</v-icon>
-                        </v-toolbar-side-icon>
-                        <v-toolbar-title>退租审核 - {{ CTRTInfo.contractName }}<small>({{ CTRTInfo.contractNo }})</small></v-toolbar-title>
-                        <v-spacer></v-spacer>
-                      </v-toolbar>
-                    </v-flex>
-                    <v-flex xs12 md10 lg8>
-                      <v-stepper v-model="examineRefundedStepper" vertical class="elevation-0 dialog-stepper">
-                        <v-stepper-step :rules="[() => !!formValid.examineRefundedValid]" :complete="examineRefundedStepper > 1" step="1">
-                          确认退租信息
-                        </v-stepper-step>
-                        <v-stepper-content step="1">
-                          <v-container grid-list-md>
-                            <v-layout justify-center wrap>
-                              <v-flex xs12>
-                                <v-subheader>
-                                  退租明细
-                                  <v-spacer></v-spacer>
-                                </v-subheader>
-                                <v-data-table
-                                  :headers="rentHeaders"
-                                  :items="refundedRent"
-                                  no-data-text="暂无租金明细"
-                                  class="elevation-1 mb-4"
-                                >
-                                  <template slot="items" slot-scope="props">
-                                    <td v-if="props.item.rentType">{{ props.item.rentType }}</td>
-                                    <td v-if="props.item.payDate">{{ props.item.payDate.slice(0, 10) }}</td>
-                                    <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
-                                    <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
-                                    <td>{{ props.item.totalRent }}元</td>
-                                    <td>{{ props.item.state }}</td>
-                                  </template>
-                                </v-data-table>
-                                <div v-if="renewCTRTInfo&&renewCTRTInfo.id">
-                                  <v-alert :value="true" type="warning">
-                                    该合同已被续签，续签合同将同时被退租
-                                    <v-btn @click="$router.push({ name: 'contract-detail', query: { contractType: 'fulfilling' }, params: { contractId: renewCTRTInfo.id } });$router.go(0)" dark flat small class="ma-0 text-xs-right" style="height:22px;float:right">查看续签合同</v-btn>
-                                  </v-alert>
-                                  <v-subheader>
-                                    续签合同退租明细 - {{ renewCTRTInfo.contractName }}({{ renewCTRTInfo.contractNo }})
-                                    <v-spacer></v-spacer>
-                                  </v-subheader>
-                                  <v-data-table
-                                    :headers="rentHeaders"
-                                    :items="renewCTRTInfo.addRefundBillDtos"
-                                    no-data-text="暂无租金明细"
-                                    class="elevation-1 mb-4"
-                                  >
-                                    <template slot="items" slot-scope="props">
-                                      <td v-if="props.item.rentType">{{ props.item.rentType }}</td>
-                                      <td v-if="props.item.payDate">{{ props.item.payDate.slice(0, 10) }}</td>
-                                      <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
-                                      <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
-                                      <td>{{ props.item.totalRent }}元</td>
-                                      <td>{{ props.item.state }}</td>
-                                    </template>
-                                  </v-data-table>
-                                </div>
-                              </v-flex>
-                            </v-layout>
-                          </v-container>
-                          <v-btn :disabled="!formValid.refundedValid" @click.native="getRefundedDetail" color="primary" depressed>核对退租信息</v-btn>
-                          <v-btn @click.native="examineRefundedStepper--" flat>后退</v-btn>
-                        </v-stepper-content>
-                        <v-stepper-step :complete="examineRefundedStepper > 2" step="2">填写审核结果</v-stepper-step>
-                        <v-stepper-content step="2">
-                          <v-form ref="examineRefundedForm" v-model="formValid.examineRefundedValid" lazy-validation>
-                            <v-container grid-list-md>
-                              <v-layout row wrap>
-                                <v-flex xs6><v-autocomplete dense v-model="examineRefundedInfo.result" :items="examineRefundedSelect" item-text="text" item-value="value" return-object :rules="[$store.state.rules.required]" label="审核结果" box required></v-autocomplete></v-flex>
-                                <v-flex xs12><v-textarea v-model="examineRefundedInfo.reason" :rules="[$store.state.rules.required, $store.state.rules.lengthLessThan(100)]" label="审核理由" counter="100" box required></v-textarea></v-flex>
-                              </v-layout>
-                            </v-container>
-                          </v-form>
-                          <v-btn :disabled="!formValid.examineRefundedValid" @click.native="saveExamineRefunded" color="primary" depressed>提交审核</v-btn>
-                          <v-btn @click.native="examineRefundedStepper--" flat>后退</v-btn>
-                        </v-stepper-content>
-                      </v-stepper>
-                    </v-flex>
-                  </v-layout>
-                </v-container>
+              <v-card>
+                <v-card-title class="headline">即将提交变更申请</v-card-title>
+                <v-form ref="examineRefundedForm" v-model="examineRefundedValid" lazy-validation style="overflow: hidden">
+                  <v-overflow-btn v-model="examineRefundedInfo.result" :items="examineRefundedSelect" item-text="text" item-value="value" return-object :rules="[$store.state.rules.required]" label="审核结果" single-line required hide-details></v-overflow-btn>
+                  <v-divider></v-divider>
+                  <v-textarea v-model="examineRefundedInfo.reason" :rules="[$store.state.rules.required, $store.state.rules.lengthLessThan(100)]" label="审核理由" counter="100" solo flat single-line required></v-textarea>
+                  <v-divider></v-divider>
+                </v-form>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn @click.native="closeExamineRefunded" flat>取消操作</v-btn>
+                  <v-btn :disabled="!examineRefundedValid" @click.native="saveExamineRefunded" color="primary" depressed>提交审核</v-btn>
+                </v-card-actions>
               </v-card>
             </v-dialog>
           </v-speed-dial>
@@ -309,8 +266,6 @@
 </template>
 
 <script>
-// import _ from "lodash";
-
 export default {
   name: "contract-detail",
   data: () => ({
@@ -328,9 +283,7 @@ export default {
       fab: false,
       examineRefundedDialog: false
     },
-    formValid: {
-      examineRefundedValid: true
-    },
+    examineRefundedValid: true,
     CTRTInfo: {},
     renewCTRTInfo: {},
     // 租金列表
@@ -343,24 +296,23 @@ export default {
       { text: "费用状态", value: "state", sortable: false }
     ],
     // 退租审核
-    examineRefundedStepper: 1,
     refundedRent: [],
     examineRefundedInfo: {},
     defaultExamineRefunded: {
       reason: "",
       result: {
         text: "通过",
-        value: "审核通过"
+        value: "通过"
       }
     },
     examineRefundedSelect: [
       {
         text: "通过",
-        value: "审核通过"
+        value: "通过"
       },
       {
         text: "驳回",
-        value: "审核未通过"
+        value: "未通过"
       }
     ]
   }),
@@ -369,12 +321,6 @@ export default {
     this.initialize();
   },
   watch: {
-    "dialog.examineRefundedDialog"(val) {
-      if (val) {
-        this.getRefundedRent();
-        this.getRefundedRenewRent();
-      }
-    },
     "$route.params.contractId"() {
       this.$router.go(0);
     },
@@ -406,61 +352,8 @@ export default {
         })
         .finally(() => (this.networkLoading = false));
     },
-    getDay(date, day) {
-      let t = new Date(
-        new Date(date).getTime() + parseInt(day) * 24 * 60 * 60 * 1000
-      );
-      return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(
-        2,
-        0
-      )}-${String(t.getDate()).padStart(2, 0)}`;
-    },
-    getRefundedRent() {
-      this.$http
-        .post("/cms/contract/contractRefundDetail.json", {
-          id: this.CTRTInfo.id,
-          realEndDate:
-            this.refundedInfo.throwALeaseType.value == "合同期满退租"
-              ? this.CTRTInfo.endDate.slice(0, 10)
-              : this.refundedInfo.throwALeaseDate
-        })
-        .then(res => {
-          if (res.data.length) {
-            this.$store.commit("addSuccessBar", "退租明细生成成功");
-            this.refundedRent = res.data;
-          } else {
-            throw new Error(res.data.msg);
-          }
-        })
-        .catch(err =>
-          this.$store.commit("addErrorBar", `退租明细生成出现错误 ${err}`)
-        );
-    },
-    getRefundedRenewRent() {
-      if (this.refundedInfo.throwALeaseType.value != "合同期满退租") {
-        this.$http
-          .post("/cms/contract/throwALeaseRenewList.json", {
-            id: this.CTRTInfo.id,
-            realEndDate: this.refundedInfo.throwALeaseDate
-          })
-          .then(res => {
-            if (res.data.code == 0) {
-              this.renewCTRTInfo = res.data.data;
-            } else {
-              throw new Error(res.data.msg);
-            }
-          })
-          .catch(err =>
-            this.$store.commit(
-              "addErrorBar",
-              `退租续签合同明细生成出现错误 ${err}`
-            )
-          );
-      }
-    },
     closeExamineRefunded() {
       this.dialog.examineRefundedDialog = false;
-      this.examineRefundedStepper = 1;
       setTimeout(() => {
         this.$refs.examineRefundedForm.reset();
         this.examineRefundedInfo = Object.assign(
@@ -478,7 +371,7 @@ export default {
             verifyDescription: this.examineRefundedInfo.reason
           })
           .then(res => {
-            if (res.data.code == 0) {
+            if (res.data.code != 500) {
               this.$store.commit("addSuccessBar", "合同已审核成功");
               this.$router.go(-1);
             } else {
@@ -495,16 +388,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.slide-fade-enter-active, .slide-fade-leave-active {
-  transition: all 0.3s ease;
-}
-
-.slide-fade-enter, .slide-fade-leave-to {
-  transform: translateX(100vw);
-  // opacity 0
-}
-
-.contract-detail {
+.contract-refunded-detail {
   position: absolute;
   top: 0;
   left: 0;
@@ -513,16 +397,12 @@ export default {
   min-height: 100%;
   background: #ECEFF1;
   z-index: 1;
-}
 
-.dialog-stepper {
-  background: #eceff1 !important;
-}
-
-.center-box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  .center-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
 </style>

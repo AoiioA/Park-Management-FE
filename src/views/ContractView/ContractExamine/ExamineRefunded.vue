@@ -90,12 +90,12 @@ export default {
       },
       {
         text: "退租过审",
-        urlParams: "审核通过",
+        urlParams: "通过",
         link: "refunded-success"
       },
       {
         text: "退租未过审",
-        urlParams: "审核未通过",
+        urlParams: "未通过",
         link: "refunded-failed"
       }
     ],
