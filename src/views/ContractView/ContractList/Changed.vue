@@ -86,7 +86,7 @@ export default {
       this.$http
         .post("/cms/contract/cancelList.json")
         .then(res => {
-          let resData = res.data.data;
+          let resData = res.data.data.list;
           this.contractList = resData && resData.length ? resData : [];
         })
         .catch(() => {

@@ -84,9 +84,9 @@ export default {
     initialize() {
       this.networkLoading = true;
       this.$http
-        .post("/cms/contract/expireList.json")
+        .post("/cms/contract/expireList.json", {})
         .then(res => {
-          let resData = res.data.data;
+          let resData = res.data.data.list;
           this.contractList = resData && resData.length ? resData : [];
         })
         .catch(() => {

@@ -2,6 +2,7 @@ import Contract from "@/views/ContractView/Contract.vue";
 
 import ContractNew from "@/views/ContractView/ContractNew.vue";
 import ContractDetail from "@/views/ContractView/ContractDetail.vue";
+import ContractRefundedDetail from "@/views/ContractView/ContractRefundedDetail.vue";
 import ContractList from "@/views/ContractView/ContractList.vue";
 
 import ExamineNew from "@/views/ContractView/ContractExamine/ExamineNew.vue";
@@ -32,6 +33,11 @@ export default [
         path: "detail/:contractId",
         name: "contract-detail",
         component: ContractDetail
+      },
+      {
+        path: "refunded-detail/:contractId",
+        name: "contract-refunded-detail",
+        component: ContractRefundedDetail
       },
       {
         path: "examine",

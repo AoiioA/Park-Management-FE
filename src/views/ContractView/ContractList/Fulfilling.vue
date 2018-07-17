@@ -125,9 +125,9 @@ export default {
       this.networkLoading = true;
       this.networkError = false;
       this.$http
-        .post("/cms/contract/list.json")
+        .post("/cms/contract/list.json", {})
         .then(res => {
-          let resData = res.data.data;
+          let resData = res.data.data.list;
           this.contractList = resData && resData.length ? resData : [];
         })
         .catch(() => {

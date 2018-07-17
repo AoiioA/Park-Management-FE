@@ -59,7 +59,7 @@
                 <td>{{ props.item.startDate.slice(0, 10) }}</td>
                 <td>{{ props.item.endDate.slice(0, 10) }}</td>
                 <td class="text-xs-center">
-                  <v-btn flat icon small color="primary" class="ma-0" :to="{ name: 'contract-detail', query: { contractType: contractView.link }, params: { contractId: props.item.id } }">
+                  <v-btn flat icon small color="primary" class="ma-0" :to="{ name: 'contract-refunded-detail', query: { contractType: contractView.link }, params: { contractId: props.item.id } }">
                     <v-icon small>visibility</v-icon>
                   </v-btn>
                 </td>
@@ -134,7 +134,7 @@ export default {
           contractState: val
         })
         .then(res => {
-          let resData = res.data.length ? res.data : res.data.data;
+          let resData = res.data.data.list;
           this.contractList = resData && resData.length ? resData : [];
         })
         .catch(() => {

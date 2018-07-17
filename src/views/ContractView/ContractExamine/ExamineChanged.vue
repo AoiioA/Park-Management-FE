@@ -130,11 +130,11 @@ export default {
       this.networkLoading = true;
       this.networkError = false;
       this.$http
-        .post("/cms/contract/throwALeaseSuccessList.json", {
+        .post("/cms/contract/cancelList.json", {
           contractState: val
         })
         .then(res => {
-          let resData = res.data.length ? res.data : res.data.data;
+          let resData = res.data.data.list;
           this.contractList = resData && resData.length ? resData : [];
         })
         .catch(() => {
