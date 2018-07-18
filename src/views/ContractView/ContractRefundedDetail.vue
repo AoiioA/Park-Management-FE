@@ -302,17 +302,17 @@ export default {
       reason: "",
       result: {
         text: "通过",
-        value: "通过"
+        value: "审核通过"
       }
     },
     examineRefundedSelect: [
       {
         text: "通过",
-        value: "通过"
+        value: "审核通过"
       },
       {
         text: "驳回",
-        value: "未通过"
+        value: "审核未通过"
       }
     ]
   }),

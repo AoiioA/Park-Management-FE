@@ -41,17 +41,7 @@
                 <v-layout row wrap>
                   <v-flex xs12 sm4><v-text-field v-model="newCTRT.signedPersonB" :rules="[$store.state.rules.required]" label="承租方签订人" hint="" persistent-hint box required></v-text-field></v-flex>
                   <v-flex xs12 sm4><v-text-field v-model="newCTRT.companyTel" :rules="[$store.state.rules.required]" mask="(+##)###-####-####" label="承租方联系方式" hint="" persistent-hint box required></v-text-field></v-flex>
-                  <!-- <v-flex xs12 sm4><v-text-field v-model="newCTRT.companyIndustry" :rules="[$store.state.rules.required]" label="承租方所属行业" hint="" persistent-hint box required></v-text-field></v-flex> -->
-                  <v-flex xs12 sm4>
-                    <v-menu v-model="menu.companyIndustry" lazy offset-y nudge-top="20">
-                      <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="newCTRT.companyIndustry" label="承租方所属行业" hint="" persistent-hint box required readonly></v-text-field>
-                      <v-list style="max-height: 200px; overflow-y: auto;">
-                        <v-list-tile v-for="industry in companyIndustryInfo" :key="industry" @click="newCTRT.companyIndustry=industry">
-                          <v-list-tile-title>{{industry}}</v-list-tile-title>
-                        </v-list-tile>
-                      </v-list>
-                    </v-menu>
-                  </v-flex>
+                  <v-flex xs12 sm4><v-select v-model="newCTRT.companyIndustry" :items="companyIndustryInfo" :rules="[$store.state.rules.required]" label="承租方所属行业" hint="" persistent-hint box require></v-select></v-flex>
                   <v-flex xs12><v-text-field v-model="newCTRT.companyAddress" :rules="[$store.state.rules.required]" label="承租方通讯地址" hint="" persistent-hint box required></v-text-field></v-flex>
                 </v-layout>
                 <v-divider class="my-4"></v-divider>
@@ -73,13 +63,13 @@
           <v-stepper-content step="2">
             <v-form ref="assetsForm" v-model="formValid[1]" lazy-validation>
               <v-container grid-list-md>
-                <v-layout row no-wrap v-for="(assets, assetsIndex) in newAssets" :key="assetsIndex" align-center style="overflow:auto;">
+                <v-layout row no-wrap v-for="(assets, assetsIndex) in newAssets" :key="assetsIndex" align-start style="overflow:auto;">
                   <v-flex xs1 order-sm1 v-if="newAssets.length!=1" style="min-width: 44px;">
                     <v-btn @click="deleteNewAssets(assetsIndex)" flat icon color="pink" class="mx-0">
                       <v-icon>delete</v-icon>
                     </v-btn>
                   </v-flex>
-                  <v-flex xs6 sm4 style="min-width: 200px;">
+                  <v-flex xs6 sm3 style="min-width: 150px;">
                     <v-menu v-model="assets.buildingMenu" :close-on-content-click="false" offset-y nudge-top="20" lazy>
                       <v-text-field slot="activator" @click="getPark()" :rules="[$store.state.rules.required]" :value="assets.buildingName" label="签约楼宇" :hint="assets.parkName" persistent-hint box required readonly></v-text-field>
                       <v-list style="max-height: 200px; overflow-y: auto;">
@@ -101,7 +91,7 @@
                   </v-flex>
                   <v-flex xs6 sm4 style="min-width: 200px;">
                     <v-menu v-model="assets.houseMenu" :disabled="!assets.buildingName" :close-on-content-click="false" lazy offset-y nudge-top="20">
-                      <v-text-field slot="activator" @click="getHouse(assets.buildingNo)" :disabled="!assets.buildingName" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.doorNumber}室 - ${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(assets.floorNumber)}层` : ''" label="签约房源" :hint="assets.houseId?`单间面积 ${assets.buildArea}M²`:''" persistent-hint box required readonly></v-text-field>
+                      <v-text-field slot="activator" @click="getHouse(assets.buildingNo)" :disabled="!assets.buildingName" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.doorNumber}室 - ${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(assets.floorNumber)}层` : ''" label="签约房源" :hint="assets.houseId?`${assets.buildArea}M², ${assets.availableDate.slice(0, 10)}可租`:''" persistent-hint box required readonly></v-text-field>
                       <v-list style="max-height: 200px; overflow-y: auto;">
                         <v-list-tile v-if="!assetsFloorInfo.length">
                           <v-list-tile-title>暂无房源可以添加</v-list-tile-title>
@@ -139,16 +129,7 @@
                   <v-flex xs12 sm6><v-text-field v-model="newCTRT.contractNo" :rules="[$store.state.rules.required]" label="合同编号" hint="例:ABCD-YYYYMMDD-1234" persistent-hint box></v-text-field></v-flex>
                   <v-flex xs12 sm6><v-text-field v-model="newCTRT.contractName" :rules="[$store.state.rules.required]" label="合同名称" hint="" persistent-hint box required></v-text-field></v-flex>
                   <v-flex xs12 sm6><v-text-field v-model="newCTRT.address" :rules="[$store.state.rules.required]" label="合同签署地址" hint="" persistent-hint box required></v-text-field></v-flex>
-                  <v-flex xs12 sm3>
-                    <v-menu v-model="menu.purpose" lazy offset-y nudge-top="20">
-                      <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="newCTRTOther.purpose" label="租赁用途" hint="" persistent-hint box required readonly></v-text-field>
-                      <v-list style="max-height: 200px; overflow-y: auto;">
-                        <v-list-tile v-for="use in purposeInfo" :key="use" @click="newCTRTOther.purpose=use">
-                          <v-list-tile-title>{{ use }}</v-list-tile-title>
-                        </v-list-tile>
-                      </v-list>
-                    </v-menu>
-                  </v-flex>
+                  <v-flex xs12 sm3><v-select v-model="newCTRTOther.purpose" :items="purposeInfo" :rules="[$store.state.rules.required]" label="租赁用途" hint="" persistent-hint box require></v-select></v-flex>
                   <v-flex xs12 sm3>
                     <v-menu :close-on-content-click="false" v-model="menu.signingDate" offset-y lazy>
                       <v-text-field slot="activator" v-model="newCTRT.signingDate" :rules="[$store.state.rules.required]" label="签订日期" hint="" persistent-hint box required readonly></v-text-field>
@@ -173,16 +154,7 @@
                   <v-flex xs12 sm4><v-text-field v-model="newCTRT.deposit" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="押金(元)" hint="合同生效后既缴纳<br />合同到期后返还" persistent-hint type="number" box required></v-text-field></v-flex>
                   <v-flex xs12 sm4><v-text-field v-model="newCTRT.liquidatedDamages" :rules="[$store.state.rules.required, $store.state.rules.nonnegative]" label="违约金(元)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
                   <!-- <v-flex xs12 sm4><v-text-field v-model="newCTRT.month" :rules="[$store.state.rules.required, $store.state.rules.noZero]" mask="##" label="租金缴纳周期(月)" hint="" persistent-hint box required></v-text-field></v-flex> -->
-                  <v-flex xs12 sm4>
-                    <v-menu v-model="menu.month" lazy offset-y nudge-top="20">
-                      <v-text-field slot="activator" :rules="[$store.state.rules.required]" :value="`每${newCTRT.month}个月`" label="租金缴纳周期" hint="" persistent-hint box required readonly></v-text-field>
-                      <v-list>
-                        <v-list-tile v-for="monthNum in [1, 3, 6, 12]" :key="monthNum" @click="newCTRT.month=monthNum">
-                          <v-list-tile-title>每{{monthNum}}个月</v-list-tile-title>
-                        </v-list-tile>
-                      </v-list>
-                    </v-menu>
-                  </v-flex>
+                  <v-flex xs12 sm4><v-select v-model="newCTRT.month" :items="[1, 3, 6, 12]" :rules="[$store.state.rules.required]" label="租金缴纳周期(月)" hint="" persistent-hint box require></v-select></v-flex>
                   <v-flex xs12 sm4><v-text-field v-model="newCTRTOther.increaseRate" :rules="[$store.state.rules.required]" label="租金年递增率(%)" hint="" persistent-hint type="number" box required></v-text-field></v-flex>
                   <v-flex xs12 sm4>
                     <v-menu v-model="menu.increaseType" lazy offset-y nudge-top="20">
@@ -225,19 +197,12 @@
                     class="elevation-1 mb-4"
                   >
                     <template slot="items" slot-scope="props">
-                      <!-- <tr @click="props.expanded = !props.expanded"> -->
                       <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
                       <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
                       <td v-if="props.item.payDay">{{ props.item.payDay.slice(0, 10) }}</td>
                       <td>{{ props.item.houseTotal.toFixed(2) }}元</td>
                       <td>{{ props.item.propertyFees.toFixed(2) }}元</td>
-                      <!-- </tr> -->
                     </template>
-                    <!-- <template slot="expand" slot-scope="props">
-                      <v-card flat>
-                        <v-card-text>Peek-a-boo!</v-card-text>
-                      </v-card>
-                    </template> -->
                     <template slot="footer" v-if="rentDetail.contractRentDetailDtoList">
                       <td colspan="100%">
                         <small v-if="rentDetail.contractRentDetailDtoList">租金总计 : {{ rentDetail.contractRentDetailDtoList.map(el=>el.houseTotal).reduce((all, el, i) => parseFloat(all) + parseFloat(el)).toFixed(0) }}元</small>
@@ -270,12 +235,9 @@ export default {
     networkError: null,
     CTRTInfoURL: {
       new: { title: "添加新合同", to: "contractSub/queryOne" },
-      editing: { title: "编辑待提交合同", to: "contractSub/queryOne" },
-      failed: { title: "编辑未过审合同", to: "contractSub/queryOne" },
-      fulfilling: { title: "续签生效合同", to: "contract/view" },
-      changed: { title: "续签变更合同", to: "contract/viewCancelContract" },
-      refunded: { title: "续签退租合同", to: "contract/viewThrowALease" },
-      expired: { title: "续签到期合同", to: "contract/view" }
+      edit: { title: "编辑合同", to: "contractSub/queryOne" },
+      renew: { title: "续签合同", to: "contract/view" },
+      change: { title: "变更合同", to: "contract/viewCancelContract" }
     },
     stepNum: 1,
     formValid: [true, true, true, true],
@@ -365,7 +327,6 @@ export default {
     purposeInfo: ["办公", "餐饮", "娱乐"],
     menu: {
       companyIndustry: false,
-      purpose: false,
       signingDate: false,
       startDate: false,
       endDate: false,
@@ -433,62 +394,72 @@ export default {
   },
   methods: {
     initialize() {
-      if (["new"].indexOf(this.$route.query.newType) >= 0) {
-        // 若为新建 则添加一条空房源信息
-        this.addNewAssets({});
-      } else {
-        // 若不为新建 则加载原合同信息
-        this.getCTRT();
+      switch (this.$route.query.newType) {
+        case "new":
+          // 若为新建 则添加一条空房源信息
+          this.addNewAssets({});
+          break;
+        case "edit":
+          // 若为编辑 则加载原合同信息
+          this.getCTRT();
+          break;
+        case "change":
+          // 若为变更 则加载原合同信息
+          this.getCTRT();
+          break;
+        case "renew":
+          // 若为新建 则添加一条空房源信息
+          this.getRenewCTRT();
+          break;
+        default:
+          this.networkError = "参数错误";
       }
     },
     getCTRT() {
       this.networkLoading = true;
       this.networkError = null;
       // 查询编辑的合同信息
-      if (this.$route.query.renewId) {
-        this.$http
-          .get(`/cms/${this.CTRTInfoURL[this.$route.query.newType].to}.json`, {
-            params: {
-              id: this.$route.query.renewId
-            }
-          })
-          .then(res => {
-            this.oldCTRT = res.data.data;
-            if (["editing", "failed"].indexOf(this.$route.query.newType) >= 0) {
-              this.copyCTRTInfo(this.oldCTRT);
-            }
-          })
-          .catch(err => {
-            this.networkError = err;
-            this.$store.commit("addErrorBar", "编辑合同详情查询失败");
-          })
-          .finally(() => (this.networkLoading = false));
-      }
+      this.$http
+        .get(`/cms/${this.CTRTInfoURL[this.$route.query.newType].to}.json`, {
+          params: {
+            id: this.$route.query.renewId
+          }
+        })
+        .then(res => {
+          this.oldCTRT = res.data.data;
+          this.copyCTRTInfo(this.oldCTRT);
+        })
+        .catch(err => {
+          this.networkError = err;
+          this.$store.commit("addErrorBar", "原合同信息查询失败");
+        })
+        .finally(() => (this.networkLoading = false));
+    },
+    getRenewCTRT() {
+      this.networkLoading = true;
+      this.networkError = null;
       // 查询续签的合同信息
-      if (this.$route.query.exId) {
-        this.$http
-          .get(`/cms/contract/view.json`, {
-            params: {
-              id: this.$route.query.exId
-            }
-          })
-          .then(res => {
-            this.exCTRT = res.data.data;
-            if (["editing", "failed"].indexOf(this.$route.query.newType) < 0) {
-              this.copyCTRTInfo(this.exCTRT);
-            }
-          })
-          .catch(err => {
-            this.networkError = err;
-            this.$store.commit("addErrorBar", "续签原合同详情查询失败");
-          })
-          .finally(() => (this.networkLoading = false));
-      }
+      this.$http
+        .get(`/cms/contract/view.json`, {
+          params: {
+            id: this.$route.query.exId
+          }
+        })
+        .then(res => {
+          this.exCTRT = res.data.data;
+          this.copyCTRTInfo(this.exCTRT);
+        })
+        .catch(err => {
+          this.networkError = err;
+          this.$store.commit("addErrorBar", "续签合同信息查询失败");
+        })
+        .finally(() => (this.networkLoading = false));
     },
     copyCTRTInfo(oldCTRT) {
       // 改变newCTRT
-      let uselessKeys = []; // 续签时不需要的字段
-      if (["new", "editing", "failed"].indexOf(this.$route.query.newType) < 0) {
+      let uselessKeys = [];
+      // 续签时不需要的字段
+      if (this.$route.query.newType == "renew") {
         uselessKeys = [
           "contractNo",
           "contractState",
@@ -497,6 +468,7 @@ export default {
           "endDate"
         ];
       }
+      // 复制合同信息
       for (let key in _.omit(oldCTRT, uselessKeys)) {
         if (this.newCTRT.hasOwnProperty(key)) {
           if (["signingDate", "startDate", "endDate"].indexOf(key) >= 0) {
@@ -506,14 +478,19 @@ export default {
           }
         }
       }
-      this.newCTRT.exContractNo = oldCTRT.id;
-      // 改变newCTRTOther
+      // 处理前序合同字段
+      if (this.$route.query.newType == "renew") {
+        this.newCTRT.exContractNo = oldCTRT.contractNo;
+      } else {
+        this.newCTRT.exContractNo = oldCTRT.exContractNo;
+      }
+      // 处理房屋信息中需统一的字段
       this.newCTRTOther = {
         increaseType: oldCTRT.houseAndBuildingDtos[0].increaseType,
         increaseRate: oldCTRT.houseAndBuildingDtos[0].increaseRate * 100,
         purpose: oldCTRT.houseAndBuildingDtos[0].purpose
       };
-      // 改变newAssets
+      // 转换房屋信息部分字段
       oldCTRT.houseAndBuildingDtos = oldCTRT.houseAndBuildingDtos.map(item => {
         item.parkNo = item.parkId;
         item.buildingNo = item.buildingId;
@@ -524,11 +501,8 @@ export default {
       });
     },
     getPark() {
-      // 若为新建或编辑新建 则获取全部闲置房源
-      if (
-        ["new", "editing", "failed"].indexOf(this.$route.query.newType) >= 0 &&
-        !this.newCTRT.exContractNo
-      ) {
+      // 若不为续签 则获取全部闲置房源
+      if (this.$route.query.newType != "renew") {
         this.$http
           .post("/cms/AssetsInfo/park.json")
           .then(res => {
@@ -539,7 +513,7 @@ export default {
           })
           .catch(() => this.$store.commit("addErrorBar", "楼宇信息查询失败"));
       } else {
-        // 若为续签或编辑续签 则仅获取原合同房源
+        // 若为续签 则仅获取原合同房源
         this.assetsInfo = this.translatePark(this.exCTRT.houseAndBuildingDtos);
       }
     },
@@ -586,11 +560,8 @@ export default {
     getHouse(assetsBuildingNo) {
       // 将assetsFloorInfo置空
       this.assetsFloorInfo = [];
-      // 若为新建或编辑新建 则获取全部闲置房源
-      if (
-        ["new", "editing", "failed"].indexOf(this.$route.query.newType) >= 0 &&
-        !this.newCTRT.exContractNo
-      ) {
+      // 若不为续签 则获取全部闲置房源
+      if (this.$route.query.newType != "renew") {
         // 请求楼宇下房源列表
         this.$http
           .post("/cms/AssetsInfo/building.json", {
@@ -609,7 +580,7 @@ export default {
             this.$store.commit("addErrorBar", "楼宇所含房源信息查询失败")
           );
       } else {
-        // 若为续签或编辑续签 则仅获取原合同房源
+        // 若为续签 则仅获取原合同房源
         this.assetsFloorInfo = this.translateBuilding(
           this.exCTRT.houseAndBuildingDtos,
           assetsBuildingNo
@@ -661,12 +632,8 @@ export default {
           houseType: 1,
           availableDate: ""
         });
-        if (
-          ["new", "editing", "failed"].indexOf(this.$route.query.newType) >=
-            0 &&
-          !this.newCTRT.exContractNo
-        ) {
-          // 请求该楼宇下房源信息
+        // 若不为续签 则请求该楼宇下房源信息
+        if (this.$route.query.newType != "renew") {
           this.$http
             .post("/cms/AssetsInfo/house.json", {
               houseNo: assetsHouse.houseNo
@@ -684,7 +651,7 @@ export default {
             })
             .catch(() => this.$store.commit("addErrorBar", "房源信息查询失败"));
         } else {
-          // 若为续签或编辑续签 则仅获取原合同房源
+          // 若为续签 则仅获取原合同房源
           let exHouse = this.exCTRT.houseAndBuildingDtos.find(
             item => item.houseNo == assetsHouse.houseNo
           );
@@ -749,6 +716,13 @@ export default {
       }
     },
     submitContract(isSummit) {
+      if (this.$router == "change") {
+        this.changeContract(isSummit);
+      } else {
+        this.addContract(isSummit);
+      }
+    },
+    addContract(isSummit) {
       let CTRTData = Object.assign({}, this.newCTRT, {
         contractState: isSummit ? "待审核" : "待提交",
         contractHouseDtos: this.newAssets.map(item => ({
@@ -761,7 +735,49 @@ export default {
         }))
       });
       let submitUrl = "addContract";
-      if (["editing", "failed"].indexOf(this.$route.query.newType) >= 0) {
+      if (this.$route.query.newType == "edit") {
+        Object.assign(CTRTData, { id: Number(this.$route.query.renewId) });
+        submitUrl = "modifyUnSubmit";
+      }
+      if (this.formValid.reduce((all, el) => all && el)) {
+        this.$http
+          .post(`/cms/contractSub/${submitUrl}.json`, CTRTData)
+          .then(res => {
+            if (res.data.code == 0) {
+              if (!isSummit) {
+                this.$store.commit("addSuccessBar", "合同保存成功 可稍后编辑");
+              } else {
+                this.$store.commit("addSuccessBar", "合同提交成功 等待审核");
+              }
+              this.$router.go(-1);
+            } else {
+              throw new Error(res.data.meg);
+            }
+          })
+          .catch(() =>
+            this.$store.commit(
+              "addErrorBar",
+              "合同提交出现错误 请检查网络后重试"
+            )
+          );
+      } else {
+        this.$store.commit("addErrorBar", "合同信息填写有误 请检查后重试");
+      }
+    },
+    changeContract(isSummit) {
+      let CTRTData = Object.assign({}, this.newCTRT, {
+        contractState: isSummit ? "待审核" : "待提交",
+        contractHouseDtos: this.newAssets.map(item => ({
+          houseId: item.houseId,
+          rent: item.price,
+          increaseType: this.newCTRTOther.increaseType,
+          increaseRate: this.newCTRTOther.increaseRate / 100,
+          purpose: this.newCTRTOther.purpose,
+          type: "房屋"
+        }))
+      });
+      let submitUrl = "addContract";
+      if (this.$route.query.newType == "edit") {
         Object.assign(CTRTData, { id: Number(this.$route.query.renewId) });
         submitUrl = "modifyUnSubmit";
       }

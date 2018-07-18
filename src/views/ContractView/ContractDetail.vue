@@ -198,20 +198,13 @@
                   class="elevation-1"
                 >
                   <template slot="items" slot-scope="props">
-                    <!-- <tr @click="props.expanded = !props.expanded"> -->
                     <td v-if="props.item.rentType">{{ props.item.rentType }}</td>
                     <td v-if="props.item.payDate">{{ props.item.payDate.slice(0, 10) }}</td>
                     <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
                     <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
                     <td>{{ props.item.totalRent }}元</td>
                     <td>{{ props.item.state }}</td>
-                    <!-- </tr> -->
                   </template>
-                  <!-- <template slot="expand" slot-scope="props">
-                    <v-card flat>
-                      <v-card-text>Peek-a-boo!</v-card-text>
-                    </v-card>
-                  </template> -->
                   <template slot="footer">
                     <td colspan="100%" class="text-xs-right">
                       <span v-if="CTRTInfo.rentBillListDtos">金额总计 : {{ CTRTInfo.rentBillListDtos.map(el=>el.totalRent).reduce((all, el, i) => parseFloat(all) + parseFloat(el)) }}元</span>
@@ -230,47 +223,27 @@
             </v-btn>
             <span>展开操作</span>
           </v-tooltip>
-          <v-tooltip left v-if="['editing', 'failed'].indexOf($route.query.contractType)>=0">
-            <v-btn slot="activator" fab small dark color="pink" :to="{ name: 'contract-new', query: { newType: 'editing', renewId: CTRTInfo.id, exId: CTRTInfo.exContractNo } }">
+          <v-tooltip left v-if="['editing', 'new-failed'].indexOf($route.query.contractType)>=0">
+            <v-btn slot="activator" fab small dark color="pink" :to="{ name: 'contract-new', query: { newType: 'edit', renewId: CTRTInfo.id } }">
               <v-icon>edit</v-icon>
             </v-btn>
             <span>编辑</span>
           </v-tooltip>
-          <v-tooltip left v-if="['fulfilling'].indexOf($route.query.contractType)>=0">
-            <v-btn slot="activator" fab small dark color="pink" :to="{ name: 'contract-new', query: { newType: $route.query.contractType, exId: CTRTInfo.id } }">
+          <v-tooltip left v-if="['fulfilling', 'expired'].indexOf($route.query.contractType)>=0">
+            <v-btn slot="activator" fab small dark color="pink" :to="{ name: 'contract-new', query: { newType: 'change', renewId: CTRTInfo.id } }">
               <v-icon>edit</v-icon>
+            </v-btn>
+            <span>变更</span>
+          </v-tooltip>
+          <v-tooltip left v-if="['fulfilling'].indexOf($route.query.contractType)>=0">
+            <v-btn slot="activator" fab small dark color="pink" :to="{ name: 'contract-new', query: { newType: 'renew', exId: CTRTInfo.id } }">
+              <v-icon>file_copy</v-icon>
             </v-btn>
             <span>续签</span>
           </v-tooltip>
-          <v-dialog v-if="['fulfilling'].indexOf($route.query.contractType)>=0" v-model="dialog.changedDialog" persistent max-width="480">
-            <v-tooltip left slot="activator">
-              <v-btn slot="activator" fab small dark color="pink">
-                <v-icon>delete_sweep</v-icon>
-              </v-btn>
-              <span>变更</span>
-            </v-tooltip>
-            <v-card>
-              <v-card-title class="headline">即将提交变更申请</v-card-title>
-              <v-form ref="changedForm" v-model="formValid.changedValid" lazy-validation>
-                <v-divider></v-divider>
-                <v-dialog v-model="changedInfo.modal" lazy full-width width="290px">
-                  <v-text-field slot="activator" v-model="changedInfo.cancelDate" :rules="[$store.state.rules.required]" label="变更时间" hide-details solo flat single-line required readonly></v-text-field>
-                  <v-date-picker v-model="changedInfo.cancelDate" :min="getDay(new Date(), 0)" :max="getDay(CTRTInfo.endDate, -1)" :first-day-of-week="0" show-current locale="zh-cn" @input="changedInfo.modal = false;"></v-date-picker>
-                </v-dialog>
-                <v-divider></v-divider>
-                <v-textarea v-model="changedInfo.reason" :rules="[$store.state.rules.lengthLessThan(100)]" label="变更理由" counter="100" solo flat single-line required></v-textarea>
-                <v-divider></v-divider>
-              </v-form>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn @click.native="closeChanged" flat>取消操作</v-btn>
-                <v-btn :disabled="!formValid.changedValid" @click.native="saveChanged" color="error" depressed>确认变更</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
           <v-tooltip left v-if="['fulfilling', 'expired'].indexOf($route.query.contractType)>=0">
             <v-btn slot="activator" fab small dark color="pink" :to="{ name: 'contract-refunded', params: { contractId: CTRTInfo.id }, query: { contractType: $route.query.contractType } }">
-              <v-icon>money_off</v-icon>
+              <v-icon>delete_sweep</v-icon>
             </v-btn>
             <span>退租</span>
           </v-tooltip>
