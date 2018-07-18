@@ -215,6 +215,16 @@
             </v-layout>
           </v-container>
         </v-jumbotron>
+        <v-dialog v-model="dialog.canNotRenew" persistent max-width="290">
+          <v-card>
+            <v-card-title class="headline">不符合续签条件</v-card-title>
+            <v-card-text>可能已有续签合同或前序合同尚未失效。</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" flat @click.native="dialog.canNotRenew = false">知道了</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
         <v-speed-dial v-model="dialog.fab" fixed bottom right>
           <v-tooltip left slot="activator">
             <v-btn slot="activator" v-model="dialog.fab" fab dark color="primary">
@@ -236,7 +246,7 @@
             <span>变更</span>
           </v-tooltip>
           <v-tooltip left v-if="['fulfilling'].indexOf($route.query.contractType)>=0">
-            <v-btn slot="activator" fab small dark color="pink" :to="{ name: 'contract-new', query: { newType: 'renew', exId: CTRTInfo.id } }">
+            <v-btn slot="activator" fab small dark color="pink" @click="checkRenewable">
               <v-icon>file_copy</v-icon>
             </v-btn>
             <span>续签</span>
@@ -276,8 +286,6 @@
 </template>
 
 <script>
-// import _ from "lodash";
-
 export default {
   name: "contract-detail",
   data: () => ({
@@ -307,7 +315,8 @@ export default {
     dialog: {
       fab: false,
       examineNewDialog: false,
-      changedDialog: false
+      changedDialog: false,
+      canNotRenew: false
     },
     formValid: {
       examineNewValid: true,
@@ -357,11 +366,6 @@ export default {
       }
     ]
   }),
-  created() {
-    this.changedInfo = Object.assign({}, this.defaultChanged);
-    this.examineNewInfo = Object.assign({}, this.defaultExamineNew);
-    this.initialize();
-  },
   watch: {
     "$route.params.contractId"() {
       this.$router.go(0);
@@ -369,6 +373,11 @@ export default {
     "$route.query.contractType"() {
       this.$router.go(0);
     }
+  },
+  created() {
+    this.changedInfo = Object.assign({}, this.defaultChanged);
+    this.examineNewInfo = Object.assign({}, this.defaultExamineNew);
+    this.initialize();
   },
   methods: {
     initialize() {
@@ -401,6 +410,31 @@ export default {
         2,
         0
       )}-${String(t.getDate()).padStart(2, 0)}`;
+    },
+    checkRenewable() {
+      this.$http
+        .get(`/cms/contract/checkRenewable.json`, {
+          params: {
+            id: this.$route.params.contractId
+          }
+        })
+        .then(res => {
+          if (res.data.code != 500) {
+            if (res.data.data == "true") {
+              this.$router.push({
+                name: "contract-new",
+                query: { newType: "renew", exId: this.CTRTInfo.id }
+              });
+            } else {
+              this.dialog.canNotRenew = true;
+            }
+          } else {
+            throw new Error(res.data.msg);
+          }
+        })
+        .catch(err => {
+          this.$store.commit("addErrorBar", `查询可否续签失败 ${err}`);
+        });
     },
     closeChanged() {
       this.dialog.changedDialog = false;

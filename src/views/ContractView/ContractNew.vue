@@ -176,9 +176,9 @@
               <v-btn @click.native="stepNum--" flat>后退</v-btn>
             </v-form>
           </v-stepper-content>
-          <v-stepper-step step="4">
-            请确认信息无误并提交申请
-            <small>未通过的申请将在审核未通过列表中供重新填写提交</small>
+          <v-stepper-step :complete="stepNum>4" step="4">
+            请确认租金信息无误
+            <!-- <small>未通过的申请将在审核未通过列表中供重新填写提交</small> -->
           </v-stepper-step>
           <v-stepper-content step="4">
             <v-container grid-list-md>
@@ -215,8 +215,30 @@
                 </v-flex>
               </v-layout>
             </v-container>
-            <v-btn :disabled="!formValid.reduce((all, el) => all && el)" @click.native="submitContract(true)" color="primary" depressed>确认无误并提交</v-btn>
-            <v-btn :disabled="!formValid.reduce((all, el) => all && el)" @click.native="submitContract(false)" flat>仅保存</v-btn>
+            <v-btn v-if="$route.query.newType != 'change'" :disabled="!formValid.reduce((all, el) => all && el)" @click.native="addContract(true)" color="primary" depressed>确认无误并提交</v-btn>
+            <v-btn v-if="$route.query.newType != 'change'" :disabled="!formValid.reduce((all, el) => all && el)" @click.native="addContract(false)" flat>仅保存</v-btn>
+            <v-btn v-if="$route.query.newType == 'change'" @click.native="nextStep($refs.dateForm)" color="primary" depressed>填写变更申请</v-btn>
+            <v-btn @click.native="stepNum--" flat>后退</v-btn>
+          </v-stepper-content>
+          <v-stepper-step step="5" v-if="$route.query.newType == 'change'">
+            填写申请信息并提交
+            <small></small>
+          </v-stepper-step>
+          <v-stepper-content step="5" v-if="$route.query.newType == 'change'">
+            <v-form ref="changeForm" v-model="changeFormValid" lazy-validation>
+              <v-container grid-list-md>
+                <v-layout row wrap>
+                  <v-flex xs6>
+                    <v-menu v-model="menu.changeDate" :close-on-content-click="false" lazy offset-y>
+                      <v-text-field slot="activator" v-model="changeInfo.cancelDate" :rules="[$store.state.rules.required]" label="变更时间" :hint="`将于${oldCTRT.endDate&&oldCTRT.endDate.slice(0, 10)}到期`" persistent-hint box required readonly></v-text-field>
+                      <v-date-picker v-model="changeInfo.cancelDate" :min="oldCTRT.startDate" :max="oldCTRT.endDate" :first-day-of-week="0" show-current locale="zh-cn" @input="menu.changeDate = false;"></v-date-picker>
+                    </v-menu>
+                  </v-flex>
+                  <v-flex xs12><v-textarea v-model="changeInfo.reason" :rules="[$store.state.rules.required, $store.state.rules.lengthLessThan(100)]" label="变更理由" counter="100" box required></v-textarea></v-flex>
+                </v-layout>
+              </v-container>
+            </v-form>
+            <v-btn :disabled="!(formValid.reduce((all, el) => all && el)&&changeFormValid)" @click.native="changeContract" color="primary" depressed>确认无误并提交</v-btn>
             <v-btn @click.native="stepNum--" flat>后退</v-btn>
           </v-stepper-content>
         </v-stepper>
@@ -237,7 +259,7 @@ export default {
       new: { title: "添加新合同", to: "contractSub/queryOne" },
       edit: { title: "编辑合同", to: "contractSub/queryOne" },
       renew: { title: "续签合同", to: "contract/view" },
-      change: { title: "变更合同", to: "contract/viewCancelContract" }
+      change: { title: "变更合同", to: "contract/view" }
     },
     stepNum: 1,
     formValid: [true, true, true, true],
@@ -331,7 +353,13 @@ export default {
       startDate: false,
       endDate: false,
       month: false,
-      increaseType: false
+      increaseType: false,
+      changeDate: false
+    },
+    changeFormValid: true,
+    changeInfo: {
+      cancelDate: "",
+      reason: ""
     },
     rules: {
       // afterSigning: val =>
@@ -343,14 +371,14 @@ export default {
   computed: {
     minSigningDate() {
       // 续签的签订日期需晚于前合同的签订日期
-      if (this.$route.query.exId && this.exCTRT.signingDate) {
+      if (this.exCTRT && this.exCTRT.signingDate) {
         return this.getDay(this.exCTRT.signingDate, 1);
       }
       return "";
     },
     minStartDate() {
       // 续签的记租日期需晚于前合同的结束日期
-      if (this.$route.query.exId && this.exCTRT.signingDate) {
+      if (this.exCTRT && this.exCTRT.signingDate) {
         return this.getDay(
           new Date(
             Math.max(
@@ -386,6 +414,17 @@ export default {
           : `由 ${this.getDay(endD, 1)}开始<br/>至 ${afterD}到期`;
       }
       return "";
+    }
+  },
+  watch: {
+    "$route.query.newType"() {
+      this.$router.go(0);
+    },
+    "$route.query.renewId"() {
+      this.$router.go(0);
+    },
+    "$route.query.exId"() {
+      this.$router.go(0);
     }
   },
   created() {
@@ -715,13 +754,6 @@ export default {
         this.$store.commit("addErrorBar", "合同信息填写有误 请检查后重试");
       }
     },
-    submitContract(isSummit) {
-      if (this.$router == "change") {
-        this.changeContract(isSummit);
-      } else {
-        this.addContract(isSummit);
-      }
-    },
     addContract(isSummit) {
       let CTRTData = Object.assign({}, this.newCTRT, {
         contractState: isSummit ? "待审核" : "待提交",
@@ -736,7 +768,7 @@ export default {
       });
       let submitUrl = "addContract";
       if (this.$route.query.newType == "edit") {
-        Object.assign(CTRTData, { id: Number(this.$route.query.renewId) });
+        Object.assign(CTRTData, { id: Number(this.oldCTRT.id) });
         submitUrl = "modifyUnSubmit";
       }
       if (this.formValid.reduce((all, el) => all && el)) {
@@ -764,33 +796,32 @@ export default {
         this.$store.commit("addErrorBar", "合同信息填写有误 请检查后重试");
       }
     },
-    changeContract(isSummit) {
-      let CTRTData = Object.assign({}, this.newCTRT, {
-        contractState: isSummit ? "待审核" : "待提交",
-        contractHouseDtos: this.newAssets.map(item => ({
-          houseId: item.houseId,
-          rent: item.price,
-          increaseType: this.newCTRTOther.increaseType,
-          increaseRate: this.newCTRTOther.increaseRate / 100,
-          purpose: this.newCTRTOther.purpose,
-          type: "房屋"
-        }))
-      });
-      let submitUrl = "addContract";
-      if (this.$route.query.newType == "edit") {
-        Object.assign(CTRTData, { id: Number(this.$route.query.renewId) });
-        submitUrl = "modifyUnSubmit";
-      }
-      if (this.formValid.reduce((all, el) => all && el)) {
+    changeContract() {
+      let CTRTData = {
+        addContractSubDTO: Object.assign({}, this.newCTRT, {
+          contractHouseDtos: this.newAssets.map(item => ({
+            houseId: item.houseId,
+            rent: item.price,
+            increaseType: this.newCTRTOther.increaseType,
+            increaseRate: this.newCTRTOther.increaseRate / 100,
+            purpose: this.newCTRTOther.purpose,
+            type: "房屋"
+          }))
+        }),
+        contractCancelDto: Object.assign({}, this.changeInfo, {
+          id: Number(this.oldCTRT.id)
+        })
+      };
+      let submitUrl = "/cms/contract/cancel.json";
+      if (
+        this.formValid.reduce((all, el) => all && el) &&
+        this.$refs.changeForm.validate()
+      ) {
         this.$http
-          .post(`/cms/contractSub/${submitUrl}.json`, CTRTData)
+          .post(submitUrl, CTRTData)
           .then(res => {
             if (res.data.code == 0) {
-              if (!isSummit) {
-                this.$store.commit("addSuccessBar", "合同保存成功 可稍后编辑");
-              } else {
-                this.$store.commit("addSuccessBar", "合同提交成功 等待审核");
-              }
+              this.$store.commit("addSuccessBar", "合同变更提交成功 等待审核");
               this.$router.go(-1);
             } else {
               throw new Error(res.data.meg);
@@ -799,7 +830,7 @@ export default {
           .catch(() =>
             this.$store.commit(
               "addErrorBar",
-              "合同提交出现错误 请检查网络后重试"
+              "合同变更提交出现错误 请检查网络后重试"
             )
           );
       } else {
