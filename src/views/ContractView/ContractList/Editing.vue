@@ -88,7 +88,7 @@ export default {
           contractState: "待提交"
         })
         .then(res => {
-          let resData = res.data;
+          let resData = res.data.data;
           this.contractList = resData && resData.length ? resData : [];
         })
         .catch(() => {

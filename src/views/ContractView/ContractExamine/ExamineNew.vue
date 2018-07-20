@@ -139,7 +139,7 @@ export default {
           contractState: val
         })
         .then(res => {
-          let resData = res.data;
+          let resData = res.data.data;
           this.contractList = resData && resData.length ? resData : [];
         })
         .catch(() => {
