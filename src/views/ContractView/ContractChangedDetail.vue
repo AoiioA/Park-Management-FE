@@ -149,7 +149,7 @@
             </v-layout>
             <v-layout wrap>
               <v-flex xs12 md6>
-                <v-subheader>退租申请信息</v-subheader>
+                <v-subheader>变更申请信息</v-subheader>
                 <v-card>
                   <v-list dense style="height: 128px;">
                     <v-list-tile>
@@ -164,7 +164,7 @@
                 </v-card>
               </v-flex>
               <v-flex xs12 md6 v-if="['changed-submitted'].indexOf($route.query.contractType)==-1">
-                <v-subheader>退租审批信息</v-subheader>
+                <v-subheader>变更审批信息</v-subheader>
                 <v-card>
                   <v-list dense style="height: 128px;">
                     <v-list-tile>
@@ -183,12 +183,12 @@
                 </v-card>
               </v-flex>
               <v-flex xs12 v-if="CTRTInfo.addRefundBillDtos">
-                <v-subheader>当前合同退租明细</v-subheader>
+                <v-subheader>当前合同变更明细</v-subheader>
                 <v-data-table
                   :headers="rentHeaders"
                   :items="CTRTInfo.addRefundBillDtos"
                   item-key="id"
-                  no-data-text="暂无退租明细"
+                  no-data-text="暂无变更明细"
                   class="elevation-1"
                 >
                   <template slot="items" slot-scope="props">
@@ -217,7 +217,7 @@
               <v-btn slot="activator" fab small dark color="pink">
                 <v-icon>how_to_reg</v-icon>
               </v-btn>
-              <span>即将提交退租审核</span>
+              <span>即将提交变更审核</span>
             </v-tooltip>
             <v-card>
               <v-card-title class="headline">即将提交变更申请</v-card-title>
@@ -247,12 +247,12 @@ export default {
     networkLoading: false,
     networkError: null,
     CTRTInfoURL: {
-      "refunded-submitted": {
-        name: "退租待审",
+      "changed-submitted": {
+        name: "变更待审",
         to: "contract/viewThrowALease"
       },
-      "refunded-success": { name: "退租过审", to: "contract/viewThrowALease" },
-      "refunded-failed": { name: "退租未过审", to: "contract/viewThrowALease" }
+      "changed-success": { name: "变更过审", to: "contract/viewThrowALease" },
+      "changed-failed": { name: "变更未过审", to: "contract/viewThrowALease" }
     },
     dialog: {
       fab: false,
@@ -270,8 +270,8 @@ export default {
       { text: "应缴金额", value: "totalRent", sortable: false },
       { text: "费用状态", value: "state", sortable: false }
     ],
-    // 退租审核
-    refundedRent: [],
+    // 变更审核
+    changedRent: [],
     examineChangedInfo: {},
     defaultExamineChanged: {
       reason: "",
@@ -360,7 +360,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.contract-refunded-detail {
+.contract-changed-detail {
   position: absolute;
   top: 0;
   left: 0;
