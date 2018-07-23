@@ -94,7 +94,7 @@
                   <v-flex xs6 sm4 style="min-width: 200px;">
                     <v-menu v-model="assets.houseMenu" :disabled="!assets.buildingName||$route.query.newType == 'change'" :close-on-content-click="false" lazy offset-y nudge-top="20">
                       <div slot="activator" @click="getHouse(assets.buildingNo)">
-                        <v-text-field :disabled="!assets.buildingName||$route.query.newType == 'change'" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${assets.doorNumber}室 - ${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(assets.floorNumber)}层` : ''" label="签约房源" :hint="assets.houseId?`${assets.buildArea}M², ${(oldCTRT.id?oldCTRT.endDate:assets.availableDate).slice(0, 10)}可租`:''" persistent-hint box required readonly></v-text-field>
+                        <v-text-field :disabled="!assets.buildingName||$route.query.newType == 'change'" :rules="[$store.state.rules.required]" :value="assets.doorNumber ? `${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(assets.floorNumber)}层 - ${assets.doorNumber}室` : ''" label="签约房源" :hint="assets.houseId?`${assets.buildArea}M², ${(oldCTRT.id?oldCTRT.endDate:assets.availableDate).slice(0, 10)}可租`:''" persistent-hint box required readonly></v-text-field>
                       </div>
                       <v-list style="max-height: 200px; overflow-y: auto;">
                         <v-list-tile v-if="!assetsFloorInfo.length">
@@ -797,7 +797,8 @@ export default {
     changeContract() {
       let CTRTData = {
         contractSubDTO: Object.assign({}, this.newCTRT, {
-          contractState: "合同变更",
+          contractState: "待审核",
+          operationType: "合同变更",
           contractHouseDtos: this.newAssets.map(item => ({
             houseId: item.houseId,
             rent: item.price,

@@ -19,9 +19,11 @@
               <v-flex xs12 md6>
                 <v-subheader>出租方</v-subheader>
                 <v-card>
-                  <v-card-title><h4>{{ CTRTInfo.partyA }}</h4></v-card-title>
-                  <v-divider></v-divider>
-                  <v-list dense style="height: 248px;">
+                  <v-list dense style="height: 288px;">
+                    <v-list-tile>
+                      <v-list-tile-content>出租方公司:</v-list-tile-content>
+                      <v-list-tile-content class="align-end">{{ CTRTInfo.partyA }}</v-list-tile-content>
+                    </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>出租方签订人:</v-list-tile-content>
                       <v-list-tile-content class="align-end">{{ CTRTInfo.signedPersonA }}</v-list-tile-content>
@@ -48,9 +50,11 @@
               <v-flex xs12 md6>
                 <v-subheader>租赁方</v-subheader>
                 <v-card>
-                  <v-card-title><h4>{{ CTRTInfo.companyName }}</h4></v-card-title>
-                  <v-divider></v-divider>
-                  <v-list dense style="height: 248px;">
+                  <v-list dense style="height: 288px;">
+                    <v-list-tile>
+                      <v-list-tile-content>租赁方公司:</v-list-tile-content>
+                      <v-list-tile-content class="align-end">{{ CTRTInfo.companyName }}</v-list-tile-content>
+                    </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>租赁方签订人:</v-list-tile-content>
                       <v-list-tile-content class="align-end">{{ CTRTInfo.signedPersonB }}</v-list-tile-content>
@@ -81,9 +85,11 @@
               <v-flex xs12 md6>
                 <v-subheader>合同信息</v-subheader>
                 <v-card>
-                  <v-card-title><h4>{{ CTRTInfo.contractName }}</h4></v-card-title>
-                  <v-divider></v-divider>
-                  <v-list dense style="height: 248px;overflow: auto;">
+                  <v-list dense style="height: 288px;overflow: auto;">
+                    <v-list-tile>
+                      <v-list-tile-content>合同名称:</v-list-tile-content>
+                      <v-list-tile-content class="align-end">{{ CTRTInfo.contractName }}</v-list-tile-content>
+                    </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>编号:</v-list-tile-content>
                       <v-list-tile-content class="align-end">{{ CTRTInfo.contractNo }}</v-list-tile-content>
@@ -124,19 +130,29 @@
                       <v-list-tile-content>年递增率基数:</v-list-tile-content>
                       <v-list-tile-content class="align-end">{{ ['首年租金', '上一年租金'][CTRTInfo.houseAndBuildingDtos[0].increaseType] }}</v-list-tile-content>
                     </v-list-tile>
+                    <v-list-tile>
+                      <v-list-tile-content>押金:</v-list-tile-content>
+                      <v-list-tile-content class="align-end">{{ CTRTInfo.deposit }}元</v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile>
+                      <v-list-tile-content>违约金:</v-list-tile-content>
+                      <v-list-tile-content class="align-end">{{ CTRTInfo.liquidatedDamages }}元</v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile>
+                      <v-list-tile-content>物业费:</v-list-tile-content>
+                      <v-list-tile-content class="align-end">{{ CTRTInfo.propertyFee }}元/m²·天</v-list-tile-content>
+                    </v-list-tile>
                   </v-list>
                 </v-card>
               </v-flex>
               <v-flex xs12 md6>
                 <v-subheader>租赁资产</v-subheader>
                 <v-card>
-                  <v-card-title><h4 v-if="CTRTInfo.houseAndBuildingDtos">{{ CTRTInfo.houseAndBuildingDtos.length }} 处资源</h4></v-card-title>
-                  <v-divider></v-divider>
-                  <v-list dense style="height: 248px;overflow: auto;">
+                  <v-list dense style="height: 288px;overflow: auto;">
                     <v-list-tile v-for="(house, houseIndex) in CTRTInfo.houseAndBuildingDtos" :key="houseIndex" avatar ripple>
                       <v-list-tile-content>
-                        <v-list-tile-title>{{ `${house.parkName||'无归属楼宇'} - ${house.buildingName}` }}</v-list-tile-title>
-                        <v-list-tile-sub-title>{{ `${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(house.floorNumber)}层 ${house.doorNumber}室` }}</v-list-tile-sub-title>
+                        <v-list-tile-title>{{ `${house.doorNumber}室` }}</v-list-tile-title>
+                        <v-list-tile-sub-title>{{ `${house.parkName ? house.parkName + ' - ' : ''}${house.buildingName} ${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(house.floorNumber)}层` }}</v-list-tile-sub-title>
                       </v-list-tile-content>
                       <v-list-tile-action>
                         <v-list-tile-action-text>{{ house.buildArea }}m²</v-list-tile-action-text>
@@ -240,7 +256,7 @@
               <v-btn slot="activator" fab small dark color="pink">
                 <v-icon>how_to_reg</v-icon>
               </v-btn>
-              <span>即将提交退租审核</span>
+              <span>提交审核</span>
             </v-tooltip>
             <v-card>
               <v-card-title class="headline">即将提交变更申请</v-card-title>

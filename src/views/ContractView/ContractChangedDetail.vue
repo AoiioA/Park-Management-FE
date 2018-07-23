@@ -19,28 +19,30 @@
               <v-flex xs12 md6>
                 <v-subheader>出租方</v-subheader>
                 <v-card>
-                  <v-card-title><h4>{{ CTRTInfo.partyA }}</h4></v-card-title>
-                  <v-divider></v-divider>
-                  <v-list dense style="height: 248px;">
+                  <v-list dense style="height: 288px;">
+                    <v-list-tile>
+                      <v-list-tile-content>出租方公司:</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.partyA, changedCTRTInfo.partyA]"></v-list-tile-content>
+                    </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>出租方签订人:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.signedPersonA }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.signedPersonA, changedCTRTInfo.signedPersonA]">{{ CTRTInfo.signedPersonA }}</v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>经纪公司:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.agency || "无" }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.agency || '无', changedCTRTInfo.agency || '无']"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>经纪人姓名:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.intermediatorName || "无" }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.intermediatorName || '无', changedCTRTInfo.intermediatorName || '无']"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>经纪人身份证:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.idCode || "无" }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.idCode || '无', changedCTRTInfo.idCode || '无']"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>经纪人联系方式:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.intermediatorTel || "无" }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.intermediatorTel || '无', changedCTRTInfo.intermediatorTel || '无']"></v-list-tile-content>
                     </v-list-tile>
                   </v-list>
                 </v-card>
@@ -48,32 +50,34 @@
               <v-flex xs12 md6>
                 <v-subheader>租赁方</v-subheader>
                 <v-card>
-                  <v-card-title><h4>{{ CTRTInfo.companyName }}</h4></v-card-title>
-                  <v-divider></v-divider>
-                  <v-list dense style="height: 248px;">
+                  <v-list dense style="height: 288px;">
+                    <v-list-tile>
+                      <v-list-tile-content>租赁方公司:</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.companyName, changedCTRTInfo.companyName]"></v-list-tile-content>
+                    </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>租赁方签订人:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.signedPersonB }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.signedPersonB, changedCTRTInfo.signedPersonB]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>所属行业:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.companyIndustry }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.companyIndustry, changedCTRTInfo.companyIndustry]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>营业执照:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.businessLicense }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.businessLicense, changedCTRTInfo.businessLicense]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>公司法人:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.legalPerson }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.legalPerson, changedCTRTInfo.legalPerson]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>联系方式:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.companyTel }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.companyTel, changedCTRTInfo.companyTel]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>通讯地址:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.address }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.address, changedCTRTInfo.address]"></v-list-tile-content>
                     </v-list-tile>
                   </v-list>
                 </v-card>
@@ -81,48 +85,62 @@
               <v-flex xs12 md6>
                 <v-subheader>合同信息</v-subheader>
                 <v-card>
-                  <v-card-title><h4>{{ CTRTInfo.contractName }}</h4></v-card-title>
-                  <v-divider></v-divider>
-                  <v-list dense style="height: 248px;overflow: auto;">
+                  <v-list dense style="height: 288px;overflow: auto;">
+                    <v-list-tile>
+                      <v-list-tile-content>合同名称:</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.contractName, changedCTRTInfo.contractName]"></v-list-tile-content>
+                    </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>编号:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.contractNo }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.contractNo, changedCTRTInfo.contractNo]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>签署地址:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.address }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.address, changedCTRTInfo.address]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>签订日期:</v-list-tile-content>
-                      <v-list-tile-content v-if="CTRTInfo.signingDate" class="align-end">{{ CTRTInfo.signingDate.slice(0, 10) }}</v-list-tile-content>
+                      <v-list-tile-content v-if="CTRTInfo.signingDate" class="align-end" v-diff="[CTRTInfo.signingDate.slice(0, 10), changedCTRTInfo.signingDate.slice(0, 10)]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>记租开始日期:</v-list-tile-content>
-                      <v-list-tile-content v-if="CTRTInfo.startDate" class="align-end">{{ CTRTInfo.startDate.slice(0, 10) }}</v-list-tile-content>
+                      <v-list-tile-content v-if="CTRTInfo.startDate" class="align-end" v-diff="[CTRTInfo.startDate.slice(0, 10), changedCTRTInfo.startDate.slice(0, 10)]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>记租结束日期:</v-list-tile-content>
-                      <v-list-tile-content v-if="CTRTInfo.endDate" class="align-end">{{ CTRTInfo.endDate.slice(0, 10) }}</v-list-tile-content>
+                      <v-list-tile-content v-if="CTRTInfo.endDate" class="align-end" v-diff="[CTRTInfo.endDate.slice(0, 10), changedCTRTInfo.endDate.slice(0, 10)]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
-                      <v-list-tile-content>记租前免租:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.beforeFree }}天</v-list-tile-content>
+                      <v-list-tile-content>记租前免租(天):</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.beforeFree, changedCTRTInfo.beforeFree]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
-                      <v-list-tile-content>记租后免租:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ CTRTInfo.afterFree }}天</v-list-tile-content>
+                      <v-list-tile-content>记租后免租(天):</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.afterFree, changedCTRTInfo.afterFree]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
-                      <v-list-tile-content>租金缴纳周期:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">每{{ CTRTInfo.month }}个月</v-list-tile-content>
+                      <v-list-tile-content>租金缴纳周期(月):</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.month, changedCTRTInfo.month]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>年递增率:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ 100 * CTRTInfo.houseAndBuildingDtos[0].increaseRate }}%</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[CTRTInfo.houseAndBuildingDtos[0].increaseRate, changedCTRTInfo.houseAndBuildingDtos[0].increaseRate]"></v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile>
                       <v-list-tile-content>年递增率基数:</v-list-tile-content>
-                      <v-list-tile-content class="align-end">{{ ['首年租金', '上一年租金'][CTRTInfo.houseAndBuildingDtos[0].increaseType] }}</v-list-tile-content>
+                      <v-list-tile-content class="align-end" v-diff="[['首年租金', '上一年租金'][CTRTInfo.houseAndBuildingDtos[0].increaseType], ['首年租金', '上一年租金'][changedCTRTInfo.houseAndBuildingDtos[0].increaseType]]"></v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile>
+                      <v-list-tile-content>押金:</v-list-tile-content>
+                      <v-list-tile-content class="align-end"><span v-diff="[CTRTInfo.deposit, changedCTRTInfo.deposit]"></span>元</v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile>
+                      <v-list-tile-content>违约金:</v-list-tile-content>
+                      <v-list-tile-content class="align-end"><span v-diff="[CTRTInfo.liquidatedDamages, changedCTRTInfo.liquidatedDamages]"></span>元</v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile>
+                      <v-list-tile-content>物业费:</v-list-tile-content>
+                      <v-list-tile-content class="align-end"><span v-diff="[CTRTInfo.propertyFee, changedCTRTInfo.propertyFee]"></span>元/m²·天</v-list-tile-content>
                     </v-list-tile>
                   </v-list>
                 </v-card>
@@ -130,17 +148,15 @@
               <v-flex xs12 md6>
                 <v-subheader>租赁资产</v-subheader>
                 <v-card>
-                  <v-card-title><h4 v-if="CTRTInfo.houseAndBuildingDtos">{{ CTRTInfo.houseAndBuildingDtos.length }} 处资源</h4></v-card-title>
-                  <v-divider></v-divider>
-                  <v-list dense style="height: 248px;overflow: auto;">
+                  <v-list dense style="height: 288px;overflow: auto;">
                     <v-list-tile v-for="(house, houseIndex) in CTRTInfo.houseAndBuildingDtos" :key="houseIndex" avatar ripple>
                       <v-list-tile-content>
-                        <v-list-tile-title>{{ `${house.parkName||'无归属楼宇'} - ${house.buildingName}` }}</v-list-tile-title>
-                        <v-list-tile-sub-title>{{ `${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(house.floorNumber)}层 ${house.doorNumber}室` }}</v-list-tile-sub-title>
+                        <v-list-tile-title>{{ `${house.doorNumber}室` }}</v-list-tile-title>
+                        <v-list-tile-sub-title>{{ `${house.parkName ? house.parkName + ' - ' : ''}${house.buildingName} ${((n)=>{return n>=0?n:'地下'+Math.abs(n)})(house.floorNumber)}层` }}</v-list-tile-sub-title>
                       </v-list-tile-content>
                       <v-list-tile-action>
                         <v-list-tile-action-text>{{ house.buildArea }}m²</v-list-tile-action-text>
-                        <v-list-tile-action-text>{{ house.rent.toFixed(2) }}元/m²·天</v-list-tile-action-text>
+                        <v-list-tile-action-text><span v-diff="[house.rent.toFixed(2), changedCTRTInfo.houseAndBuildingDtos[houseIndex].rent.toFixed(2)]"></span>元/m²·天</v-list-tile-action-text>
                       </v-list-tile-action>
                     </v-list-tile>
                   </v-list>
@@ -182,13 +198,13 @@
                   </v-list>
                 </v-card>
               </v-flex>
-              <v-flex xs12 v-if="CTRTInfo.addRefundBillDtos">
-                <v-subheader>当前合同变更明细</v-subheader>
+              <v-flex xs12>
+                <v-subheader>当前合同租金明细</v-subheader>
                 <v-data-table
                   :headers="rentHeaders"
-                  :items="CTRTInfo.addRefundBillDtos"
+                  :items="CTRTInfo.rentBillListDtos"
                   item-key="id"
-                  no-data-text="暂无变更明细"
+                  no-data-text="暂无租金明细"
                   class="elevation-1"
                 >
                   <template slot="items" slot-scope="props">
@@ -198,6 +214,34 @@
                     <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
                     <td>{{ props.item.totalRent }}元</td>
                     <td>{{ props.item.state }}</td>
+                  </template>
+                </v-data-table>
+              </v-flex>
+              <v-flex xs12>
+                <v-subheader>
+                  变更后合同租金明细
+                </v-subheader>
+                <v-data-table
+                  :headers="rentPreHeaders"
+                  :items="changedCTRTInfo.contractRentTotalDto.contractRentDetailDtoList"
+                  item-key="payDay"
+                  no-data-text="暂无租金明细"
+                  class="elevation-1"
+                >
+                  <template slot="items" slot-scope="props">
+                    <td v-if="props.item.payDay">{{ props.item.payDay.slice(0, 10) }}</td>
+                    <td v-if="props.item.fromDate">{{ props.item.fromDate.slice(0, 10) }}</td>
+                    <td v-if="props.item.endDate">{{ props.item.endDate.slice(0, 10) }}</td>
+                    <td>{{ props.item.houseTotal }}元</td>
+                    <td>{{ props.item.propertyFees }}元</td>
+                  </template>
+                  <template slot="footer">
+                    <td colspan="100%">
+                      <small v-if="changedCTRTInfo.contractRentTotalDto.contractRentDetailDtoList">租金总计 : {{ changedCTRTInfo.contractRentTotalDto.contractRentDetailDtoList.map(el=>el.houseTotal).reduce((all, el, i) => parseFloat(all) + parseFloat(el)).toFixed(0) }}元</small>
+                      &nbsp;&nbsp;<small>物业费总计 : {{ changedCTRTInfo.contractRentTotalDto.propertyFeeTotal }}元</small>
+                      &nbsp;&nbsp;<small>押金 : {{ changedCTRTInfo.contractRentTotalDto.deposit }}元</small>
+                      &nbsp;&nbsp;<small>违约金 : {{ changedCTRTInfo.contractRentTotalDto.liquidatedDamages }}元</small>
+                    </td>
                   </template>
                 </v-data-table>
               </v-flex>
@@ -217,7 +261,7 @@
               <v-btn slot="activator" fab small dark color="pink">
                 <v-icon>how_to_reg</v-icon>
               </v-btn>
-              <span>即将提交变更审核</span>
+              <span>提交审核</span>
             </v-tooltip>
             <v-card>
               <v-card-title class="headline">即将提交变更申请</v-card-title>
@@ -249,10 +293,16 @@ export default {
     CTRTInfoURL: {
       "changed-submitted": {
         name: "变更待审",
-        to: "contract/viewThrowALease"
+        to: "contract/viewCancelContract"
       },
-      "changed-success": { name: "变更过审", to: "contract/viewThrowALease" },
-      "changed-failed": { name: "变更未过审", to: "contract/viewThrowALease" }
+      "changed-success": {
+        name: "变更过审",
+        to: "contract/viewCancelContract"
+      },
+      "changed-failed": {
+        name: "变更未过审",
+        to: "contract/viewCancelContract"
+      }
     },
     dialog: {
       fab: false,
@@ -260,8 +310,15 @@ export default {
     },
     examineChangedValid: true,
     CTRTInfo: {},
-    renewCTRTInfo: {},
+    changedCTRTInfo: {},
     // 租金列表
+    rentPreHeaders: [
+      { text: "应缴日期", value: "payDay", sortable: false },
+      { text: "计费起始日期", value: "fromDate", sortable: false },
+      { text: "计费截至日期", value: "endDate", sortable: false },
+      { text: "应缴租金", value: "total", sortable: false },
+      { text: "应缴物业费", value: "propertyFees", sortable: false }
+    ],
     rentHeaders: [
       { text: "费用类型", value: "rentType", sortable: false },
       { text: "应缴日期", value: "payDate", sortable: false },
@@ -303,6 +360,22 @@ export default {
       this.$router.go(0);
     }
   },
+  directives: {
+    diff: {
+      bind(el, binding) {
+        if (binding.value[0] == binding.value[1]) {
+          el.innerHTML = binding.value[0];
+        } else {
+          el.innerHTML = `
+            <span style="text-decoration:line-through">
+              ${binding.value[0]}
+            </span>
+            ${binding.value[1]}
+          `;
+        }
+      }
+    }
+  },
   methods: {
     initialize() {
       this.networkLoading = true;
@@ -318,8 +391,8 @@ export default {
         )
         .then(res => {
           let resData = res.data.data;
-          this.CTRTInfo = resData.oldContractRefundDto;
-          this.renewCTRTInfo = resData.renewContractRefundDtos;
+          this.CTRTInfo = resData.contractAndSubDetailDto;
+          this.changedCTRTInfo = resData.modifyUnSubmitDto;
         })
         .catch(err => {
           this.networkError = err;
@@ -337,7 +410,7 @@ export default {
     saveExamineChanged() {
       if (this.$refs.examineChangedForm.validate()) {
         this.$http
-          .post("/cms/contract/verifyThrowALease.json", {
+          .post("/cms/contract/verifyCancelContract.json", {
             id: this.CTRTInfo.id,
             contractState: this.examineChangedInfo.result.value,
             verifyDescription: this.examineChangedInfo.reason
