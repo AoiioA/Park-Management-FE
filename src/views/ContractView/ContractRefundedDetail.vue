@@ -259,7 +259,7 @@
               <span>提交审核</span>
             </v-tooltip>
             <v-card>
-              <v-card-title class="headline">即将提交变更申请</v-card-title>
+              <v-card-title class="headline">即将提交退租审核</v-card-title>
               <v-form ref="examineRefundedForm" v-model="examineRefundedValid" lazy-validation style="overflow: hidden">
                 <v-overflow-btn v-model="examineRefundedInfo.result" :items="examineRefundedSelect" item-text="text" item-value="value" return-object :rules="[$store.state.rules.required]" label="审核结果" single-line required hide-details></v-overflow-btn>
                 <v-divider></v-divider>
