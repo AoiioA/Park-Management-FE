@@ -10,8 +10,6 @@
     </view-tool-bar>
     <v-jumbotron height="auto">
       <v-container grid-list-xl>
-        <v-layout justify-center align-center>
-        </v-layout>
         <v-layout justify-center wrap>
           <v-flex xs12 xl10>
             <v-subheader>
@@ -50,9 +48,9 @@
                 <v-flex xs12 sm6 lg4>
                   <v-container fill-height fluid grid-list-xs class="pa-0">
                     <v-layout row no-wrap align-center>
-                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMin" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最小面积" solo hide-details clearable></v-text-field></v-flex>
+                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMin" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最小面积" solo hide-details></v-text-field></v-flex>
                       <v-flex class="text-xs-center" style="flex:none">至</v-flex>
-                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMax" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最大面积" solo hide-details clearable></v-text-field></v-flex>
+                      <v-flex style="width: 50%"><v-text-field v-model.number="searchFilter.buildAreaMax" mask="#####" suffix="m²" :rules="[$store.state.rules.nonnegative]" label="最大面积" solo hide-details></v-text-field></v-flex>
                     </v-layout>
                   </v-container>
                 </v-flex>

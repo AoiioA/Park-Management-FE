@@ -26,6 +26,7 @@
               :no-data-text="networkError?`网络出现异常 - 检查网络后刷新重试`:`暂无记录`"
               :no-results-text="`没能找到“${ search }”的结果...`"
               :search="search"
+              :pagination.sync="pagination"
               :headers="headers"
               :loading="networkLoading"
               :items="contractList"
@@ -33,11 +34,11 @@
             >
               <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
               <template slot="items" slot-scope="props">
+                <td>{{ props.item.signingDate.slice(0, 10) }}</td>
                 <td>{{ props.item.contractNo }}</td>
                 <td>{{ props.item.contractName }}</td>
                 <td>{{ props.item.companyName }}</td>
                 <td>{{ props.item.signedPersonA }}</td>
-                <td>{{ props.item.signingDate.slice(0, 10) }}</td>
                 <td>{{ props.item.startDate.slice(0, 10) }}</td>
                 <td>{{ props.item.endDate.slice(0, 10) }}</td>
                 <td class="text-xs-center">
@@ -60,12 +61,16 @@ export default {
     networkLoading: false,
     networkError: false,
     search: "",
+    pagination: {
+      sortBy: "signingDate",
+      descending: false
+    },
     headers: [
-      { text: "合同编号", value: "contractNo", sortable: false },
+      { text: "签订日期", value: "signingDate" },
+      { text: "合同编号", value: "contractNo" },
       { text: "合同名", value: "contractName" },
       { text: "承租方", value: "companyName" },
       { text: "甲方签订人", value: "signedPersonA" },
-      { text: "签订日期", value: "signingDate" },
       { text: "计租日期", value: "startDate" },
       { text: "到期日期", value: "endDate" },
       { text: "操作", value: "id", align: "center", sortable: false }

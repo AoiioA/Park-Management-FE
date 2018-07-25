@@ -19,7 +19,7 @@
         <contract-info-detail :CTRTInfo="CTRTInfo"></contract-info-detail>
       </v-tab-item>
       <v-tab-item>
-        <contract-rent-detail :CTRTInfo="CTRTInfo"></contract-rent-detail>
+        <contract-rent-detail :CTRTNo="CTRTInfo.contractNo"></contract-rent-detail>
       </v-tab-item>
     </v-tabs-items>
     <v-dialog v-model="dialog.canNotRenew" persistent max-width="290">
@@ -106,16 +106,6 @@ export default {
     networkLoading: false,
     networkError: null,
     activeTab: null,
-    viewToolBarTab: [
-      {
-        name: "合同信息",
-        value: "info"
-      },
-      {
-        name: "相关费用",
-        value: "Rent"
-      }
-    ],
     CTRTInfoURL: {
       editing: { name: "待提交", to: "contractSub/queryOne" },
       fulfilling: { name: "生效中", to: "contract/view" },
@@ -123,19 +113,7 @@ export default {
       "new-submitted": { name: "签订待审", to: "contractSub/queryOne" },
       "new-success": { name: "新增过审", to: "contractSub/queryOne" },
       "renew-success": { name: "续签过审", to: "contractSub/queryOne" },
-      "new-failed": { name: "签订未过审", to: "contractSub/queryOne" },
-      "changed-submitted": {
-        name: "变更待审",
-        to: "contract/viewCancelContract"
-      },
-      "changed-success": {
-        name: "变更过审",
-        to: "contract/viewCancelContract"
-      },
-      "changed-failed": {
-        name: "变更未过审",
-        to: "contract/viewCancelContract"
-      }
+      "new-failed": { name: "签订未过审", to: "contractSub/queryOne" }
     },
     dialog: {
       fab: false,
@@ -166,6 +144,17 @@ export default {
       }
     ]
   }),
+  computed: {
+    viewToolBarTab() {
+      let tabs = [{ name: "合同信息", value: "info" }];
+      if (
+        ["fulfilling", "expired"].indexOf(this.$route.query.contractType) >= 0
+      ) {
+        tabs.push({ name: "相关费用", value: "Rent" });
+      }
+      return tabs;
+    }
+  },
   watch: {
     "$route.params.contractId"() {
       this.$router.go(0);
