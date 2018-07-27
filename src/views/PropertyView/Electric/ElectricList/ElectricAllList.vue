@@ -34,8 +34,8 @@
               <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
               <template slot="items" slot-scope="props">
                 <td>{{ props.item.contractNo }}</td>
-                <td>{{ props.item.status }}</td>
                 <td>{{ props.item.electricMonth }}</td>
+                <td>{{ props.item.status }}</td>
                 <td class="text-xs-right">{{ props.item.totalElectricQuantity }}</td>
                 <td class="text-xs-right">{{ props.item.totalElectricityFees }}</td>
                 <td class="text-xs-right">{{ props.item.lastPayment }}</td>
