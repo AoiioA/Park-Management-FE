@@ -2,10 +2,9 @@
   <v-navigation-drawer
     app
     dark
-    fixed
     v-model="drawer"
     :mini-variant="mini"
-    class="pb-0 nav-drawer"
+    class="nav-drawer"
   >
     <v-layout
       fill-height
@@ -206,6 +205,7 @@ export default {
 }
 
 .nav-drawer {
+  max-height: 100% !important;
   overflow: hidden;
 
   .flex {
