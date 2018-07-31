@@ -150,7 +150,11 @@ export default {
           action: "attach_money",
           title: "财务管理",
           child: [
-            { action: "attach_money", title: "租金管理", url: "/home/finance" },
+            {
+              action: "attach_money",
+              title: "租金管理",
+              url: "/home/finance/rent"
+            },
             { action: "attach_money", title: "其他费用", url: "/home/404" }
           ]
         },
