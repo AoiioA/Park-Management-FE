@@ -12,8 +12,8 @@
         <v-flex xs12 sm4>
           <v-card>
             <v-data-iterator
-              :items="CTRTWA"
-              :loading="networkLoading.WA"
+              :items="CTRTBill"
+              :loading="networkLoading.bill"
               hide-actions
               content-tag="v-list"
               style="height: 356px; overflow-x: auto;"
@@ -29,21 +29,21 @@
                     <v-list-tile-action-text>{{ props.item.paymentTime.slice(0, 10) }}</v-list-tile-action-text>
                   </v-list-tile-action>
                 </v-list-tile>
-                <v-divider v-if="props.index + 1 < CTRTWA.length"></v-divider>
+                <v-divider v-if="props.index + 1 < CTRTBill.length"></v-divider>
               </template>
               <template slot="no-data">
-                <span class="center-box">{{ networkError.WA?'流水账查询失败':'暂无流水账' }}</span>
+                <span class="center-box">{{ networkError.bill?'流水账查询失败':'暂无流水账' }}</span>
               </template>
             </v-data-iterator>
           </v-card>
         </v-flex>
         <v-flex xs12 sm8>
           <v-data-table
-            :headers="billHeaders"
-            :items="CTRTBill"
+            :headers="rentHeaders"
+            :items="CTRTRent"
             item-key="id"
-            :loading="networkLoading.bill"
-            :no-data-text="networkError.bill?'交易明细查询失败':'暂无交易明细'"
+            :loading="networkLoading.rent"
+            :no-data-text="networkError.rent?'交易明细查询失败':'暂无交易明细'"
             class="elevation-1"
           >
             <template slot="items" slot-scope="props">
@@ -67,18 +67,18 @@ export default {
   name: "contract-rent-detail",
   data: () => ({
     networkLoading: {
-      bill: false,
-      WA: false
+      rent: false,
+      bill: false
     },
     networkError: {
-      bill: null,
-      WA: null
+      rent: null,
+      bill: null
     },
     moneyMenu: ["租金账单", "水费账单", "电费账单"],
     moneyType: "租金账单",
+    CTRTRent: [],
     CTRTBill: [],
-    CTRTWA: [],
-    billHeaders: [
+    rentHeaders: [
       { text: "费用类型", value: "rentType", sortable: false },
       { text: "应缴日期", value: "payDate", sortable: false },
       // { text: "计费起始日期", value: "fromDate", sortable: false },
@@ -101,38 +101,68 @@ export default {
     initialize(moneyType) {
       switch (moneyType) {
         case "租金账单":
+          this.getRentRent();
           this.getRentBill();
-          this.getRentWA();
           break;
         case "水费账单":
+          this.getWaterRent();
           this.getWaterBill();
-          this.getWaterWA();
           break;
         case "电费账单":
+          this.getElectricRent();
           this.getElectricBill();
-          this.getElectricWA();
           break;
         default:
           this.networkError = "参数错误";
       }
     },
-    getRentBill() {
-      this.getBill("/cms/rentBill/contractRentList.json", d => d);
+    getRentRent() {
+      this.getRent("/cms/rentBill/contractRentList.json", d => d);
     },
-    getRentWA() {
-      this.getWA("/cms/rentBill/view.json", d => d);
+    getRentBill() {
+      this.getBill("/cms/rentBill/view.json", d => d);
+    },
+    getWaterRent() {
+      this.getRent("/cms/waterBillSub/queryWaterBillSub.json", d =>
+        this.translateWaterRent(d)
+      );
     },
     getWaterBill() {
-      this.getBill("/cms/waterBillSub/queryWaterBillSub.json", d => d);
+      this.getBill("/cms/waterBillSub/viewWaterBills", d =>
+        this.translateWaterBill(d)
+      );
     },
-    getWaterWA() {
-      this.getWA("/cms/waterBillSub/viewWaterBills", d => d);
+    getElectricRent() {
+      this.getRent("/cms/electricBillSub/queryElectricBillSub.json", d =>
+        this.translateElectricRent(d)
+      );
     },
     getElectricBill() {
-      this.getBill("/cms/electricBillSub/queryElectricBillSub.json", d => d);
+      this.getBill("/cms/electricBillSub/viewElectricBills", d =>
+        this.translateElectricBill(d)
+      );
     },
-    getElectricWA() {
-      this.getWA("/cms/electricBillSub/viewElectricBills", d => d);
+    getRent(url, cb) {
+      this.networkLoading.rent = true;
+      this.networkError.rent = null;
+      this.CTRTRent = [];
+      this.$http
+        .post(url, {
+          contractNo: this.CTRTNo,
+          limit: 99999,
+          page: 1
+        })
+        .then(res => {
+          if (res.data.code == 500) {
+            throw new Error(res.data.msg);
+          }
+          this.CTRTRent = cb(res.data.data);
+        })
+        .catch(err => {
+          this.networkError.rent = err;
+          this.$store.commit("addErrorBar", "租金明细查询失败");
+        })
+        .finally(() => (this.networkLoading.rent = false));
     },
     getBill(url, cb) {
       this.networkLoading.bill = true;
@@ -152,31 +182,41 @@ export default {
         })
         .catch(err => {
           this.networkError.bill = err;
-          this.$store.commit("addErrorBar", "租金明细查询失败");
+          this.$store.commit("addErrorBar", "租金流水账查询失败");
         })
         .finally(() => (this.networkLoading.bill = false));
     },
-    getWA(url, cb) {
-      this.networkLoading.WA = true;
-      this.networkError.WA = null;
-      this.CTRTWA = [];
-      this.$http
-        .post(url, {
-          contractNo: this.CTRTNo,
-          limit: 99999,
-          page: 1
-        })
-        .then(res => {
-          if (res.data.code == 500) {
-            throw new Error(res.data.msg);
-          }
-          this.CTRTWA = cb(res.data.data);
-        })
-        .catch(err => {
-          this.networkError.WA = err;
-          this.$store.commit("addErrorBar", "租金流水账查询失败");
-        })
-        .finally(() => (this.networkLoading.WA = false));
+    translateWaterRent(list) {
+      return list.map(item => ({
+        rentType: "水费账单",
+        payDate: item.waterMonth,
+        totalRent: item.totalWaterFee,
+        realRent: item.residualPayment,
+        status: item.status
+      }));
+    },
+    translateWaterBill(list) {
+      return list.map(item => ({
+        cashReceipts: item.lastPayment,
+        rentType: `${item.waterMonth}水单`,
+        paymentTime: item.createTime
+      }));
+    },
+    translateElectricRent(list) {
+      return list.map(item => ({
+        rentType: "电费账单",
+        payDate: item.electricMonth,
+        totalRent: item.totalElectricityFees,
+        realRent: item.residualPayment,
+        state: item.status
+      }));
+    },
+    translateElectricBill(list) {
+      return list.map(item => ({
+        cashReceipts: item.lastPayment,
+        rentType: `${item.electricMonth}电单`,
+        paymentTime: item.createTime
+      }));
     }
   }
 };
