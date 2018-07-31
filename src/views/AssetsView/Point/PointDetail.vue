@@ -58,7 +58,7 @@
                     <v-layout>
                       <v-flex xs12>
                         <chart
-                          :options="assetsNumberOption"
+                          :options="stateNumOption"
                           auto-resize
                           theme="light"
                           style="height:240px;width:100%;"
@@ -77,7 +77,7 @@
                     <v-layout wrap>
                       <v-flex xs12 sm8>
                         <chart
-                          :options="assetsAreaOption"
+                          :options="stateAreaOption"
                           auto-resize
                           theme="light"
                           style="height:240px;width:100%;"
@@ -88,24 +88,24 @@
                           <v-layout column>
                             <v-flex>
                               <div class="mb-1 grey--text text--darken-1">
-                                <span class="chart-legend-icon" style="background: #29B6F6"></span>
+                                <span class="chart-legend-icon" :style="{ background: colorArr[0]}"></span>
                                 空置房源
                               </div>
-                              <div class="title">{{ pointDataInfo.emptyHouseArea }}m²</div>
+                              <div class="title">{{ pointStateInfo.emptyHouseArea }}m²</div>
                             </v-flex>
                             <v-flex>
                               <div class="mb-1 grey--text text--darken-1">
-                                <span class="chart-legend-icon" style="background: #1976d2"></span>
+                                <span class="chart-legend-icon" :style="{ background: colorArr[1]}"></span>
                                 出租房源
                               </div>
-                              <div class="title">{{ pointDataInfo.rentHouseArea }}m²</div>
+                              <div class="title">{{ pointStateInfo.rentHouseArea }}m²</div>
                             </v-flex>
                             <v-flex>
                               <div class="mb-1 grey--text text--darken-1">
-                                <span class="chart-legend-icon" style="background: #90A4AE"></span>
+                                <span class="chart-legend-icon" :style="{ background: colorArr[2]}"></span>
                                 其他房源
                               </div>
-                              <div class="title">{{ pointDataInfo.totalHouseArea - pointDataInfo.emptyHouseArea - pointDataInfo.rentHouseArea }}m²</div>
+                              <div class="title">{{ pointStateInfo.totalHouseArea - pointStateInfo.emptyHouseArea - pointStateInfo.rentHouseArea }}m²</div>
                             </v-flex>
                           </v-layout>
                         </v-container>
@@ -122,7 +122,7 @@
                     <v-layout wrap>
                       <v-flex xs12 sm8>
                         <chart
-                          :options="assetsAreaOption"
+                          :options="UseAreaOption"
                           auto-resize
                           theme="light"
                           style="height:240px;width:100%;"
@@ -131,26 +131,12 @@
                       <v-flex xs12 sm4>
                         <v-container fluid fill-height>
                           <v-layout column>
-                            <v-flex>
+                            <v-flex v-for="(use, index) in pointUseInfo" :key="index">
                               <div class="mb-1 grey--text text--darken-1">
-                                <span class="chart-legend-icon" style="background: #29B6F6"></span>
-                                空置房源
+                                <span class="chart-legend-icon" :style="{ background: colorArr[index]}"></span>
+                                {{ use.name }}
                               </div>
-                              <div class="title">{{ pointDataInfo.emptyHouseArea }}m²</div>
-                            </v-flex>
-                            <v-flex>
-                              <div class="mb-1 grey--text text--darken-1">
-                                <span class="chart-legend-icon" style="background: #1976d2"></span>
-                                出租房源
-                              </div>
-                              <div class="title">{{ pointDataInfo.rentHouseArea }}m²</div>
-                            </v-flex>
-                            <v-flex>
-                              <div class="mb-1 grey--text text--darken-1">
-                                <span class="chart-legend-icon" style="background: #90A4AE"></span>
-                                其他房源
-                              </div>
-                              <div class="title">{{ pointDataInfo.totalHouseArea - pointDataInfo.emptyHouseArea - pointDataInfo.rentHouseArea }}m²</div>
+                              <div class="title">{{ use.area }}m²</div>
                             </v-flex>
                           </v-layout>
                         </v-container>
@@ -207,21 +193,22 @@ export default {
     },
     pointInfo: {},
     parkInfoArr: [],
-    pointDataInfo: {}
+    pointStateInfo: [],
+    colorArr: ["#1976d2", "#29B6F6", "#90A4AE", "#5C6BC0"]
   }),
   computed: {
-    assetsNumberOption() {
+    stateNumOption() {
       let optLegend = ["空置房源", "出租房源", "其他房源"];
       let optData = [
-        this.pointDataInfo.emptyHouseCount,
-        this.pointDataInfo.rentHouseCount
+        this.pointStateInfo.emptyHouseCount,
+        this.pointStateInfo.rentHouseCount
       ];
       optData.push(
-        this.pointDataInfo.totalHouseCount -
+        this.pointStateInfo.totalHouseCount -
           optData.reduce((all, item) => all + item)
       );
       return {
-        color: ["#1976d2", "#29B6F6", "#5C6BC0", "#90A4AE", "#90A4AE"],
+        color: this.colorArr,
         tooltip: {
           textStyle: {
             color: "rgba(0,0,0,0.87)"
@@ -265,14 +252,14 @@ export default {
         ]
       };
     },
-    assetsAreaOption() {
+    stateAreaOption() {
       let optLegend = ["空置房源", "出租房源", "其他房源"];
       let optData = [
-        this.pointDataInfo.emptyHouseArea,
-        this.pointDataInfo.rentHouseArea
+        this.pointStateInfo.emptyHouseArea,
+        this.pointStateInfo.rentHouseArea
       ];
       optData.push(
-        this.pointDataInfo.totalHouseArea -
+        this.pointStateInfo.totalHouseArea -
           optData.reduce((all, item) => all + item)
       );
       optData = optData.map((item, index) => ({
@@ -280,7 +267,40 @@ export default {
         name: optLegend[index]
       }));
       return {
-        color: ["#29B6F6", "#1976d2", "#90A4AE"],
+        color: this.colorArr,
+        tooltip: {
+          textStyle: {
+            color: "rgba(0,0,0,0.87)"
+          },
+          backgroundColor: "#ECEFF1",
+          padding: [8, 12],
+          extraCssText: `
+            border-radius: 3px;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+          `,
+          formatter: "<strong>{b}</strong><br />面积 : {c}m²<br />占比 : {d}%"
+        },
+        grid: [{ left: 0, right: 0, top: 0, bottom: 0, containLabel: true }],
+        series: [
+          {
+            type: "pie",
+            radius: ["70%", "90%"],
+            label: {
+              show: false
+            },
+            data: optData
+          }
+        ]
+      };
+    },
+    UseAreaOption() {
+      let optData = this.pointUseInfo;
+      optData = optData.map(item => ({
+        value: item.area,
+        name: item.name
+      }));
+      return {
+        color: this.colorArr,
         tooltip: {
           textStyle: {
             color: "rgba(0,0,0,0.87)"
@@ -323,7 +343,8 @@ export default {
       this.networkLoading = true;
       this.networkError = null;
       this.pointInfo = {};
-      this.buildingInfoArr = [];
+      this.pointStateInfo = [];
+      this.pointUseInfo = [];
       this.$http
         .all([
           this.$http.post("/cms/pointInfo/listPointInfo.json", {
@@ -331,15 +352,24 @@ export default {
           }),
           this.$http.post("/cms/pointInfo/listPointInfoByPointNo.json", {
             pointNo: this.$route.params.pointNo
-          })
+          }),
+          this.$http.post(
+            "/cms/pointInfo/listResourceDirectionByPointNo.json",
+            {
+              pointNo: this.$route.params.pointNo
+            }
+          )
         ])
         .then(
-          this.$http.spread((point, pointData) => {
+          this.$http.spread((point, pointStateData, pointUseData) => {
             if (point.data.code == 500) {
               throw new Error(point.data.msg);
             }
-            if (pointData.data.code == 500) {
-              throw new Error(pointData.data.msg);
+            if (pointStateData.data.code == 500) {
+              throw new Error(pointStateData.data.msg);
+            }
+            if (pointUseData.data.code == 500) {
+              throw new Error(pointUseData.data.msg);
             }
             let pData = point.data.data;
             this.pointInfo =
@@ -347,7 +377,8 @@ export default {
                 ? pData.find(item => item.pointNo == this.$route.params.pointNo)
                 : {};
             if (!this.pointInfo) throw new Error();
-            this.pointDataInfo = pointData.data.data;
+            this.pointStateInfo = pointStateData.data.data;
+            this.pointUseInfo = pointUseData.data.data;
             for (let key in this.pointInfo) {
               if (this.defaultPoint.hasOwnProperty(key)) {
                 this.defaultPoint[key] = this.pointInfo[key];

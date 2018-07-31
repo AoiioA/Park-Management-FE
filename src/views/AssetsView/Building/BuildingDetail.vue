@@ -28,9 +28,9 @@
                     <v-flex xs4><v-autocomplete dense v-model="editedBuilding.parkNo" :items="select.parkInfoArr" item-text="parkName" item-value="parkNo" label="所属园区" :hint="editedBuilding.parkNo!==0?`楼宇将继承省市区县信息`:''" persistent-hint required></v-autocomplete></v-flex>
                     <v-flex xs4><v-text-field v-model="editedBuilding.buildingName" :rules="[$store.state.rules.required]" label="楼宇名称" :hint="editedBuilding.buildingName?`全称为 : ${fullBuildingName}`:''" persistent-hint required></v-text-field></v-flex>
                     <v-flex xs4><v-text-field v-model="editedBuilding.constructionArea" :rules="[$store.state.rules.noZero, $store.state.rules.nonnegative]" label="建筑面积(m²)" type="number" required></v-text-field></v-flex>
-                    <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" @change="getCity" v-model="editedBuilding.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" required></v-autocomplete></v-flex>
-                    <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.province" @change="getDistrict" v-model="editedBuilding.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" required></v-autocomplete></v-flex>
-                    <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.city" v-model="editedBuilding.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" required></v-autocomplete></v-flex>
+                    <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" v-model="editedBuilding.province" :items="select.provinceInfoArr" item-text="provinceName" item-value="provinceName" :rules="[$store.state.rules.required]" label="省" required></v-autocomplete></v-flex>
+                    <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.province" @click="getCity(editedBuilding.province)" v-model="editedBuilding.city" :items="select.cityInfoArr" item-text="cityName" item-value="cityName" :rules="[$store.state.rules.required]" label="市" required></v-autocomplete></v-flex>
+                    <v-flex xs4><v-autocomplete dense v-if="editedBuilding.parkNo==0" :disabled="!editedBuilding.city" @click="getDistrict(editedBuilding.city)" v-model="editedBuilding.district" :items="select.districtInfoArr" item-text="countyName" item-value="countyName" :rules="[$store.state.rules.required]" label="区县" required></v-autocomplete></v-flex>
                     <v-flex xs12><v-text-field v-model="editedBuilding.address" :rules="[$store.state.rules.required]" label="详细地址" required></v-text-field></v-flex>
                   </v-layout>
                   <!-- <small class="red--text text--accent-2">*&nbsp;标记为必填项</small> -->
@@ -56,8 +56,9 @@
         <v-container grid-list-xl fluid fill-height>
           <v-layout justify-center wrap>
             <v-flex xs12 sm6>
+              <v-subheader>房源租赁情况如何？</v-subheader>
               <v-card>
-                <v-card-title>房源租赁情况(数量)</v-card-title>
+                <v-subheader>租赁统计(数量)</v-subheader>
                 <!-- <v-divider></v-divider> -->
                 <v-container fluid fill-height>
                   <v-layout>
@@ -74,8 +75,9 @@
               </v-card>
             </v-flex>
             <v-flex xs12 sm6>
+              <v-subheader></v-subheader>
               <v-card>
-                <v-card-title>房源租赁情况(面积)</v-card-title>
+                <v-subheader>租赁统计(面积)</v-subheader>
                 <!-- <v-divider></v-divider> -->
                 <v-container fluid fill-height>
                   <v-layout wrap>
@@ -394,6 +396,9 @@ export default {
               this.defaultBuilding.parkNo = 0;
             }
             this.editedBuilding = Object.assign({}, this.defaultBuilding);
+            this.select.provinceInfoArr.push(this.editedBuilding.province);
+            this.select.cityInfoArr.push(this.editedBuilding.city);
+            this.select.districtInfoArr.push(this.editedBuilding.district);
             this.$store.commit("changeToolBarTitle", {
               title: this.buildingInfo.buildingName,
               isBack: true,
@@ -505,7 +510,7 @@ export default {
     },
     newBuildingClose(isCancel) {
       if (!isCancel || confirm("取消后内容将不会保存")) {
-        this.$refs.editBuildingForm.reset();
+        // this.$refs.editBuildingForm.reset();
         this.newBuildingDialog = false;
         this.editedBuilding = Object.assign({}, this.defaultBuilding);
       }
