@@ -1,5 +1,5 @@
 <template>
-  <div class="fill-height water-list">
+  <div class="fill-height rent-list">
     <view-tool-bar>
       <span slot="bar-menu">
         <v-btn icon>
@@ -28,13 +28,13 @@ export default {
       {
         name: "待缴账单",
         to: {
-          name: "water-list-pay"
+          name: "rent-list-pay"
         }
       },
       {
         name: "全部账单",
         to: {
-          name: "water-list-all"
+          name: "rent-list-all"
         }
       }
     ]
