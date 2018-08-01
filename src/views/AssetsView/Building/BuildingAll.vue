@@ -3,8 +3,8 @@
     <v-jumbotron color="blue-grey lighten-4" height="auto">
       <v-container grid-list-xl fill-height>
         <v-layout align-start align-content-start justify-center wrap>
-          <v-flex xs12 md10 tag="h1" class="title grey--text text--darken-1">楼宇列表</v-flex>
           <v-flex xs12 md10>
+            <v-subheader>楼宇列表</v-subheader>
             <v-card>
               <v-card-title class="py-2">
                 <v-text-field

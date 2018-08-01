@@ -11,7 +11,7 @@
       <v-progress-linear v-if="networkLoading" indeterminate class="my-0"></v-progress-linear>
       <v-alert v-else-if="networkError" :value="true" type="error">网络出现异常 - 检查网络后刷新重试</v-alert>
       <v-container v-else grid-list-xl>
-        <v-layout justify-center align-center>
+        <v-layout justify-center wrap>
           <v-flex xs12 lg10>
             <v-subheader>
               您的全部园区项目
@@ -49,10 +49,6 @@
                 </v-form>
               </v-dialog>
             </v-subheader>
-          </v-flex>
-        </v-layout>
-        <v-layout justify-center wrap>
-          <v-flex xs12 lg10>
             <v-layout wrap>
               <v-flex xs12 sm4 md3 xl2>
                 <v-card>

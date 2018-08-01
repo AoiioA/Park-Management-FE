@@ -64,15 +64,8 @@
           </v-flex>
           <v-flex xs12 xl10>
             <v-card>
-              <v-card-title class="py-2">
-                <!-- <v-text-field
-                  flat
-                  solo
-                  prepend-icon="search"
-                  label="在筛选结果中继续搜索..."
-                  v-model="search"
-                ></v-text-field> -->
-                <span class="subheading px-2">发现{{ totalItems }}处房源</span>
+              <v-toolbar flat color="white">
+                <span class="subheading">发现{{ totalItems }}处房源</span>
                 <v-spacer></v-spacer>
                 <v-menu v-if="tableActionMode=='view'" v-model="menu.tableMoreDialog" :close-on-content-click="false" offset-y left :nudge-bottom="10">
                   <v-btn slot="activator" icon>
@@ -192,7 +185,7 @@
                   </v-btn>
                   <span>取消操作</span>
                 </v-tooltip>
-              </v-card-title>
+              </v-toolbar>
               <v-divider></v-divider>
               <v-data-table
                 v-model="selected"
