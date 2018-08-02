@@ -84,9 +84,9 @@
             <v-subheader>基础信息</v-subheader>
             <v-card>
               <v-list dense>
-                <v-list-tile v-for="electricData in electricBillDataList" :key="electricData.name">
-                  <v-list-tile-content>{{ electricData.name }} : </v-list-tile-content>
-                  <v-list-tile-content class="align-end">{{ electricBillInfo[electricData.value] }}</v-list-tile-content>
+                <v-list-tile v-for="electricData in electricBillDataList" :key="electricData.text">
+                  <v-list-tile-content>{{ electricData.text }} : </v-list-tile-content>
+                  <v-list-tile-content class="align-end">{{ electricData.getData(electricBillInfo[electricData.value]) }}</v-list-tile-content>
                 </v-list-tile>
                 <v-flex class="px-3" style="text-align: justify;">备注 : {{ electricBillInfo.remark }}</v-flex>
               </v-list>
@@ -96,9 +96,9 @@
             <v-subheader>缴纳信息</v-subheader>
             <v-card>
               <v-list dense>
-                <v-list-tile v-for="electricPay in electricBillPayList" :key="electricPay.name">
-                  <v-list-tile-content>{{ electricPay.name }} : </v-list-tile-content>
-                  <v-list-tile-content class="align-end">{{ electricBillInfo[electricPay.value] }}</v-list-tile-content>
+                <v-list-tile v-for="electricPay in electricBillPayList" :key="electricPay.text">
+                  <v-list-tile-content>{{ electricPay.text }} : </v-list-tile-content>
+                  <v-list-tile-content class="align-end">{{ electricPay.getData(electricBillInfo[electricPay.value]) }}</v-list-tile-content>
                 </v-list-tile>
               </v-list>
             </v-card>
@@ -214,25 +214,33 @@ export default {
     },
     // 电费账单
     electricBillDataList: [
-      { name: "合同编号", value: "contractNo" },
-      { name: "月份", value: "electricMonth" },
-      { name: "用户编号", value: "userNo" },
-      { name: "地址", value: "userAddress" },
-      { name: "尖峰时价", value: "peakPrice" },
-      { name: "峰时价", value: "summitPrice" },
-      { name: "平时价", value: "flatPrice" },
-      { name: "谷时价", value: "valleyPrice" }
+      { text: "合同编号", value: "contractNo", getData: v => v },
+      { text: "月份", value: "electricMonth", getData: v => v },
+      { text: "用户编号", value: "userNo", getData: v => v },
+      { text: "地址", value: "userAddress", getData: v => v },
+      { text: "尖峰时价", value: "peakPrice", getData: v => `${v}元/kW·h` },
+      { text: "峰时价", value: "summitPrice", getData: v => `${v}元/kW·h` },
+      { text: "平时价", value: "flatPrice", getData: v => `${v}元/kW·h` },
+      { text: "谷时价", value: "valleyPrice", getData: v => `${v}元/kW·h` }
     ],
     electricBillPayList: [
-      { name: "尖峰时电量总计", value: "totalPeak" },
-      { name: "峰时电量总计", value: "totalSummit" },
-      { name: "平时电量总计", value: "totalFlat" },
-      { name: "谷时电量总计", value: "totalValley" },
-      { name: "用电量总计", value: "totalElectricQuantity" },
-      { name: "账单总额", value: "totalElectricityFees" },
-      { name: "上次缴纳", value: "lastPayment" },
-      { name: "总计缴纳", value: "amountPaid" },
-      { name: "剩余应缴", value: "residualPayment" }
+      { text: "尖峰时电量总计", value: "totalPeak", getData: v => `${v}kW·h` },
+      { text: "峰时电量总计", value: "totalSummit", getData: v => `${v}kW·h` },
+      { text: "平时电量总计", value: "totalFlat", getData: v => `${v}kW·h` },
+      { text: "谷时电量总计", value: "totalValley", getData: v => `${v}kW·h` },
+      {
+        text: "用电量总计",
+        value: "totalElectricQuantity",
+        getData: v => `${v}kW·h`
+      },
+      {
+        text: "账单总额",
+        value: "totalElectricityFees",
+        getData: v => `${v}元`
+      },
+      { text: "上次缴纳", value: "lastPayment", getData: v => `${v}元` },
+      { text: "总计缴纳", value: "amountPaid", getData: v => `${v}元` },
+      { text: "剩余应缴", value: "residualPayment", getData: v => `${v}元` }
     ],
     electricBillFormValid: true,
     editedElectricBill: {},
@@ -299,7 +307,13 @@ export default {
       title: "电费账单详情",
       isBack: true,
       crumbs: [
-        { name: "电费账单概览", to: { name: "electric-list-pay" } },
+        {
+          name: "电费账单概览",
+          to: {
+            name: "electric-list",
+            params: { electricType: "paid" }
+          }
+        },
         { name: "电费账单详情" }
       ]
     });
@@ -332,9 +346,8 @@ export default {
             // if (electric.data.code == 500) {
             //   throw new Error(electric.data.msg);
             // }
-            let ebData = electricBill.data.data;
+            this.electricBillInfo = electricBill.data.data;
             let eData = electric.data.data;
-            this.electricBillInfo = ebData && ebData.length ? ebData[0] : {};
             this.electricInfoList = eData && eData.length ? eData : [];
             for (let key in this.electricBillInfo) {
               if (this.defaultElectricBill.hasOwnProperty(key)) {
@@ -418,7 +431,8 @@ export default {
           if (res.data.code != 500) {
             this.$store.commit("addSuccessBar", "电费账单删除成功");
             this.$router.replace({
-              name: "electric-list-pay"
+              name: "electric-list",
+              params: { electricType: "paid" }
             });
           } else {
             throw new Error(res.data.msg);

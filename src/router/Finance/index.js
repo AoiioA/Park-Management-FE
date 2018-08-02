@@ -3,8 +3,6 @@ import Finance from "@/views/FinanceView/Finance.vue";
 import Rent from "@/views/FinanceView/Rent/Rent.vue";
 import RentDetail from "@/views/FinanceView/Rent/RentDetail.vue";
 import RentList from "@/views/FinanceView/Rent/RentList.vue";
-import RentPayList from "@/views/FinanceView/Rent/RentList/RentPayList.vue";
-import RentAllList from "@/views/FinanceView/Rent/RentList/RentAllList.vue";
 
 export default [
   {
@@ -18,7 +16,7 @@ export default [
         children: [
           {
             path: "",
-            redirect: { name: "rent-list-pay" }
+            redirect: { name: "rent-list", params: { rentType: "toBePaid" } }
           },
           {
             path: "detail/:rentNo",
@@ -26,24 +24,10 @@ export default [
             component: RentDetail
           },
           {
-            path: "list",
+            path: "list/:rentType",
+            name: "rent-list",
             component: RentList,
-            children: [
-              {
-                path: "",
-                redirect: { name: "rent-list-pay" }
-              },
-              {
-                path: "pay",
-                name: "rent-list-pay",
-                component: RentPayList
-              },
-              {
-                path: "all",
-                name: "rent-list-all",
-                component: RentAllList
-              }
-            ]
+            props: true
           }
         ]
       }

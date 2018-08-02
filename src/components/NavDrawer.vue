@@ -91,7 +91,7 @@
 
 <script>
 export default {
-  name: "NavDrawer",
+  name: "nav-drawer",
   props: {
     isDrawer: Boolean,
     isMini: Boolean

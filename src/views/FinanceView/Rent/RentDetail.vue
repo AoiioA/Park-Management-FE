@@ -111,7 +111,10 @@ export default {
       title: "租金账单详情",
       isBack: true,
       crumbs: [
-        { name: "租金账单概览", to: { name: "rent-list-pay" } },
+        {
+          name: "租金账单概览",
+          to: { name: "rent-list", params: { rentType: "toBePaid" } }
+        },
         { name: "租金账单详情" }
       ]
     });

@@ -80,9 +80,9 @@
             <v-subheader>基础信息</v-subheader>
             <v-card height="328">
               <v-list dense>
-                <v-list-tile v-for="waterData in waterBillDataList" :key="waterData.name">
-                  <v-list-tile-content>{{ waterData.name }} : </v-list-tile-content>
-                  <v-list-tile-content class="align-end">{{ waterBillInfo[waterData.value] }}</v-list-tile-content>
+                <v-list-tile v-for="waterData in waterBillDataList" :key="waterData.text">
+                  <v-list-tile-content>{{ waterData.text }} : </v-list-tile-content>
+                  <v-list-tile-content class="align-end">{{ waterData.getData(waterBillInfo[waterData.value]) }}</v-list-tile-content>
                 </v-list-tile>
                 <v-flex class="px-3" style="text-align: justify;">备注 : {{ waterBillInfo.remark }}</v-flex>
               </v-list>
@@ -92,9 +92,9 @@
             <v-subheader>缴纳信息</v-subheader>
             <v-card>
               <v-list dense>
-                <v-list-tile v-for="waterPay in waterBillPayList" :key="waterPay.name">
-                  <v-list-tile-content>{{ waterPay.name }} : </v-list-tile-content>
-                  <v-list-tile-content class="align-end">{{ waterBillInfo[waterPay.value] }}</v-list-tile-content>
+                <v-list-tile v-for="waterPay in waterBillPayList" :key="waterPay.text">
+                  <v-list-tile-content>{{ waterPay.text }} : </v-list-tile-content>
+                  <v-list-tile-content class="align-end">{{ waterPay.getData(waterBillInfo[waterPay.value]) }}</v-list-tile-content>
                 </v-list-tile>
               </v-list>
             </v-card>
@@ -207,20 +207,28 @@ export default {
     },
     // 水费账单
     waterBillDataList: [
-      { name: "合同编号", value: "contractNo" },
-      { name: "月份", value: "waterMonth" },
-      { name: "用户编号", value: "userNo" },
-      { name: "地址", value: "userAddress" }
+      { text: "合同编号", value: "contractNo", getData: v => v },
+      { text: "月份", value: "waterMonth", getData: v => v },
+      { text: "用户编号", value: "userNo", getData: v => v },
+      { text: "地址", value: "userAddress", getData: v => v }
     ],
     waterBillPayList: [
-      { name: "用水量总计", value: "totalAmount" },
-      { name: "用水费用总计", value: "totalCost" },
-      { name: "水资源费改税总计", value: "totalWaterTax" },
-      { name: "污水处理费总计", value: "totalWaterborneFee" },
-      { name: "账单总额", value: "totalWaterFee" },
-      { name: "上次缴纳", value: "lastPayment" },
-      { name: "总计缴纳", value: "amountPaid" },
-      { name: "剩余应缴", value: "residualPayment" }
+      { text: "用水量总计", value: "totalAmount", getData: v => v`${v}m³` },
+      { text: "用水费用总计", value: "totalCost", getData: v => `${v}元` },
+      {
+        text: "水资源费改税总计",
+        value: "totalWaterTax",
+        getData: v => `${v}元`
+      },
+      {
+        text: "污水处理费总计",
+        value: "totalWaterborneFee",
+        getData: v => `${v}元`
+      },
+      { text: "账单总额", value: "totalWaterFee", getData: v => `${v}元` },
+      { text: "上次缴纳", value: "lastPayment", getData: v => `${v}元` },
+      { text: "总计缴纳", value: "amountPaid", getData: v => `${v}元` },
+      { text: "剩余应缴", value: "residualPayment", getData: v => `${v}元` }
     ],
     waterBillFormValid: true,
     editedWaterBill: {},
@@ -281,7 +289,13 @@ export default {
       title: "水费账单详情",
       isBack: true,
       crumbs: [
-        { name: "水费账单概览", to: { name: "water-list-pay" } },
+        {
+          name: "水费账单概览",
+          to: {
+            name: "water-list",
+            params: { waterType: "paid" }
+          }
+        },
         { name: "水费账单详情" }
       ]
     });
@@ -397,7 +411,8 @@ export default {
           if (res.data.code != 500) {
             this.$store.commit("addSuccessBar", "水费账单删除成功");
             this.$router.replace({
-              name: "water-list-pay"
+              name: "water-list",
+              params: { waterType: "paid" }
             });
           } else {
             throw new Error(res.data.msg);

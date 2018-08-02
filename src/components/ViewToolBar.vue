@@ -33,7 +33,7 @@
 
 <script>
 export default {
-  name: "ViewToolBar"
+  name: "view-tool-bar"
 };
 </script>
 

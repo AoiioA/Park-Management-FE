@@ -257,8 +257,7 @@ export default {
         .then(
           res =>
             (this.waterInfoList = res.data && res.data.length ? res.data : [])
-        )
-        .catch(() => this.$store.commit("addErrorBar", "水表单查询失败"));
+        );
     },
     waterEdit(item) {
       this.editedWaterIndex = this.waterInfoList.indexOf(item);

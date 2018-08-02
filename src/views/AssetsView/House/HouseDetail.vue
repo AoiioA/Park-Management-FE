@@ -9,7 +9,7 @@
       </span>
       <span slot="bar-extend">
         <v-tabs v-model="activeTab" color="primary" class="px-4" show-arrows>
-          <v-tab v-for="tab in viewToolBarTab" :key="tab.value" :to="tab.to">{{ tab.name }}</v-tab>
+          <v-tab v-for="tab in viewToolBarTab" :key="tab.value">{{ tab.name }}</v-tab>
         </v-tabs>
       </span>
     </view-tool-bar>

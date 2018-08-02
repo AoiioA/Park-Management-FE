@@ -4,15 +4,11 @@ import Water from "@/views/PropertyView/Water/Water.vue";
 import WaterNew from "@/views/PropertyView/Water/WaterNew.vue";
 import WaterDetail from "@/views/PropertyView/Water/WaterDetail.vue";
 import WaterList from "@/views/PropertyView/Water/WaterList.vue";
-import WaterPayList from "@/views/PropertyView/Water/WaterList/WaterPayList.vue";
-import WaterAllList from "@/views/PropertyView/Water/WaterList/WaterAllList.vue";
 
 import Electric from "@/views/PropertyView/Electric/Electric.vue";
 import ElectricNew from "@/views/PropertyView/Electric/ElectricNew.vue";
 import ElectricDetail from "@/views/PropertyView/Electric/ElectricDetail.vue";
 import ElectricList from "@/views/PropertyView/Electric/ElectricList.vue";
-import ElectricPayList from "@/views/PropertyView/Electric/ElectricList/ElectricPayList.vue";
-import ElectricAllList from "@/views/PropertyView/Electric/ElectricList/ElectricAllList.vue";
 
 export default [
   {
@@ -26,7 +22,10 @@ export default [
         children: [
           {
             path: "",
-            redirect: { name: "water-list-pay" }
+            redirect: {
+              name: "water-list",
+              params: { waterType: "paid" }
+            }
           },
           {
             path: "new",
@@ -39,24 +38,10 @@ export default [
             component: WaterDetail
           },
           {
-            path: "list",
+            path: "list/:waterType",
+            name: "water-list",
             component: WaterList,
-            children: [
-              {
-                path: "",
-                redirect: { name: "water-list-pay" }
-              },
-              {
-                path: "pay",
-                name: "water-list-pay",
-                component: WaterPayList
-              },
-              {
-                path: "all",
-                name: "water-list-all",
-                component: WaterAllList
-              }
-            ]
+            props: true
           }
         ]
       },
@@ -66,7 +51,10 @@ export default [
         children: [
           {
             path: "",
-            redirect: { name: "electric-list-pay" }
+            redirect: {
+              name: "electric-list",
+              params: { electricType: "paid" }
+            }
           },
           {
             path: "new",
@@ -79,24 +67,10 @@ export default [
             component: ElectricDetail
           },
           {
-            path: "electric-list",
+            path: "list/:electricType",
+            name: "electric-list",
             component: ElectricList,
-            children: [
-              {
-                path: "",
-                redirect: { name: "electric-list-pay" }
-              },
-              {
-                path: "pay",
-                name: "electric-list-pay",
-                component: ElectricPayList
-              },
-              {
-                path: "all",
-                name: "electric-list-all",
-                component: ElectricAllList
-              }
-            ]
+            props: true
           }
         ]
       }

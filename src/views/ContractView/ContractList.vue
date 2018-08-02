@@ -18,7 +18,6 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 import ViewToolBar from "@/components/ViewToolBar.vue";
 
 export default {
@@ -60,8 +59,7 @@ export default {
           }));
         }
       }
-    },
-    ...mapState({})
+    }
   }
 };
 </script>

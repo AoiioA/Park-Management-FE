@@ -268,8 +268,7 @@ export default {
           res =>
             (this.electricInfoList =
               res.data && res.data.length ? res.data : [])
-        )
-        .catch(() => this.$store.commit("addErrorBar", "电表单查询失败"));
+        );
     },
     electricEdit(item) {
       this.editedElectricIndex = this.electricInfoList.indexOf(item);
