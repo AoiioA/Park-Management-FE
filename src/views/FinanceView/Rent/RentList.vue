@@ -32,7 +32,7 @@ export default {
         }
       },
       {
-        name: "全部账单",
+        name: "已缴账单",
         to: {
           name: "rent-list-all"
         }

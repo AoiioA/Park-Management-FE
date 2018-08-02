@@ -101,6 +101,7 @@ export default {
   methods: {
     initialize() {
       this.networkLoading = true;
+      this.networkError = false;
       this.$http
         .post(
           "/cms/rentBill/list.json",
