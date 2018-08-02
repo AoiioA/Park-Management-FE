@@ -472,7 +472,7 @@ export default {
     },
     getCTRT() {
       this.networkLoading = true;
-      this.networkError = null;
+      this.networkError = false;
       // 查询编辑的合同信息
       this.$http
         .get(`/cms/${this.CTRTInfoURL[this.$route.query.newType].to}.json`, {

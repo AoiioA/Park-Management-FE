@@ -151,7 +151,7 @@ export default {
   methods: {
     initialize() {
       this.networkLoading = true;
-      this.networkError = null;
+      this.networkError = false;
       this.$http
         .get(
           `/cms/${

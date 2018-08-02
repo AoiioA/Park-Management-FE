@@ -88,6 +88,7 @@ export default {
   methods: {
     initialize() {
       this.networkLoading = true;
+      this.networkError = false;
       this.$http
         .post("/cms/contract/expireList.json", {})
         .then(res => {

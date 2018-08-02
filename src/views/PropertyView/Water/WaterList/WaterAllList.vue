@@ -96,6 +96,7 @@ export default {
   methods: {
     initialize() {
       this.networkLoading = true;
+      this.networkError = false;
       this.$http
         .post("/cms/waterBillSub/queryWaterBillSub.json", this.searchFilter)
         .then(res => {
