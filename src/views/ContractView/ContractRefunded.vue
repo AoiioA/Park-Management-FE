@@ -137,19 +137,19 @@ export default {
     renewAlert: true
   }),
   created() {
-    this.editedRefunded = Object.assign({}, this.defaultRefunded);
     this.initialize();
   },
   watch: {
     "$route.params.contractId"() {
-      this.$router.go(0);
+      this.initialize();
     },
     "$route.query.contractType"() {
-      this.$router.go(0);
+      this.initialize();
     }
   },
   methods: {
     initialize() {
+      this.editedRefunded = Object.assign({}, this.defaultRefunded);
       this.networkLoading = true;
       this.networkError = false;
       this.$http

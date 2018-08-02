@@ -125,6 +125,7 @@ export default {
   components: {
     ViewToolBar
   },
+  props: ["parkNo"],
   data: () => ({
     networkLoading: false,
     networkError: null,
@@ -198,13 +199,13 @@ export default {
       this.$http
         .all([
           this.$http.post("/cms/parkInfo/listParkInfo.json", {
-            parkNo: Number(this.$route.params.parkNo)
+            parkNo: Number(this.parkNo)
           }),
           this.$http.post("/cms/parkInfo/listBuildingInfoByParkNo.json", {
-            parkNo: Number(this.$route.params.parkNo)
+            parkNo: Number(this.parkNo)
           }),
           this.$http.post("/cms/AssetsInfo/queryParkAssetsStatistics.json", {
-            parkNo: Number(this.$route.params.parkNo)
+            parkNo: Number(this.parkNo)
           })
         ])
         .then(

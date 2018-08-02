@@ -198,6 +198,7 @@ export default {
   components: {
     ViewToolBar
   },
+  props: ["electricNo"],
   data: () => ({
     networkLoading: false,
     networkError: null,
@@ -298,8 +299,8 @@ export default {
     }
   },
   watch: {
-    "$route.params.electricNo"() {
-      this.$router.go(0);
+    electricNo() {
+      this.initialize();
     }
   },
   created() {
@@ -317,14 +318,14 @@ export default {
         { name: "电费账单详情" }
       ]
     });
-    this.editedElectricBill = Object.assign({}, this.defaultElectricBill);
-    this.editedPay = Object.assign({}, this.defaultPay);
-    this.editedElectric = Object.assign({}, this.defaultElectric);
     this.initialize();
     this.getCompany();
   },
   methods: {
     initialize() {
+      this.editedElectricBill = Object.assign({}, this.defaultElectricBill);
+      this.editedPay = Object.assign({}, this.defaultPay);
+      this.editedElectric = Object.assign({}, this.defaultElectric);
       this.networkLoading = true;
       this.networkError = false;
       this.electricBillInfo = {};
@@ -332,10 +333,10 @@ export default {
       this.$http
         .all([
           this.$http.post("/cms/electricBillSub/selectOneElectricBillSub", {
-            no: Number(this.$route.params.electricNo)
+            no: Number(this.electricNo)
           }),
           this.$http.post("/cms/electricBill/lookElectricBill.json", {
-            no: Number(this.$route.params.electricNo)
+            no: Number(this.electricNo)
           })
         ])
         .then(

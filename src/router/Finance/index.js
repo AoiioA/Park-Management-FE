@@ -21,7 +21,8 @@ export default [
           {
             path: "detail/:rentNo",
             name: "rent-detail",
-            component: RentDetail
+            component: RentDetail,
+            props: true
           },
           {
             path: "list/:rentType",

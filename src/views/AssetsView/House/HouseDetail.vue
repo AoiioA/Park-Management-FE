@@ -15,10 +15,10 @@
     </view-tool-bar>
     <v-tabs-items v-model="activeTab">
       <v-tab-item>
-        <house-info-detail></house-info-detail>
+        <house-info-detail :houseNo="houseNo"></house-info-detail>
       </v-tab-item>
       <v-tab-item>
-        <house-image-detail></house-image-detail>
+        <house-image-detail :houseNo="houseNo"></house-image-detail>
       </v-tab-item>
     </v-tabs-items>
   </div>
@@ -35,6 +35,7 @@ export default {
     HouseInfoDetail,
     HouseImageDetail
   },
+  props: ["houseNo"],
   data: () => ({
     activeTab: null,
     viewToolBarTab: [

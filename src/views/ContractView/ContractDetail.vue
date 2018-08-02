@@ -157,19 +157,19 @@ export default {
   },
   watch: {
     "$route.params.contractId"() {
-      this.$router.go(0);
+      this.initialize();
     },
     "$route.query.contractType"() {
-      this.$router.go(0);
+      this.initialize();
     }
   },
   created() {
     this.$store.commit("changeToolBarTitle", { title: "合同详情" });
-    this.examineNewInfo = Object.assign({}, this.defaultExamineNew);
     this.initialize();
   },
   methods: {
     initialize() {
+      this.examineNewInfo = Object.assign({}, this.defaultExamineNew);
       this.networkLoading = true;
       this.networkError = null;
       this.$http

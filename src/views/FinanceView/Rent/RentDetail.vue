@@ -65,6 +65,7 @@ export default {
   components: {
     ViewToolBar
   },
+  props: ["rentNo"],
   data: () => ({
     networkLoading: false,
     networkError: null,
@@ -102,8 +103,8 @@ export default {
     }
   }),
   watch: {
-    "$route.params.rentNo"() {
-      this.$router.go(0);
+    rentNo() {
+      this.initialize();
     }
   },
   created() {
@@ -118,17 +119,17 @@ export default {
         { name: "租金账单详情" }
       ]
     });
-    this.editedPay = Object.assign({}, this.defaultPay);
     this.initialize();
   },
   methods: {
     initialize() {
+      this.editedPay = Object.assign({}, this.defaultPay);
       this.networkLoading = true;
       this.networkError = false;
       this.$http
         .get("/cms/rentBill/rentBillDetail.json", {
           params: {
-            id: this.$route.params.rentNo
+            id: this.rentNo
           }
         })
         .then(res => {

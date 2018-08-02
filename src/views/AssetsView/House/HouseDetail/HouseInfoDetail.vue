@@ -16,7 +16,7 @@
               <v-btn
                 slot="activator"
                 :disabled="houseInfo.resourceStatus!==0"
-                :to="{ 'name': 'house-new', 'query': { 'editHouseNo': $route.params.houseNo } }"
+                :to="{ 'name': 'house-new', 'query': { 'editHouseNo': houseNo } }"
                 flat
                 color="primary"
                 class="mx-0"
@@ -167,6 +167,7 @@
 <script>
 export default {
   name: "house-info-detail",
+  props: ["houseNo"],
   data: () => ({
     menu: {
       delDialog: false
@@ -221,7 +222,7 @@ export default {
       this.$http
         .all([
           this.$http.post("/cms/houseInfo/queryHouseInfoByHouseNo.json", {
-            houseNo: Number(this.$route.params.houseNo)
+            houseNo: Number(this.houseNo)
           }),
           this.$http.post("/cms/AssetsInfo/park.json")
         ])

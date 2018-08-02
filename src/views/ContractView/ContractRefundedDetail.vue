@@ -331,19 +331,19 @@ export default {
     ]
   }),
   created() {
-    this.examineRefundInfo = Object.assign({}, this.defaultExamineRefund);
     this.initialize();
   },
   watch: {
     "$route.params.contractId"() {
-      this.$router.go(0);
+      this.initialize();
     },
     "$route.query.contractType"() {
-      this.$router.go(0);
+      this.initialize();
     }
   },
   methods: {
     initialize() {
+      this.examineRefundInfo = Object.assign({}, this.defaultExamineRefund);
       this.networkLoading = true;
       this.networkError = false;
       this.$http

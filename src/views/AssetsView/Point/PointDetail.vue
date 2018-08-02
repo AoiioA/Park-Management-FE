@@ -160,6 +160,7 @@ export default {
   components: {
     ViewToolBar
   },
+  props: ["pointNo"],
   data: () => ({
     networkLoading: false,
     networkError: null,
@@ -351,12 +352,12 @@ export default {
             limit: 99999
           }),
           this.$http.post("/cms/pointInfo/listPointInfoByPointNo.json", {
-            pointNo: this.$route.params.pointNo
+            pointNo: this.pointNo
           }),
           this.$http.post(
             "/cms/pointInfo/listResourceDirectionByPointNo.json",
             {
-              pointNo: this.$route.params.pointNo
+              pointNo: this.pointNo
             }
           )
         ])
@@ -374,7 +375,7 @@ export default {
             let pData = point.data.data;
             this.pointInfo =
               pData && pData.length
-                ? pData.find(item => item.pointNo == this.$route.params.pointNo)
+                ? pData.find(item => item.pointNo == this.pointNo)
                 : {};
             if (!this.pointInfo) throw new Error();
             this.pointStateInfo = pointStateData.data.data;

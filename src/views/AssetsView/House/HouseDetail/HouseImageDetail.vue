@@ -11,7 +11,7 @@
             <file-upload
               ref="uploadEl"
               v-model="newImageList"
-              :data="{ type: 2, id: $route.params.houseNo }"
+              :data="{ type: 2, id: Number(houseNo) }"
               :post-action="`${$store.getters.getBaseUrl}${upload.postAction}`"
               :accept="upload.accept"
               :extensions="upload.extensions"
@@ -38,7 +38,7 @@
             <v-flex v-for="(imageItem, imageIndex) in houseImageList" :key="imageItem.id" xs12 sm4 md3 xl2>
               <v-card flat>
                 <v-card-media
-                  :src="`${$store.getters.getBaseUrl}/filesystem/housePhoto/${$route.params.houseNo}/${imageItem.photoNewname}`"
+                  :src="`${$store.getters.getBaseUrl}/filesystem/housePhoto/${houseNo}/${imageItem.photoNewname}`"
                   height="200px"
                 >
                   <v-container fill-height fluid class="image-container">
@@ -120,6 +120,7 @@ export default {
   components: {
     FileUpload
   },
+  props: ["houseNo"],
   data: () => ({
     networkLoading: false,
     networkError: null,
@@ -159,7 +160,7 @@ export default {
       this.houseImageList = [];
       this.$http
         .post("/cms/housePhotoInfo/findFileName.json", {
-          id: this.$route.params.houseNo,
+          id: Number(this.houseNo),
           type: 2
         })
         .then(res => {

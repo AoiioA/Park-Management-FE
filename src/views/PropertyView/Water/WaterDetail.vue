@@ -191,6 +191,7 @@ export default {
   components: {
     ViewToolBar
   },
+  props: ["waterNo"],
   data: () => ({
     networkLoading: false,
     networkError: null,
@@ -213,7 +214,7 @@ export default {
       { text: "地址", value: "userAddress", getData: v => v }
     ],
     waterBillPayList: [
-      { text: "用水量总计", value: "totalAmount", getData: v => v`${v}m³` },
+      { text: "用水量总计", value: "totalAmount", getData: v => `${v}m³` },
       { text: "用水费用总计", value: "totalCost", getData: v => `${v}元` },
       {
         text: "水资源费改税总计",
@@ -280,8 +281,8 @@ export default {
     }
   },
   watch: {
-    "$route.params.waterNo"() {
-      this.$router.go(0);
+    waterNo() {
+      this.initialize();
     }
   },
   created() {
@@ -299,14 +300,14 @@ export default {
         { name: "水费账单详情" }
       ]
     });
-    this.editedWaterBill = Object.assign({}, this.defaultWaterBill);
-    this.editedPay = Object.assign({}, this.defaultPay);
-    this.editedWater = Object.assign({}, this.defaultWater);
     this.initialize();
     this.getCompany();
   },
   methods: {
     initialize() {
+      this.editedWaterBill = Object.assign({}, this.defaultWaterBill);
+      this.editedPay = Object.assign({}, this.defaultPay);
+      this.editedWater = Object.assign({}, this.defaultWater);
       this.networkLoading = true;
       this.networkError = false;
       this.waterBillInfo = {};
@@ -314,10 +315,10 @@ export default {
       this.$http
         .all([
           this.$http.post("/cms/waterBillSub/selectOneWaterBill", {
-            no: Number(this.$route.params.waterNo)
+            no: Number(this.waterNo)
           }),
           this.$http.post("/cms/waterBill/lookWaterBill.json", {
-            no: Number(this.$route.params.waterNo)
+            no: Number(this.waterNo)
           })
         ])
         .then(

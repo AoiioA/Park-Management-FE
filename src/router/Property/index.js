@@ -35,7 +35,8 @@ export default [
           {
             path: "detail/:waterNo",
             name: "water-detail",
-            component: WaterDetail
+            component: WaterDetail,
+            props: true
           },
           {
             path: "list/:waterType",
@@ -64,7 +65,8 @@ export default [
           {
             path: "detail/:electricNo",
             name: "electric-detail",
-            component: ElectricDetail
+            component: ElectricDetail,
+            props: true
           },
           {
             path: "list/:electricType",

@@ -38,7 +38,8 @@ export default [
           {
             path: "detail/:pointNo",
             name: "point-detail",
-            component: PointDetail
+            component: PointDetail,
+            props: true
           }
         ]
       },
@@ -58,7 +59,8 @@ export default [
           {
             path: "detail/:parkNo",
             name: "park-detail",
-            component: ParkDetail
+            component: ParkDetail,
+            props: true
           }
         ]
       },
@@ -78,7 +80,8 @@ export default [
           {
             path: "detail/:buildingNo",
             name: "building-detail",
-            component: BuildingDetail
+            component: BuildingDetail,
+            props: true
           }
         ]
       },
@@ -103,7 +106,8 @@ export default [
           {
             path: "detail/:houseNo",
             name: "house-detail",
-            component: HouseDetail
+            component: HouseDetail,
+            props: true
           }
         ]
       }

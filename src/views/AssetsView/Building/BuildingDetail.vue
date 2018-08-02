@@ -166,6 +166,9 @@ export default {
     ViewToolBar,
     FileUpload
   },
+  props: {
+    buildingNo: Number
+  },
   data: () => ({
     networkLoading: false,
     networkError: false,
@@ -363,12 +366,12 @@ export default {
       this.$http
         .all([
           this.$http.post("/cms/buildingInfo/listBuildingInfo.json", {
-            buildingNo: Number(this.$route.params.buildingNo)
+            buildingNo: Number(this.buildingNo)
           }),
           this.$http.post(
             "/cms/AssetsInfo/queryBuildingAssetsStatistics.json",
             {
-              buildingNos: String(this.$route.params.buildingNo)
+              buildingNos: String(this.buildingNo)
             }
           )
         ])
@@ -418,7 +421,7 @@ export default {
     getHouseInfoByFloor() {
       this.$http
         .post("/cms/houseInfo/listHouseInfoByFloor.json", {
-          buildingNo: Number(this.$route.params.buildingNo),
+          buildingNo: Number(this.buildingNo),
           houseType: 0,
           limit: this.pagination.rowsPerPage,
           page: this.pagination.page
