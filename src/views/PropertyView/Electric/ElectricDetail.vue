@@ -289,6 +289,11 @@ export default {
       return this.editedElectricIndex === -1 ? "新建电表单" : "编辑电表单";
     }
   },
+  watch: {
+    "$route.params.electricNo"() {
+      this.$router.go(0);
+    }
+  },
   created() {
     this.$store.commit("changeToolBarTitle", {
       title: "电费账单详情",
@@ -307,7 +312,7 @@ export default {
   methods: {
     initialize() {
       this.networkLoading = true;
-      this.networkError = null;
+      this.networkError = false;
       this.electricBillInfo = {};
       this.electricInfoList = [];
       this.$http
@@ -446,7 +451,7 @@ export default {
           )
           .then(res => {
             if (res.data.code != 500) {
-              this.$store.commit("addSuccessBar", "电费账单编辑成功");
+              this.$store.commit("addSuccessBar", "电费账单缴纳成功");
               this.payElectricBillClose(false);
               this.initialize();
             } else {
@@ -454,7 +459,7 @@ export default {
             }
           })
           .catch(err =>
-            this.$store.commit("addErrorBar", `电费账单编辑失败 ${err}`)
+            this.$store.commit("addErrorBar", `电费账单缴纳失败 ${err}`)
           );
       }
     },

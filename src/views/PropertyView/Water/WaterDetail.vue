@@ -271,6 +271,11 @@ export default {
       return this.editedWaterIndex === -1 ? "新建水表单" : "编辑水表单";
     }
   },
+  watch: {
+    "$route.params.waterNo"() {
+      this.$router.go(0);
+    }
+  },
   created() {
     this.$store.commit("changeToolBarTitle", {
       title: "水费账单详情",
@@ -289,7 +294,7 @@ export default {
   methods: {
     initialize() {
       this.networkLoading = true;
-      this.networkError = null;
+      this.networkError = false;
       this.waterBillInfo = {};
       this.waterInfoList = [];
       this.$http
@@ -425,7 +430,7 @@ export default {
           )
           .then(res => {
             if (res.data.code != 500) {
-              this.$store.commit("addSuccessBar", "水费账单编辑成功");
+              this.$store.commit("addSuccessBar", "水费账单缴纳成功");
               this.payWaterBillClose(false);
               this.initialize();
             } else {
@@ -433,7 +438,7 @@ export default {
             }
           })
           .catch(err =>
-            this.$store.commit("addErrorBar", `水费账单编辑失败 ${err}`)
+            this.$store.commit("addErrorBar", `水费账单缴纳失败 ${err}`)
           );
       }
     },
