@@ -329,9 +329,8 @@ export default {
             // if (water.data.code == 500) {
             //   throw new Error(water.data.msg);
             // }
-            let wbData = waterBill.data.data;
+            this.waterBillInfo = waterBill.data.data;
             let wData = water.data.data;
-            this.waterBillInfo = wbData && wbData.length ? wbData[0] : {};
             this.waterInfoList = wData && wData.length ? wData : [];
             for (let key in this.waterBillInfo) {
               if (this.defaultWaterBill.hasOwnProperty(key)) {
